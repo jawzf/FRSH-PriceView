@@ -25,11 +25,11 @@ const currency = [{
         "label": "AUD"
     }
 ];
-var p = 0;
+var priceCount = 0;
 chrome.action.onClicked.addListener(async (tab) => {
     if (tab.url.startsWith(extensions)) {
         const prevState = await chrome.action.getBadgeText({ tabId: tab.id });
-        const nextState = currency[p++].label;
+        const nextState = currency[priceCount++].label;
 
         // Set the action badge to the next state
         await chrome.action.setBadgeText({
@@ -40,12 +40,41 @@ chrome.action.onClicked.addListener(async (tab) => {
             .executeScript({
                 target: { tabId: tab.id },
                 func: setCurrency,
-                args:[currency[p - 1].code],
+                args: [currency[priceCount - 1].code],
             })
             .then(() => console.log("injected a function"));
-        if (p == 5) p = 0;
+        chrome.scripting
+            .executeScript({
+                target: { tabId: tab.id },
+                func: updateVariableCurrency,
+                args: [currency[priceCount - 1].code],
+            })
+            .then(() => console.log("injected a function"));
+        if (priceCount == 5) priceCount = 0;
     }
+
+
+
 });
+
+function updateVariableCurrency(curr) {
+    var dropDowns = document.getElementsByClassName('pricing-options-dropdown');
+    console.log(dropDowns);
+    var dropDown = [];
+
+    for (var i = 0; i < dropDowns.length; i++) {
+        var item = {};
+        item["value"] = dropDowns[i].value;
+        item["viewStatus"] = false;
+        dropDown.push(item);
+
+        console.log(i + ". " + JSON.stringify(dropDown[i]));
+
+        dropDowns[i].onchange = function() {
+
+        }
+    }
+}
 
 function setCurrency(curr) {
     var pricTablePlan = document.getElementsByClassName("pricing-table-plan-info");
@@ -74,3 +103,13 @@ function setCurrency(curr) {
     }
 
 }
+
+chrome.tabs.onUpdated.addListener(
+    function(tabId, changeInfo, tab) {
+        // read changeInfo data and do something with it
+        // like send the new url to contentscripts.js
+        if (changeInfo.url) {
+            priceCount = 0;
+        }
+    }
+);
