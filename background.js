@@ -1,7 +1,23 @@
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
     chrome.action.setBadgeText({
         text: "DEFAULT",
     });
+    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+        // Code to be executed on first install
+        // eg. open a tab with a url
+        chrome.tabs.create({
+            url: "./installed.html"
+        });
+    } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+        // When extension is updated
+        chrome.tabs.create({
+            url: "./installed.html"
+        });
+    } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
+        // When browser is updated
+    } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
+        // When a shared module is updated
+    }
 });
 const extensions = "https://www.freshworks.com/";
 const currency = [{
@@ -119,7 +135,7 @@ function setCurrency(curr) {
     dropDowns = document.getElementsByClassName('pricing-options-dropdown');
     var pricingOption = document.getElementsByClassName("pricing-option");
     var bodyEl = document.getElementsByTagName("BODY")[0];
-    bodyEl.setAttribute("data-frsh-page-currency",curr);
+    bodyEl.setAttribute("data-frsh-page-currency", curr);
 
     for (var i = 0; i < pricTablePlan.length; i++) {
         if (pricTablePlan[i].dataset.currency == curr) {
