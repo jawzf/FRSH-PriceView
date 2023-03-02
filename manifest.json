@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "FRSH PriceView",
-    "version": "1.0",
+    "version": "1.5",
     "description": "Switch between prices in different currencies on the Freshworks pricing pages.",
     "author": "joseph.kuriackal@freshworks.com",
     "icons":
@@ -26,6 +26,16 @@
         "service_worker": "background.js"
     },
     "permissions": ["activeTab", "scripting", "tabGroups", "tabs"],
+    "host_permissions": [
+        "https://www.freshworks.com/freshdesk/pricing/*",
+        "https://www.freshworks.com/freshcaller-cloud-pbx/pricing/*",
+        "https://www.freshworks.com/omnichannel-suite/pricing/*",
+        "https://www.freshworks.com/customer-success-software/pricing/*",
+        "https://www.freshworks.com/live-chat-software/pricing/*",
+        "https://www.freshworks.com/crm/pricing/*",
+        "https://www.freshworks.com/freshservice/pricing/*",
+        "https://www.freshworks.com/crm/marketing/pricing/*"
+    ],
     "content_scripts": [
     {
         "js": ["scripts/content.js"],
@@ -37,7 +47,7 @@
             "https://www.freshworks.com/live-chat-software/pricing/*",
             "https://www.freshworks.com/crm/pricing/*",
             "https://www.freshworks.com/freshservice/pricing/*",
-            "https://www.freshworks.com/marketing/pricing/*"
+            "https://www.freshworks.com/crm/marketing/pricing/*"
         ]
     }]
 }
