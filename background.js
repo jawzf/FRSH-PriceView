@@ -1,3 +1,7 @@
+chrome.runtime.onUpdateAvailable.addListener(function(details) {
+    chrome.runtime.reload(); // To restart the chrome App instantaneously
+});
+
 chrome.runtime.onInstalled.addListener((details) => {
     chrome.action.setBadgeText({
         text: "DEFAULT",
@@ -136,6 +140,9 @@ function setCurrency(curr) {
     var pricingOption = document.getElementsByClassName("pricing-option");
     var bodyEl = document.getElementsByTagName("BODY")[0];
     bodyEl.setAttribute("data-frsh-page-currency", curr);
+    var planHeader = document.getElementsByClassName("plan-header");
+
+    //pricing table
 
     for (var i = 0; i < pricTablePlan.length; i++) {
         if (pricTablePlan[i].dataset.currency == curr) {
@@ -146,6 +153,9 @@ function setCurrency(curr) {
             pricTablePlan[i].classList.add('hide');
         }
     }
+
+    //addons
+
     for (var i = 0; i < addonsPrice.length; i++) {
         if (addonsPrice[i].dataset.currency == curr) {
             if (addonsPrice[i].classList.contains('hide')) {
@@ -155,6 +165,8 @@ function setCurrency(curr) {
             addonsPrice[i].classList.add('hide');
         }
     }
+
+    //variable dropdown
 
     var ddArray = [];
     if (dropDowns.length > 0) {
@@ -176,6 +188,23 @@ function setCurrency(curr) {
                     ddArray[i][j].attributes[3].nodeValue = "display:block";
                 } else {
                     ddArray[i][j].attributes[3].nodeValue = "display:none";
+                }
+            }
+        }
+    }
+
+    //detailed comparison
+
+    for (var i = 0; i < planHeader.length; i++) {
+        var children = planHeader[i].children;
+        for (var j = 0; j < children.length; j++) {
+            if (children[j].dataset.currency == curr) {
+                if(children[j].attributes.style){
+                    children[j].attributes.style.value = "display:block";
+                }
+            } else {
+                if(children[j].attributes.style){
+                    children[j].attributes.style.value = "display:none";
                 }
             }
         }

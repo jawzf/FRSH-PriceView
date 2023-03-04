@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "FRSH PriceView",
-    "version": "1.5",
+    "version": "1.6",
     "description": "Switch between prices in different currencies on the Freshworks pricing pages.",
     "author": "joseph.kuriackal@freshworks.com",
     "icons":
@@ -34,7 +34,12 @@
         "https://www.freshworks.com/live-chat-software/pricing/*",
         "https://www.freshworks.com/crm/pricing/*",
         "https://www.freshworks.com/freshservice/pricing/*",
-        "https://www.freshworks.com/crm/marketing/pricing/*"
+        "https://www.freshworks.com/crm/marketing/pricing/*",
+        "https://www.freshworks.com/freshdesk/helpdesk-features/*",
+        "https://www.freshworks.com/live-chat-software/plan-comparison/*",
+        "https://www.freshworks.com/crm/pricing-compare/*",
+        "https://www.freshworks.com/freshservice/service-management-features/*",
+        "https://www.freshworks.com/crm/marketing/pricing/compare/*"
     ],
     "content_scripts": [
     {
@@ -47,7 +52,12 @@
             "https://www.freshworks.com/live-chat-software/pricing/*",
             "https://www.freshworks.com/crm/pricing/*",
             "https://www.freshworks.com/freshservice/pricing/*",
-            "https://www.freshworks.com/crm/marketing/pricing/*"
+            "https://www.freshworks.com/crm/marketing/pricing/*",
+            "https://www.freshworks.com/freshdesk/helpdesk-features/*",
+            "https://www.freshworks.com/live-chat-software/plan-comparison/*",
+            "https://www.freshworks.com/crm/pricing-compare/*",
+            "https://www.freshworks.com/freshservice/service-management-features/*",
+            "https://www.freshworks.com/crm/marketing/pricing/compare/*"
         ]
     }]
 }
