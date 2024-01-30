@@ -46,9 +46,6 @@ const currency = [{
     }
 ];
 var priceCount = 0;
-var dropDowns = [];
-var tabPanels = [];
-var dropDown = [];
 
 chrome.action.onClicked.addListener(async (tab) => {
     if (tab.url.startsWith(extensions)) {
@@ -64,7 +61,7 @@ chrome.action.onClicked.addListener(async (tab) => {
             .executeScript({
                 target: { tabId: tab.id },
                 func: setCurrency,
-                args: [currency[priceCount - 1].code],
+                args: [currency[priceCount - 1].code,nextState],
             })
             .then(() => console.log("injected the currency function"));
 
@@ -74,141 +71,118 @@ chrome.action.onClicked.addListener(async (tab) => {
 });
 
 function initialiseDropDown(curr) {
-
-    dropDowns = document.getElementsByClassName('pricing-options-dropdown');
-    tabPanels = document.querySelectorAll('[data-tabcontent]');
-    dropDown = [];
-    for (var i = 0; i < tabPanels.length; i++) {
-
-        tabPanels[i].setAttribute('data-frsh-panel-id', i);
-        if (i == 0) {
-            tabPanels[i].style.display = "block";
-        } else {
-            tabPanels[i].style.display = "none";
-        }
-
-    }
-
-    for (var i = 0; i < dropDowns.length; i++) {
-        dropDowns[i].setAttribute('data-frsh-id', i);
-        dropDowns[i].onchange = function() {
-            var bodyEl = document.getElementsByTagName("BODY")[0];
-            var curr = bodyEl.getAttribute("data-frsh-page-currency");
-            //console.log(this.getAttribute('data-frsh-id'));
-            changedDropdown = this.getAttribute('data-frsh-id');
-            dropDowns = document.getElementsByClassName('pricing-options-dropdown');
-            var pricingOption = document.getElementsByClassName("pricing-option");
-            var ddArray = [];
-            if (dropDowns.length > 0) {
-                for (var i = 0; i < dropDowns.length; i++) {
-                    var temp = [];
-                    for (var j = 0; j < pricingOption.length; j++) {
-                        if (pricingOption[j].dataset.pricingOptions == dropDowns[changedDropdown].value) {
-                            temp.push(pricingOption[j]);
-                        }
-                    }
-                    ddArray.push(temp);
-                }
-            }
-            if (ddArray.length > 0) {
-                for (var i = 0; i < ddArray.length; i++) {
-                    for (var j = 0; j < ddArray[i].length; j++) {
-                        if (ddArray[i][j].dataset.pricingCurrency == curr) {
-                            ddArray[i][j].attributes[3].nodeValue = "display:block";
-                        } else {
-                            ddArray[i][j].attributes[3].nodeValue = "display:none";
-                        }
-                    }
-                }
-            }
-        }
-
-        var item = {};
-        item["value"] = dropDowns[i].value;
-        item["viewStatus"] = false;
-        item["dropDownID"] = i;
-        item["parentPanelID"] = dropDowns[i].parentNode.parentNode.parentNode.parentNode.parentNode.getAttribute('data-frsh-panel-id');
-        dropDown.push(item);
-    }
 }
 
 
-function setCurrency(curr) {
-    var pricTablePlan = document.getElementsByClassName("pricing-table-plan-info");
-    var addonsPrice = document.getElementsByClassName("add-ons-plan-info");
-    dropDowns = document.getElementsByClassName('pricing-options-dropdown');
-    var pricingOption = document.getElementsByClassName("pricing-option");
-    var bodyEl = document.getElementsByTagName("BODY")[0];
-    bodyEl.setAttribute("data-frsh-page-currency", curr);
-    var planHeader = document.getElementsByClassName("plan-header");
+function setCurrency(curr,nextState) {
+    var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
+    //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
+    var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
+    var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length - 4;
+    //console.log(numberOfAddons);
 
-    //pricing table
-
-    for (var i = 0; i < pricTablePlan.length; i++) {
-        if (pricTablePlan[i].dataset.currency == curr) {
-            if (pricTablePlan[i].classList.contains('hide')) {
-                pricTablePlan[i].classList.remove('hide');
-            }
-        } else {
-            pricTablePlan[i].classList.add('hide');
-        }
+    //Pulling the addon prices
+    const addonPrices = [];
+    for(var i=0;i<numberOfAddons;i++){
+        addonPrices[i] = addData.props.pageProps.pageProps.componentsCollection.items[i+3].pricingCollection;
     }
+    //console.log(addonPrices);
 
-    //addons
+    var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
+    //console.log(pricTablePlan);
 
-    for (var i = 0; i < addonsPrice.length; i++) {
-        if (addonsPrice[i].dataset.currency == curr) {
-            if (addonsPrice[i].classList.contains('hide')) {
-                addonsPrice[i].classList.remove('hide');
-            }
-        } else {
-            addonsPrice[i].classList.add('hide');
-        }
+
+    //identifying the billing cycle
+    var annualTerm = true;
+    var pricingTermDiv = document.querySelector('[aria-label="Pricing Term"]').childNodes;
+    //console.log(pricingTermDiv);
+    if(pricingTermDiv[0].ariaPressed == "true" && pricingTermDiv[1].ariaPressed == "false"){
+        annualTerm = false;
     }
+    //console.log("annualTerm:"+annualTerm);
 
-    //variable dropdown
-
-    var ddArray = [];
-    if (dropDowns.length > 0) {
-        for (var i = 0; i < dropDowns.length; i++) {
-            var temp = [];
-            for (var j = 0; j < pricingOption.length; j++) {
-                if (pricingOption[j].dataset.pricingOptions == dropDowns[i].value) {
-                    temp.push(pricingOption[j]);
-                }
-            }
-            ddArray.push(temp);
-        }
-    }
-
-    if (ddArray.length > 0) {
-        for (var i = 0; i < ddArray.length; i++) {
-            for (var j = 0; j < ddArray[i].length; j++) {
-                if (ddArray[i][j].dataset.pricingCurrency == curr) {
-                    ddArray[i][j].attributes[3].nodeValue = "display:block";
-                } else {
-                    ddArray[i][j].attributes[3].nodeValue = "display:none";
-                }
-            }
-        }
-    }
-
-    //detailed comparison
-
-    for (var i = 0; i < planHeader.length; i++) {
-        var children = planHeader[i].children;
-        for (var j = 0; j < children.length; j++) {
-            if (children[j].dataset.currency == curr) {
-                if(children[j].attributes.style){
-                    children[j].attributes.style.value = "display:block";
-                }
+    //Update the currency and price on the main Table
+    for(var i=0;i<pricTablePlan.length;i++){
+        if(nextState == "USD"){
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsdAnnual;
             } else {
-                if(children[j].attributes.style){
-                    children[j].attributes.style.value = "display:none";
-                }
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsd;
+            }
+        } else if(nextState == "EUR"){
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceEurAnnual;
+            } else {
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceEur;
+            }
+        } else if(nextState == "GBP"){
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceGbpAnnual;
+            } else {
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceGbp;
+            }
+        } else if(nextState == "INR"){
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceInrAnnual;
+            } else {
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceInr;
+            }
+        } else if(nextState == "AUD"){
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAudAnnual;
+            } else {
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAud;
+            }
+        } else {
+            if(annualTerm){
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsdAnnual;
+            } else {
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
+                pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsd;
             }
         }
     }
+
+
+    //Updating the popups
+    var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
+    console.log(addonPopup);
+    console.log(addonPopup[0].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0])// = addonPrices[i].items[0].priceUsdAnnual;
+    console.log(addonPrices[0].items[0].priceUsdAnnual);
+    
+    for(var i=0;i<addonPopup.length;i++){
+        if(nextState == "USD"){
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
+        } else if(nextState == "EUR"){
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].items[0].priceEurAnnual;
+          
+        } else if(nextState == "GBP"){
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].items[0].priceGbpAnnual;
+  
+        } else if(nextState == "INR"){
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].items[0].priceInrAnnual;
+ 
+        } else if(nextState == "AUD"){
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].items[0].priceAudAnnual;
+   
+        } else {
+            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
+
+        }
+    }
+
+
 }
 
 chrome.tabs.onUpdated.addListener(
