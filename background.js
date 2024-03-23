@@ -14,10 +14,9 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
-        /*
         chrome.tabs.create({
             url: "./installed.html"
-        });*/
+        });
     } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
         // When browser is updated
     } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
@@ -178,17 +177,57 @@ function setCurrency(curr, nextState) {
 
     //Updating the popups
     var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
-    var dynamicAddonList = ["Day Passes","Freshcaller","Freshsales","Campaign Contacts", "Assets Pack","Marketing Contacts","Conversion Rate Optimization"];
-    var ignoreAddonList = ["Freddy Insights","Advanced Discovery and Dependency Mapping"];
+    var dynamicAddonList = ["Day Passes","Freshcaller","Freshsales","Campaign Contacts","Marketing Contacts","Conversion Rate Optimization"];
+    var ignoreAddonList = ["Freddy Insights","Advanced Discovery and Dependency Mapping"]; 
 
     for (var i = 0; i < addonPopup.length; i++) {
         var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
-        //console.log("Popup Name "+popupName);
+        console.log("Popup Name "+popupName);
         //differentiate between a static popup and a dynamic popup
         if(checkIfExistsInArray(popupName,dynamicAddonList) || checkIfExistsInArray(popupName,ignoreAddonList)){
-            console.log("Dynamic");
-        } else {
-            //console.log("Static");
+            if(!checkIfExistsInArray(popupName,ignoreAddonList)){
+                var visOption = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[1].childNodes[0].value;
+                for(var j=0;j<addonPrices[i].price.items.length;j++){
+                    if(visOption == addonPrices[i].price.items[j].planName){
+                        if (nextState == "USD") {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
+                        } else if (nextState == "EUR") {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].price.items[j].priceEurAnnual;
+                        } else if (nextState == "GBP") {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].price.items[j].priceGbpAnnual;
+                        } else if (nextState == "INR") {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[j].priceInrAnnual;
+                        } else if (nextState == "AUD") {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].price.items[j].priceAudAnnual;
+                        } else {
+                            addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
+                        }
+                    }
+                }
+            }
+        } else if (popupName == "Assets Pack") { //Assets Pack functionality is different
+            console.log('here);')
+            var visOption = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].childNodes[0].value;
+            console.log("visOption"+visOption);
+            for(var j=0;j<addonPrices[i].price.items.length;j++){
+                if(visOption == addonPrices[i].price.items[j].planName){
+                    if (nextState == "USD") {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
+                    } else if (nextState == "EUR") {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].price.items[j].priceEurAnnual;
+                    } else if (nextState == "GBP") {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].price.items[j].priceGbpAnnual;
+                    } else if (nextState == "INR") {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[j].priceInrAnnual;
+                    } else if (nextState == "AUD") {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].price.items[j].priceAudAnnual;
+                    } else {
+                        addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
+                    }
+                }
+            }
+        }
+        else{
             if (nextState == "USD") {
                 addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
             } else if (nextState == "EUR") {
