@@ -75,6 +75,7 @@ function initialiseDropDown(curr) {}
 
 
 function setCurrency(curr, nextState) {
+    /*
     function optionSelectedCheck(dropdownArray) {
         if (dropdownArray.length > 0) {
             for (var j = 0; j < dropdownArray.length; j++) {
@@ -83,20 +84,27 @@ function setCurrency(curr, nextState) {
                 }
             }
         }
-    }
+    }*/
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
     var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
-    var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length - 4;
+    var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
     //console.log(numberOfAddons);
-    console.log(currentPricingData);
+    //console.log(currentPricingData);
 
     //Pulling the addon prices
     const addonPrices = [];
     for (var i = 0; i < numberOfAddons; i++) {
-        addonPrices[i] = addData.props.pageProps.pageProps.componentsCollection.items[i + 3].pricingCollection;
+        if(addData.props.pageProps.pageProps.componentsCollection.items[i].__typename == "ComponentStaticModalPopup"){
+            var obj = {
+                        title:addData.props.pageProps.pageProps.componentsCollection.items[i].heading,
+                        price:addData.props.pageProps.pageProps.componentsCollection.items[i].pricingCollection
+            };
+            addonPrices.push(obj);
+        }
     }
-    //console.log(addonPrices);
+    console.log(addonPrices);
+    console.log(addData.props.pageProps.pageProps.componentsCollection.items);
 
     var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
     //console.log(pricTablePlan);
@@ -170,34 +178,29 @@ function setCurrency(curr, nextState) {
 
     //Updating the popups
     var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
-    //console.log(addonPopup);
-    //console.log(addonPopup[3].childNodes[0].childNodes[1].childNodes[0].childNodes[1]); // = addonPrices[i].items[0].priceUsdAnnual;
-
     var dynamicAddonList = ["Day Passes","Freshcaller","Freshsales","Campaign Contacts", "Assets Pack","Marketing Contacts","Conversion Rate Optimization"];
-    var crmAddonList = ["Configure, Price, Quote","Freshbots"];
-
-    //console.log(checkIfExistsInArray("Connector App Tasks",itAddonList));
+    var ignoreAddonList = ["Freddy Insights","Advanced Discovery and Dependency Mapping"];
 
     for (var i = 0; i < addonPopup.length; i++) {
         var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
         //console.log("Popup Name "+popupName);
         //differentiate between a static popup and a dynamic popup
-        if(checkIfExistsInArray(popupName,dynamicAddonList)){
+        if(checkIfExistsInArray(popupName,dynamicAddonList) || checkIfExistsInArray(popupName,ignoreAddonList)){
             console.log("Dynamic");
         } else {
             //console.log("Static");
             if (nextState == "USD") {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
             } else if (nextState == "EUR") {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].items[0].priceEurAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].price.items[0].priceEurAnnual;
             } else if (nextState == "GBP") {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].items[0].priceGbpAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].price.items[0].priceGbpAnnual;
             } else if (nextState == "INR") {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].items[0].priceInrAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[0].priceInrAnnual;
             } else if (nextState == "AUD") {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].items[0].priceAudAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].price.items[0].priceAudAnnual;
             } else {
-                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
+                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
             }
         }
     }
