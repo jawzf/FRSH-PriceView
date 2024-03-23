@@ -14,9 +14,10 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
+        /*
         chrome.tabs.create({
             url: "./installed.html"
-        });
+        });*/
     } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
         // When browser is updated
     } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
@@ -88,6 +89,7 @@ function setCurrency(curr, nextState) {
     var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
     var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length - 4;
     //console.log(numberOfAddons);
+    console.log(currentPricingData);
 
     //Pulling the addon prices
     const addonPrices = [];
@@ -171,13 +173,19 @@ function setCurrency(curr, nextState) {
     //console.log(addonPopup);
     //console.log(addonPopup[3].childNodes[0].childNodes[1].childNodes[0].childNodes[1]); // = addonPrices[i].items[0].priceUsdAnnual;
 
+    var dynamicAddonList = ["Day Passes","Freshcaller","Freshsales","Campaign Contacts", "Assets Pack","Marketing Contacts","Conversion Rate Optimization"];
+    var crmAddonList = ["Configure, Price, Quote","Freshbots"];
 
+    //console.log(checkIfExistsInArray("Connector App Tasks",itAddonList));
 
     for (var i = 0; i < addonPopup.length; i++) {
-
-        //console.log(addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes.length);
-        var abnormalFieldNumber = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes.length;
-        if (abnormalFieldNumber == 2) {
+        var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
+        //console.log("Popup Name "+popupName);
+        //differentiate between a static popup and a dynamic popup
+        if(checkIfExistsInArray(popupName,dynamicAddonList)){
+            console.log("Dynamic");
+        } else {
+            //console.log("Static");
             if (nextState == "USD") {
                 addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
             } else if (nextState == "EUR") {
@@ -191,18 +199,16 @@ function setCurrency(curr, nextState) {
             } else {
                 addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[0].priceUsdAnnual;
             }
-
-        } else {
-            var abnormalParentNode = addonPopup[i].children[0].children[1].children[0].children[1];
-            //console.log(abnormalParentNode);
-            var dropdownOption = optionSelectedCheck(abnormalParentNode.children[0].children[0].children[1].children[0].children);
-            //console.log(dropdownOption);
-            //console.log(abnormalParentNode.children[0].children[0].children[1].children[0].children);
-            //console.log(addonPrices[i].items[dropdownOption]);
-            var dropdownDisplay = document.getElementsByClassName('.sc-5159831f-0.kSeupn');
-            console.log(dropdownDisplay);
-            //abnormalParentNode.childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].items[dropdownOption].priceUsdAnnual;
         }
+    }
+
+    function checkIfExistsInArray(text, array){
+        for(var i=0;i<array.length;i++){
+            if(text == array[i]){
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -221,3 +227,4 @@ chrome.tabs.onUpdated.addListener(
         }
     }
 );
+
