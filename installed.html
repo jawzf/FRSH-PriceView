@@ -57,25 +57,37 @@
         }
     }
     </style>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>FRSH PriceView</title>
 </head>
 
-<body style="font-family:Verdana;">
-    <div style="background-color:#b7d18c;padding:15px;">
-        <h1>FRSH PriceView by Joe Kuriackal</h1>
-        <h3>Thank you for installing version 1.70beta4</h3>
+<body style="font-family:Roboto;font-size: 16px">
+    <div style="background-color:#b7d18c;padding:15px;" class="row">
+        <img src="images/icon-256.png" style="width:10%;height:10%" class="col-md-3">
+        <div class="col-md-9">
+            <h1>FRSH PriceView by Joe Kuriackal</h1>
+            <h4>Thank you for installing version 1.71</h4>
+            <a class="btn btn-secondary" style="font-size:18px" href="https://github.com/jawzf/FRSH-PriceView">View on <i class="fa fa-github"></i> Github</a>
+        </div>
+        
     </div>
-    <div style="overflow:auto">
+    <div style="overflow:auto;padding-top:15px">
         <div class="menu">
             <div class="menuitem"></div>
         </div>
         <div class="main">
             <h2>Important Instructions</h2>
-            <p>This extension is still in beta as the Freshworks pricing pages were revamped in January 2024. It is being changed dynamically and I would have to update the functionality based on these ad-hoc changes. Please reach out to me on Slack/Email for any quick feedback.</p>
+            <p>This extension is now in final release. New features will be coming in beta and I would have the update the extension as the Freshworks pricing pages are being changed dynamically and I would have to update the functionality based on these ad-hoc changes. Please reach out to me on Slack/Email for any quick feedback.</p>
             <p><b>When viewing the price of addons which dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.</b></p>
             <h2>Changelog</h2>
-            <p>https://github.com/jawzf/FRSH-PriceView</p>
+            <p></p>
+
             <p>GNU General Public License v3.0</p>
+            <p>Mar 25, 2024<br>- Updated the extension from beta to release.
+                <br>- Renamed DEFAULT to FRSH as the default app title.
+                <br>- Updated the branding as per Freshworks Guidelines.
             <p>Mar 23, 2024<br>- All drop downs and pricing corrected to work with the new format. No known issues yet. 
                 <br>- Fixed the bug on Freshchat pricing page due to a change in the "Free" text
             <p>Jan 30, 2024<br>- Refreshed Implementation to work with the new website design. This is a beta and has bugs still being fixed.<br>
@@ -89,7 +101,7 @@
             <p>Mar 02, 2023<br>- Beta code for variable dropdowns<br>
                 - cleaned up content.js</p>
             <p>Feb 28, 2023<br>Initial Commit</p>
-            <img src="images/icon-256.png" style="width:50%">
+            
         </div>
         <div class="right">
             <h2>What?</h2>

@@ -4,7 +4,7 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) {
 
 chrome.runtime.onInstalled.addListener((details) => {
     chrome.action.setBadgeText({
-        text: "DEFAULT",
+        text: "FRSH",
     });
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
         // Code to be executed on first install
