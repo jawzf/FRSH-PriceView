@@ -102,8 +102,8 @@ function setCurrency(curr, nextState) {
             addonPrices.push(obj);
         }
     }
-    console.log(addonPrices);
-    console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+    //console.log(addonPrices);
+    //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
 
     var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
     //console.log(pricTablePlan);
@@ -120,7 +120,7 @@ function setCurrency(curr, nextState) {
 
     //Update the currency and price on the main Table
     for (var i = 0; i < pricTablePlan.length; i++) {
-        console.log();
+        //console.log();
         if(pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML != "Free"){
             if (nextState == "USD") {
                 if (annualTerm) {
@@ -182,7 +182,7 @@ function setCurrency(curr, nextState) {
 
     for (var i = 0; i < addonPopup.length; i++) {
         var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
-        console.log("Popup Name "+popupName);
+        //console.log("Popup Name "+popupName);
         //differentiate between a static popup and a dynamic popup
         if(checkIfExistsInArray(popupName,dynamicAddonList) || checkIfExistsInArray(popupName,ignoreAddonList)){
             if(!checkIfExistsInArray(popupName,ignoreAddonList)){
@@ -206,9 +206,9 @@ function setCurrency(curr, nextState) {
                 }
             }
         } else if (popupName == "Assets Pack") { //Assets Pack functionality is different
-            console.log('here);')
+            //console.log('here);')
             var visOption = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].childNodes[0].value;
-            console.log("visOption"+visOption);
+            //console.log("visOption"+visOption);
             for(var j=0;j<addonPrices[i].price.items.length;j++){
                 if(visOption == addonPrices[i].price.items[j].planName){
                     if (nextState == "USD") {
