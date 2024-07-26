@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "FRSH PriceView",
-    "version": "1.71",
+    "version": "1.73.1",
     "description": "Switch between prices in different currencies on the Freshworks pricing pages.",
     "author": "joseph.kuriackal@freshworks.com",
     "icons":
@@ -25,7 +25,7 @@
     {
         "service_worker": "background.js"
     },
-    "permissions": ["activeTab", "scripting", "tabs"],
+    "permissions": ["activeTab", "scripting", "tabs", "contextMenus"],
     "host_permissions": [
         "https://www.freshworks.com/freshdesk/pricing/*",
         "https://www.freshworks.com/freshcaller-cloud-pbx/pricing/*",
