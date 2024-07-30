@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "FRSH PriceView",
-    "version": "1.73.1",
+    "version": "1.73.2",
     "description": "Switch between prices in different currencies on the Freshworks pricing pages.",
     "author": "joseph.kuriackal@freshworks.com",
     "icons":

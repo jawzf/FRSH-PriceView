@@ -151,6 +151,7 @@ function getOffset(el) {
 function setCurrency(curr, nextState) {
 
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
+    //console.log(addData);
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
     var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
     var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
@@ -190,41 +191,43 @@ function setCurrency(curr, nextState) {
         var newPriceTablePlanHeader = pricTablePlan[0].children[0].children;
         for (var i = 0; i < newPriceTablePlanHeader.length; i++) {
             //console.log(newPriceTablePlanHeader[i].childNodes);
-            if (nextState == "USD") {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
+            if (newPriceTablePlanHeader[i + 1]) {
+                if (nextState == "USD") {
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
+                    }
+                } else if (nextState == "EUR") {
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEurAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEur;
+                    }
+                } else if (nextState == "GBP") {
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbpAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbp;
+                    }
+                } else if (nextState == "INR") {
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInrAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInr;
+                    }
+                } else if (nextState == "AUD") {
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAudAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAud;
+                    }
                 } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
-                }
-            } else if (nextState == "EUR") {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEurAnnual;
-                } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEur;
-                }
-            } else if (nextState == "GBP") {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbpAnnual;
-                } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbp;
-                }
-            } else if (nextState == "INR") {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInrAnnual;
-                } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInr;
-                }
-            } else if (nextState == "AUD") {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAudAnnual;
-                } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAud;
-                }
-            } else {
-                if (annualTerm) {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
-                } else {
-                    newPriceTablePlanHeader[i+1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
+                    if (annualTerm) {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
+                    } else {
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
+                    }
                 }
             }
         }
@@ -291,6 +294,46 @@ function setCurrency(curr, nextState) {
     var ignoreAddonList = ["Freddy Insights", "Advanced Discovery and Dependency Mapping"];
 
     if (pricTablePlan[0].tagName == "THEAD") {
+        var newAddonRow = document.getElementsByClassName("dxFVLq");
+        for (var i = 0; i < newAddonRow.length; i++) {
+            if (newAddonRow[i].childNodes[3].childNodes[0].localName == "div" && newAddonRow[i].childNodes[0].innerText != "Freddy Insights") {
+
+                var addonName = newAddonRow[i].childNodes[0].innerText;
+                var rowPrice = searchAddonPrice(addonName, addonPrices);
+                //console.log(rowPrice);
+                for (var j = 0; j < 3; j++) {
+                    if (newAddonRow[i].childNodes[j + 1].innerText != "") {
+                        var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
+                        if (nextState == "USD") {
+                            target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                        } else if (nextState == "EUR") {
+                            target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
+                        } else if (nextState == "GBP") {
+                            target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                        } else if (nextState == "INR") {
+                            target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
+                        } else if (nextState == "AUD") {
+                            target.innerText = "AUD" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
+                        } else {
+                            target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                        }
+
+                        //Add website custom text below
+                        if (addonName == "Freshcaller" || addonName == "Freshsales") {
+                            target.innerText = "Starting from " + target.innerText;
+                        } else if (addonName == "Freddy Self Service") {
+                            target.innerText = target.innerText + " for 1000 sessions"
+                        } else if (addonName == "Campaign Contacts") {
+                            target.innerText = target.innerText + " 5,000 contacts"
+                        } else {
+
+                        }
+                    }
+
+                }
+
+            }
+        }
 
     } else {
         for (var i = 0; i < addonPopup.length; i++) {
@@ -364,6 +407,23 @@ function setCurrency(curr, nextState) {
             }
         }
         return false;
+    }
+
+    function searchAddonPrice(text, array) {
+        for (var i = 0; i < array.length; i++) {
+            if (text == array[i].title || (text == "Freddy Self Service" && array[i].title == "Freshbots by Freddy Self Service")) {
+                return array[i].price;
+            }
+        }
+        return null;
+    }
+
+    function returnValidAddonPrice(index, array) {
+        if (array.items[index]) {
+            return array.items[index];
+        } else {
+            return array.items[0];
+        }
     }
 }
 
