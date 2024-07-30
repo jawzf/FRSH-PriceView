@@ -19,6 +19,21 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.73.beta2 - Jul 31, 2024
+- Customer Service Suite pricing table updated 90%.
+- CSS Main Table Updated. Prices are now displayed correctly
+- Campaign Contacts Pop Up in CSS is still a work in progress.
+
+v1.73.beta1 - Jul 26, 2024
+- New beta to work with the Customer Service Suite pricing table changes in the website design. This will be in beta, until Freshworks consolidates the design of the entire pricing section.
+- Work In Progress. CSS Table Headers updated.
+- Calculate Discount Context menu code added.
+
+v1.71 - 25 March 2024
+- Updated the extension from beta to release.
+- Renamed DEFAULT to FRSH as the default app title.
+- Updated the branding as per Freshworks Guidelines.
+
 v1.70beta4 - 23 March 2024 
 - All drop downs and pricing corrected to work with the new format. No known issues yet.
 - Fixed the bug on Freshchat pricing page due to a change in the "Free" text
