@@ -322,7 +322,7 @@ function setCurrency(curr, nextState) {
                                 target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
                             } else if (nextState == "GBP") {
                                 //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
-                                if(productName == "Freshdesk"){
+                                if(productName == "Freshdesk" && addonName == "Connector App Tasks"){
                                     target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
                                 } else {
                                     target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
