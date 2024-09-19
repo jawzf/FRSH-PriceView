@@ -294,7 +294,7 @@ function setCurrency(curr, nextState) {
     var ignoreAddonList = ["Freddy Insights", "Advanced Discovery and Dependency Mapping"];
 
     if (pricTablePlan[0].tagName == "THEAD") {
-        var newAddonRow = document.getElementsByClassName("dxFVLq");
+        var newAddonRow = document.getElementsByClassName("kKyMvI");
         for (var i = 0; i < newAddonRow.length; i++) {
             if (newAddonRow[i].childNodes[3].childNodes[0].localName == "div" && newAddonRow[i].childNodes[0].innerText != "Freddy Insights") {
 
