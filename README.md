@@ -19,6 +19,8 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.73beta3 - September 19, 2024
+- Updated the code to support the latest changes to the website code class including the newer Freshdesk and Freshchat pricing.
 v1.73.beta2 - Jul 31, 2024
 - Customer Service Suite pricing table updated 90%.
 - CSS Main Table Updated. Prices are now displayed correctly
