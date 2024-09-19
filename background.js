@@ -14,10 +14,10 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
-        
+        /*
         chrome.tabs.create({
             url: "./installed.html"
-        });
+        }); */
     } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
         // When browser is updated
     } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
@@ -185,6 +185,9 @@ function setCurrency(curr, nextState) {
     }
     //console.log("annualTerm:"+annualTerm);
 
+    //Identify Product being displayed
+    var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
+
     //Update the currency and price on the main Table
 
     if (pricTablePlan[0].tagName == "THEAD") {
@@ -292,47 +295,56 @@ function setCurrency(curr, nextState) {
     var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
     var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
     var ignoreAddonList = ["Freddy Insights", "Advanced Discovery and Dependency Mapping"];
+    var numberOfPlans = 3;
+    if (productName == "Freshdesk" || productName == "Freshchat") {
+        numberOfPlans = 4;
+    }
 
     if (pricTablePlan[0].tagName == "THEAD") {
         var newAddonRow = document.getElementsByClassName("kKyMvI");
         for (var i = 0; i < newAddonRow.length; i++) {
-            if (newAddonRow[i].childNodes[3].childNodes[0].localName == "div" && newAddonRow[i].childNodes[0].innerText != "Freddy Insights") {
+            var addonName = newAddonRow[i].childNodes[0].innerText;
+            var tagLocal = newAddonRow[i].childNodes[3].childNodes[0].localName;
+            if (addonName != "Collaborators" && addonName != "Freddy Insights (Beta)" && addonName != "Freddy Insights") {
+                if (tagLocal == "div") {
+                    var rowPrice = searchAddonPrice(addonName, addonPrices);
+                    console.log(rowPrice);
+                    for (var j = 0; j < numberOfPlans; j++) {
+                        if (newAddonRow[i].childNodes[j + 1].innerText != "") {
+                            var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
+                            if (nextState == "USD") {
+                                target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                            } else if (nextState == "EUR") {
+                                target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
+                            } else if (nextState == "GBP") {
+                                target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                            } else if (nextState == "INR") {
+                                target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
+                            } else if (nextState == "AUD") {
+                                target.innerText = "AUD" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
+                            } else {
+                                target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                            }
 
-                var addonName = newAddonRow[i].childNodes[0].innerText;
-                var rowPrice = searchAddonPrice(addonName, addonPrices);
-                //console.log(rowPrice);
-                for (var j = 0; j < 3; j++) {
-                    if (newAddonRow[i].childNodes[j + 1].innerText != "") {
-                        var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
-                        if (nextState == "USD") {
-                            target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
-                        } else if (nextState == "EUR") {
-                            target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
-                        } else if (nextState == "GBP") {
-                            target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
-                        } else if (nextState == "INR") {
-                            target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
-                        } else if (nextState == "AUD") {
-                            target.innerText = "AUD" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
-                        } else {
-                            target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                            //Add website custom text below
+                            if (addonName == "Freshcaller" || addonName == "Freshsales") {
+                                target.innerText = "Starting from " + target.innerText;
+                            } else if (addonName == "Freddy Self Service") {
+                                target.innerText = target.innerText + " for 1000 sessions"
+                            } else if (addonName == "Connector App Tasks") {
+                                target.innerText = target.innerText + " per 5,000 tasks"
+                            } else if (addonName == "Campaign Contacts") {
+                                target.innerText = target.innerText + " 5,000 contacts"
+                            } else {
+
+                            }
                         }
 
-                        //Add website custom text below
-                        if (addonName == "Freshcaller" || addonName == "Freshsales") {
-                            target.innerText = "Starting from " + target.innerText;
-                        } else if (addonName == "Freddy Self Service") {
-                            target.innerText = target.innerText + " for 1000 sessions"
-                        } else if (addonName == "Campaign Contacts") {
-                            target.innerText = target.innerText + " 5,000 contacts"
-                        } else {
-
-                        }
                     }
 
                 }
-
             }
+
         }
 
     } else {
