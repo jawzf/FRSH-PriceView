@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
-        
+
         chrome.tabs.create({
             url: "./installed.html"
         });
@@ -68,7 +68,7 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         .then(() => console.log("injected the calculateDiscount function"));
 });*/
 
-function initialiseDropDown(){
+function initialiseDropDown() {
     //donothing
 }
 
@@ -225,9 +225,9 @@ function setCurrency(curr, nextState) {
                     }
                 } else if (nextState == "AUD") {
                     if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAudAnnual;
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$" + currentPricingData.items[i].priceAudAnnual;
                     } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD" + currentPricingData.items[i].priceAud;
+                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$" + currentPricingData.items[i].priceAud;
                     }
                 } else {
                     if (annualTerm) {
@@ -275,10 +275,10 @@ function setCurrency(curr, nextState) {
                     }
                 } else if (nextState == "AUD") {
                     if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD"
+                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$"
                         pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAudAnnual;
                     } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "AUD"
+                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$"
                         pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAud;
                     }
                 } else {
@@ -322,7 +322,7 @@ function setCurrency(curr, nextState) {
                                 target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
                             } else if (nextState == "GBP") {
                                 //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
-                                if(productName == "Freshdesk" && addonName == "Connector App Tasks"){
+                                if (productName == "Freshdesk" && addonName == "Connector App Tasks") {
                                     target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
                                 } else {
                                     target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
@@ -330,7 +330,7 @@ function setCurrency(curr, nextState) {
                             } else if (nextState == "INR") {
                                 target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
                             } else if (nextState == "AUD") {
-                                target.innerText = "AUD" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
+                                target.innerText = "A$" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
                             } else {
                                 target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
                             }
@@ -359,7 +359,7 @@ function setCurrency(curr, nextState) {
     } else {
         for (var i = 0; i < addonPopup.length; i++) {
             var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
-            console.log("Popup Name "+popupName);
+            //console.log("Popup Name " + popupName);
             //differentiate between a static popup and a dynamic popup
             if (checkIfExistsInArray(popupName, dynamicAddonList) || checkIfExistsInArray(popupName, ignoreAddonList)) {
                 if (!checkIfExistsInArray(popupName, ignoreAddonList)) {
@@ -375,7 +375,7 @@ function setCurrency(curr, nextState) {
                             } else if (nextState == "INR") {
                                 addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[j].priceInrAnnual;
                             } else if (nextState == "AUD") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].price.items[j].priceAudAnnual;
+                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "A$" + addonPrices[i].price.items[j].priceAudAnnual;
                             } else {
                                 addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
                             }
@@ -392,7 +392,7 @@ function setCurrency(curr, nextState) {
                 } else if (nextState == "INR") {
                     addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[0].priceInrAnnual;
                 } else if (nextState == "AUD") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "AUD" + addonPrices[i].price.items[0].priceAudAnnual;
+                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "A$" + addonPrices[i].price.items[0].priceAudAnnual;
                 } else {
                     addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
                 }

@@ -19,8 +19,14 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
-v1.73beta3 - September 19, 2024
+
+v1.73beta4 - September 19, 2024
 - Updated the code to support the latest changes to the website code class including the newer Freshdesk and Freshchat pricing.
+- Added a fix to handle GBP pricing for Connector Task on FD pricing page
+- Updated currency symbol for AUD to A$
+- Added Sandbox add-on modal details
+- Fixed Asset Pack price display
+
 v1.73.beta2 - Jul 31, 2024
 - Customer Service Suite pricing table updated 90%.
 - CSS Main Table Updated. Prices are now displayed correctly
