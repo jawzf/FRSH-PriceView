@@ -14,10 +14,10 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
-        /*
+        
         chrome.tabs.create({
             url: "./installed.html"
-        }); */
+        });
     } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
         // When browser is updated
     } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
@@ -67,6 +67,10 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         })
         .then(() => console.log("injected the calculateDiscount function"));
 });*/
+
+function initialiseDropDown(){
+    //donothing
+}
 
 chrome.action.onClicked.addListener(async (tab) => {
     if (tab.url.startsWith(extensions)) {
@@ -308,7 +312,7 @@ function setCurrency(curr, nextState) {
             if (addonName != "Collaborators" && addonName != "Freddy Insights (Beta)" && addonName != "Freddy Insights") {
                 if (tagLocal == "div") {
                     var rowPrice = searchAddonPrice(addonName, addonPrices);
-                    console.log(rowPrice);
+                    //console.log(rowPrice);
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
                             var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
@@ -317,7 +321,12 @@ function setCurrency(curr, nextState) {
                             } else if (nextState == "EUR") {
                                 target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
                             } else if (nextState == "GBP") {
-                                target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                                //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
+                                if(productName == "Freshdesk"){
+                                    target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
+                                } else {
+                                    target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                                }
                             } else if (nextState == "INR") {
                                 target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
                             } else if (nextState == "AUD") {
