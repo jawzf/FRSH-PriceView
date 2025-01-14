@@ -19,6 +19,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.73beta5 - January 15, 2025
+- Updated the code to support the latest changes to the website with the Freshservice Enterprise Price.
+- Added a fix to handle branding changes of Freddy AI
 
 v1.73beta4 - September 19, 2024
 - Updated the code to support the latest changes to the website code class including the newer Freshdesk and Freshchat pricing.
