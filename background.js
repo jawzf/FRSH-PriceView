@@ -241,6 +241,9 @@ function setCurrency(curr, nextState) {
     } else {
         for (var i = 0; i < pricTablePlan.length; i++) {
             if (pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML != "Free") {
+                if (currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
+                    continue;
+                }
                 if (nextState == "USD") {
                     if (annualTerm) {
                         pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
@@ -298,7 +301,7 @@ function setCurrency(curr, nextState) {
     //Updating the popups
     var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
     var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
-    var ignoreAddonList = ["Freddy Insights", "Advanced Discovery and Dependency Mapping", "Sandbox Add-on"];
+    var ignoreAddonList = ["Freddy AI Insights", "Advanced Discovery and Dependency Mapping", "Sandbox Add-on"];
     var numberOfPlans = 3;
     if (productName == "Freshdesk" || productName == "Freshchat") {
         numberOfPlans = 4;
@@ -309,10 +312,12 @@ function setCurrency(curr, nextState) {
         for (var i = 0; i < newAddonRow.length; i++) {
             var addonName = newAddonRow[i].childNodes[0].innerText;
             var tagLocal = newAddonRow[i].childNodes[3].childNodes[0].localName;
-            if (addonName != "Collaborators" && addonName != "Freddy Insights (Beta)" && addonName != "Freddy Insights") {
+            if (addonName != "Collaborators" && addonName != "Freddy Insights (Beta)" && addonName != "Freddy AI Insights") {
                 if (tagLocal == "div") {
                     var rowPrice = searchAddonPrice(addonName, addonPrices);
-                    //console.log(rowPrice);
+                    if (addonName == "Freddy AI Agent") {
+                        rowPrice = searchAddonPrice("AI agent by Freddy AI Agent", addonPrices);
+                    }
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
                             var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
@@ -338,7 +343,7 @@ function setCurrency(curr, nextState) {
                             //Add website custom text below
                             if (addonName == "Freshcaller" || addonName == "Freshsales") {
                                 target.innerText = "Starting from " + target.innerText;
-                            } else if (addonName == "Freddy Self Service") {
+                            } else if (addonName == "Freddy AI Agent") {
                                 target.innerText = target.innerText + " for 1000 sessions"
                             } else if (addonName == "Connector App Tasks") {
                                 target.innerText = target.innerText + " per 5,000 tasks"
