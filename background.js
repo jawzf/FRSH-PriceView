@@ -154,28 +154,60 @@ function getOffset(el) {
 
 function setCurrency(curr, nextState) {
 
+    //Identify Product being displayed
+    var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
+    console.log("Product:" + productName);
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
     //console.log(addData);
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
     var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
-    var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
-    //console.log(numberOfAddons);
-    //console.log(currentPricingData);
-
-    //Pulling the addon prices
     const addonPrices = [];
-    for (var i = 0; i < numberOfAddons; i++) {
-        if (addData.props.pageProps.pageProps.componentsCollection.items[i].__typename == "ComponentStaticModalPopup") {
-            var obj = {
-                title: addData.props.pageProps.pageProps.componentsCollection.items[i].heading,
-                price: addData.props.pageProps.pageProps.componentsCollection.items[i].pricingCollection
-            };
-            addonPrices.push(obj);
-        }
-    }
-    //console.log(addonPrices);
-    //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+    if (productName == "Freshservice") {
+        var addonPlanCount = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items.length;
+        var addonInfo = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items;
+        //console.log(addonPlanCount);
+        //console.log(addonInfo);
+        //console.log(currentPricingData);
 
+        //Pulling the addon prices
+        for (var i = 0; i < addonPlanCount; i++) {
+            var featureCount = addonInfo[i].planFeaturesGroupCollection.items.length;
+            //console.log(featureCount);
+            var featureList = addonInfo[i].planFeaturesGroupCollection.items;
+            //console.log(featureList);
+            for (var j = 0; j < featureCount; j++) {
+                if (featureList[j].includedInPlan && freshserviceAddonCheck(featureList[j].productFeature.name)) {
+                    //console.log(featureList[j].description.links.entries.inline);
+                    var obj = {
+                        planIndex: i,
+                        title: featureList[j].productFeature.name,
+                        price: featureList[j].description.links.entries.inline[0].localePrices
+                    };
+                    addonPrices.push(obj);
+                }
+            }
+        }
+        //console.log(addonPrices);
+        //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+    } else {
+        var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
+        //console.log(numberOfAddons);
+        //console.log(currentPricingData);
+
+        //Pulling the addon prices
+        for (var i = 0; i < numberOfAddons; i++) {
+            if (addData.props.pageProps.pageProps.componentsCollection.items[i].__typename == "ComponentStaticModalPopup") {
+                var obj = {
+                    title: addData.props.pageProps.pageProps.componentsCollection.items[i].heading,
+                    price: addData.props.pageProps.pageProps.componentsCollection.items[i].pricingCollection
+                };
+                addonPrices.push(obj);
+            }
+        }
+        //console.log(addonPrices);
+        console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+    }
+    console.log(addonPrices);
     var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
     //console.log(pricTablePlan);
 
@@ -189,15 +221,16 @@ function setCurrency(curr, nextState) {
     }
     //console.log("annualTerm:"+annualTerm);
 
-    //Identify Product being displayed
-    var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
-
     //Update the currency and price on the main Table
 
     if (pricTablePlan[0].tagName == "THEAD") {
         var newPriceTablePlanHeader = pricTablePlan[0].children[0].children;
         for (var i = 0; i < newPriceTablePlanHeader.length; i++) {
             //console.log(newPriceTablePlanHeader[i].childNodes);
+            //console.log(currentPricingData.items[i].internalName);
+            if (currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
+                continue;
+            }
             if (newPriceTablePlanHeader[i + 1]) {
                 if (nextState == "USD") {
                     if (annualTerm) {
@@ -303,16 +336,20 @@ function setCurrency(curr, nextState) {
     var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
     var ignoreAddonList = ["Freddy AI Insights", "Advanced Discovery and Dependency Mapping", "Sandbox Add-on"];
     var numberOfPlans = 3;
-    if (productName == "Freshdesk" || productName == "Freshchat") {
+    if (productName == "Freshdesk" || productName == "Freshchat" || productName == "Freshservice") {
         numberOfPlans = 4;
     }
 
     if (pricTablePlan[0].tagName == "THEAD") {
-        var newAddonRow = document.getElementsByClassName("kKyMvI");
+        var newAddonRow = document.getElementsByClassName("rfWFf");
         for (var i = 0; i < newAddonRow.length; i++) {
             var addonName = newAddonRow[i].childNodes[0].innerText;
-            var tagLocal = newAddonRow[i].childNodes[3].childNodes[0].localName;
-            if (addonName != "Collaborators" && addonName != "Freddy Insights (Beta)" && addonName != "Freddy AI Insights") {
+            if (addonName == "Campaign Contacts") {
+                var tagLocal = newAddonRow[i].childNodes[numberOfPlans - 1].childNodes[0].localName;
+            } else {
+                var tagLocal = newAddonRow[i].childNodes[numberOfPlans].childNodes[0].localName;
+            }
+            if (addonName != "Collaborators" && addonName != "Freddy AI Insights (Beta)" && addonName != "Freddy AI Insights") {
                 if (tagLocal == "div") {
                     var rowPrice = searchAddonPrice(addonName, addonPrices);
                     if (addonName == "Freddy AI Agent") {
@@ -320,37 +357,44 @@ function setCurrency(curr, nextState) {
                     }
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
-                            var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
-                            if (nextState == "USD") {
-                                target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
-                            } else if (nextState == "EUR") {
-                                target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
-                            } else if (nextState == "GBP") {
-                                //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
-                                if (productName == "Freshdesk" && addonName == "Connector App Tasks") {
-                                    target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
+                            if (productName == "Freshservice") {
+
+                            } else {
+                                console.log(addonName + ":" + rowPrice);
+                                var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
+                                if (nextState == "USD") {
+                                    target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
+                                } else if (nextState == "EUR") {
+                                    target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
+                                } else if (nextState == "GBP") {
+                                    //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
+                                    if (productName == "Freshdesk" && addonName == "Connector App Tasks") {
+                                        target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
+                                    } else {
+                                        target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                                    }
+                                } else if (nextState == "INR") {
+                                    target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
+                                } else if (nextState == "AUD") {
+                                    target.innerText = "A$" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
                                 } else {
-                                    target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
+                                    target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
                                 }
-                            } else if (nextState == "INR") {
-                                target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
-                            } else if (nextState == "AUD") {
-                                target.innerText = "A$" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
-                            } else {
-                                target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
-                            }
 
-                            //Add website custom text below
-                            if (addonName == "Freshcaller" || addonName == "Freshsales") {
-                                target.innerText = "Starting from " + target.innerText;
-                            } else if (addonName == "Freddy AI Agent") {
-                                target.innerText = target.innerText + " for 1000 sessions"
-                            } else if (addonName == "Connector App Tasks") {
-                                target.innerText = target.innerText + " per 5,000 tasks"
-                            } else if (addonName == "Campaign Contacts") {
-                                target.innerText = target.innerText + " 5,000 contacts"
-                            } else {
+                                //Add website custom text below
+                                if (addonName == "Freshcaller" || addonName == "Freshsales") {
+                                    target.innerText = "Starting from " + target.innerText;
+                                } else if (addonName == "Freddy AI Agent") {
+                                    target.innerText = "First 500 sessions included. " + target.innerText + " for 1000 sessions."
+                                } else if (addonName == "Connector App Tasks") {
+                                    target.innerText = target.innerText + " per 5,000 tasks"
+                                } else if (addonName == "Campaign Contacts") {
+                                    target.innerText = target.innerText + " 5,000 contacts"
+                                } else if (addonName == "Freddy AI Copilot" && productName == "Freshdesk" && j == 2) {
+                                    target.innerText = "Included"
+                                } else {
 
+                                }
                             }
                         }
 
@@ -428,6 +472,28 @@ function setCurrency(curr, nextState) {
             return array.items[index];
         } else {
             return array.items[0];
+        }
+    }
+
+    function freshserviceAddonCheck(obj) {
+        if (obj == "Asset Pack") {
+            return true;
+        } else if (obj == "Freddy AI Copilot") {
+            return true;
+        } else if (obj == "SaaS Management") {
+            return true;
+        } else if (obj == "Business Agent License (See what’s included)") {
+            return true;
+        } else if (obj == "E-signature") {
+            return true;
+        } else if (obj == "Orchestration Transaction Packs") {
+            return true;
+        } else if (obj == "Connector App Tasks") {
+            return true;
+        } else if (obj == "@mentions, Private Projects & Additional Project Management Licenses") {
+            return true;
+        } else {
+            return false;
         }
     }
 }

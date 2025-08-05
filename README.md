@@ -19,6 +19,11 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.74 - August 5, 2025
+- Updated the extension to support the latest website changes
+- Fixed Bug with FS Enterprise Pricing
+- Fixed the new addon name for Copilot and Insights
+
 v1.73beta5 - January 15, 2025
 - Updated the code to support the latest changes to the website with the Freshservice Enterprise Price.
 - Added a fix to handle branding changes of Freddy AI
