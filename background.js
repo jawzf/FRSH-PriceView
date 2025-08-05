@@ -227,8 +227,7 @@ function setCurrency(curr, nextState) {
         var newPriceTablePlanHeader = pricTablePlan[0].children[0].children;
         for (var i = 0; i < newPriceTablePlanHeader.length; i++) {
             //console.log(newPriceTablePlanHeader[i].childNodes);
-            //console.log(currentPricingData.items[i].internalName);
-            if (currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
+            if (currentPricingData.items[i] && currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
                 continue;
             }
             if (newPriceTablePlanHeader[i + 1]) {
@@ -274,7 +273,7 @@ function setCurrency(curr, nextState) {
     } else {
         for (var i = 0; i < pricTablePlan.length; i++) {
             if (pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML != "Free") {
-                if (currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
+                if (currentPricingData.items[i] && currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
                     continue;
                 }
                 if (nextState == "USD") {
@@ -349,7 +348,7 @@ function setCurrency(curr, nextState) {
             } else {
                 var tagLocal = newAddonRow[i].childNodes[numberOfPlans].childNodes[0].localName;
             }
-            if (addonName != "Collaborators" && addonName != "Freddy AI Insights (Beta)" && addonName != "Freddy AI Insights") {
+            if (addonName != "Collaborators" && addonName != "Freddy AI Insights (Beta)" && addonName != "Freddy AI Insights" && addonName != "Advanced ITAM" && addonName != "Orchestration Transactions" && addonName != "API Access") {
                 if (tagLocal == "div") {
                     var rowPrice = searchAddonPrice(addonName, addonPrices);
                     if (addonName == "Freddy AI Agent") {
@@ -358,6 +357,46 @@ function setCurrency(curr, nextState) {
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
                             if (productName == "Freshservice") {
+                                console.log(j);
+                                console.log(addonName);
+                                console.log(rowPrice);
+                                var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
+                                console.log(returnValidAddonPriceFS(1, rowPrice, annualTerm));
+                                if (nextState == "USD") {
+                                    target.innerText = "$" + returnValidAddonPriceFS(0, rowPrice, annualTerm);
+                                } else if (nextState == "EUR") {
+                                    target.innerText = "€" + returnValidAddonPriceFS(2, rowPrice, annualTerm);
+                                } else if (nextState == "GBP") {
+                                    target.innerText = "£" + returnValidAddonPriceFS(4, rowPrice, annualTerm);
+                                } else if (nextState == "INR") {
+                                    target.innerText = "₹" + returnValidAddonPriceFS(1, rowPrice, annualTerm);
+                                } else if (nextState == "AUD") {
+                                    target.innerText = "A$" + returnValidAddonPriceFS(3, rowPrice, annualTerm);
+                                } else {
+                                    target.innerText = "$" + returnValidAddonPriceFS(1, rowPrice, annualTerm);
+                                }
+
+
+                                //Add website custom text below
+                                if (addonName == "Freddy AI Copilot") {
+                                    target.innerText = target.innerText + "/agent/month";
+                                } else if (addonName == "Asset Pack") {
+                                    target.innerText = "Includes 100 assets by default, with the option to add 500 assets for " + target.innerText + "/month";
+                                } else if (addonName == "SaaS Management") {
+                                    target.innerText = target.innerText + "/employee/month Billed based on total employee count. Valid through end of billing cycle.";
+                                } else if (addonName == "Business Agent License (See what’s included)") {
+                                    target.innerText = target.innerText + "/agent/month";
+                                } else if (addonName == "E-signature") {
+                                    target.innerText = target.innerText + "/pack/account, with 30 signature credits per pack";
+                                } else if (addonName == "Orchestration Transaction Packs") {
+                                    target.innerText = target.innerText + "/pack for 1000 transactions. Valid until the end of the billing cycle.";
+                                } else if (addonName == "Connector App Tasks") {
+                                    target.innerText = "Includes one-time free credit of 500 tasks, with additional packs at "+target.innerText + " per 5000 tasks. Valid until the end of the billing cycle.";
+                                } else if (addonName == "@mentions, Private Projects & Additional Project Management Licenses") {
+                                    target.innerText = target.innerText + "/user/month";
+                                } else {
+
+                                }
 
                             } else {
                                 console.log(addonName + ":" + rowPrice);
@@ -472,6 +511,16 @@ function setCurrency(curr, nextState) {
             return array.items[index];
         } else {
             return array.items[0];
+        }
+    }
+
+    function returnValidAddonPriceFS(currIndex, array, annual) {
+        if (array[currIndex].fields && annual) {
+            return array[currIndex].fields.annual;
+        } else if (array[currIndex].fields && !annual) {
+            return array[currIndex].fields.monthly;
+        } else {
+            return "NA";
         }
     }
 
