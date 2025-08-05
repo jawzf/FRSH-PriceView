@@ -156,7 +156,7 @@ function setCurrency(curr, nextState) {
 
     //Identify Product being displayed
     var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
-    console.log("Product:" + productName);
+    //console.log("Product:" + productName);
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
     //console.log(addData);
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
@@ -207,7 +207,7 @@ function setCurrency(curr, nextState) {
         //console.log(addonPrices);
         console.log(addData.props.pageProps.pageProps.componentsCollection.items);
     }
-    console.log(addonPrices);
+    //console.log(addonPrices);
     var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
     //console.log(pricTablePlan);
 
@@ -357,11 +357,11 @@ function setCurrency(curr, nextState) {
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
                             if (productName == "Freshservice") {
-                                console.log(j);
-                                console.log(addonName);
-                                console.log(rowPrice);
+                                //console.log(j);
+                                //console.log(addonName);
+                                //console.log(rowPrice);
                                 var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
-                                console.log(returnValidAddonPriceFS(1, rowPrice, annualTerm));
+                                //console.log(returnValidAddonPriceFS(1, rowPrice, annualTerm));
                                 if (nextState == "USD") {
                                     target.innerText = "$" + returnValidAddonPriceFS(0, rowPrice, annualTerm);
                                 } else if (nextState == "EUR") {
@@ -399,7 +399,7 @@ function setCurrency(curr, nextState) {
                                 }
 
                             } else {
-                                console.log(addonName + ":" + rowPrice);
+                                //console.log(addonName + ":" + rowPrice);
                                 var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
                                 if (nextState == "USD") {
                                     target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
