@@ -19,6 +19,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.75beta1 - November 14, 2025
+- Updated the code to fix the main pricing
+- The addon pricing is being reworked and is in progress
+- Freshcaller and FS for MSP still in progress
 v1.74 - August 5, 2025
 - Updated the extension to support the latest website changes
 - Fixed Bug with FS Enterprise Pricing

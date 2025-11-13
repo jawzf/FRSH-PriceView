@@ -1,7 +1,6 @@
 chrome.runtime.onUpdateAvailable.addListener(function(details) {
     chrome.runtime.reload(); // To restart the chrome App instantaneously
 });
-
 chrome.runtime.onInstalled.addListener((details) => {
     chrome.action.setBadgeText({
         text: "FRSH",
@@ -14,7 +13,6 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         // When extension is updated
-
         chrome.tabs.create({
             url: "./installed.html"
         });
@@ -52,13 +50,11 @@ const currency = [{
     }
 ];
 var priceCount = 0;
-
 //Context Menu Feature
 /*
 chrome.contextMenus.onClicked.addListener((item, tab) => {
     const menuItemId = item.menuItemId;
     const selectionText = item.selectionText;
-
     chrome.scripting
         .executeScript({
             target: { tabId: tab.id },
@@ -67,16 +63,13 @@ chrome.contextMenus.onClicked.addListener((item, tab) => {
         })
         .then(() => console.log("injected the calculateDiscount function"));
 });*/
-
 function initialiseDropDown() {
     //donothing
 }
-
 chrome.action.onClicked.addListener(async (tab) => {
     if (tab.url.startsWith(extensions)) {
         const prevState = await chrome.action.getBadgeText({ tabId: tab.id });
         const nextState = currency[priceCount++].label;
-
         // Set the action badge to the next state
         await chrome.action.setBadgeText({
             tabId: tab.id,
@@ -89,12 +82,9 @@ chrome.action.onClicked.addListener(async (tab) => {
                 args: [currency[priceCount - 1].code, nextState],
             })
             .then(() => console.log("injected the currency function"));
-
         if (priceCount == 5) priceCount = 0;
     }
-
 });
-
 function calculateDiscountFunction(selectionText) {
     var styles = `
     #discountPopUp {
@@ -110,7 +100,6 @@ function calculateDiscountFunction(selectionText) {
       z-index: 10; /* Make sure the window is above other elements */
       width: 200px; /* Set a fixed width for the window */
     }
-    
     #close-button {
       position: absolute;
       top: 5px;
@@ -128,22 +117,17 @@ function calculateDiscountFunction(selectionText) {
     var styleSheet = document.createElement("style")
     styleSheet.innerText = styles
     document.head.appendChild(styleSheet)
-
     //console.log(selectionText);
-
     var discountPop = '<div id="discountPopUp">' + selectionText + '<button id="close-button">X</button></div>';
     var bdy = document.getElementById("main-content");
     bdy.innerHTML += discountPop;
-
     const windowElement = document.getElementById('floating-window');
     const closeButton = document.getElementById('close-button');
-
     closeButton.addEventListener('click', () => {
         // Hide the window on button click
         windowElement.style.display = 'none';
     });
 }
-
 function getOffset(el) {
     const rect = el.getBoundingClientRect();
     return {
@@ -151,12 +135,10 @@ function getOffset(el) {
         top: rect.top + window.scrollY
     };
 }
-
 function setCurrency(curr, nextState) {
-
     //Identify Product being displayed
     var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
-    //console.log("Product:" + productName);
+    console.log("Product:" + productName);
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
     //console.log(addData);
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
@@ -168,7 +150,6 @@ function setCurrency(curr, nextState) {
         //console.log(addonPlanCount);
         //console.log(addonInfo);
         //console.log(currentPricingData);
-
         //Pulling the addon prices
         for (var i = 0; i < addonPlanCount; i++) {
             var featureCount = addonInfo[i].planFeaturesGroupCollection.items.length;
@@ -193,7 +174,6 @@ function setCurrency(curr, nextState) {
         var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
         //console.log(numberOfAddons);
         //console.log(currentPricingData);
-
         //Pulling the addon prices
         for (var i = 0; i < numberOfAddons; i++) {
             if (addData.props.pageProps.pageProps.componentsCollection.items[i].__typename == "ComponentStaticModalPopup") {
@@ -208,10 +188,17 @@ function setCurrency(curr, nextState) {
         console.log(addData.props.pageProps.pageProps.componentsCollection.items);
     }
     //console.log(addonPrices);
-    var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 bDJUlF")[0].childNodes[5].childNodes;
-    //console.log(pricTablePlan);
-
-
+    console.log(document.getElementsByClassName("sc-662dedcb-0 kIzbos"));
+    if (productName == "Freshservice" || productName == "Freshdesk" || productName == "Freshdesk Omni" || productName == "Freshchat") {
+        var pricTablePlan = document.getElementsByClassName("sc-f36f809e-0 bQyrDJ")[0].childNodes;
+    } else if (productName == "Freshcaller") {
+        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 fsydGs")[0].childNodes[5].childNodes;
+    } else if (productName == "Freshservice for MSPs") {
+        var pricTablePlan = document.getElementsByClassName("sc-662dedcb-0 kIzbos")[0].childNodes[0].chikdNodes[0].childNodes;
+    } else {
+        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 dQhDwa")[0].childNodes[5].childNodes;
+    }
+    console.log(pricTablePlan);
     //identifying the billing cycle
     var annualTerm = true;
     var pricingTermDiv = document.querySelector('[aria-label="Pricing Term"]').childNodes;
@@ -220,9 +207,7 @@ function setCurrency(curr, nextState) {
         annualTerm = false;
     }
     //console.log("annualTerm:"+annualTerm);
-
     //Update the currency and price on the main Table
-
     if (pricTablePlan[0].tagName == "THEAD") {
         var newPriceTablePlanHeader = pricTablePlan[0].children[0].children;
         for (var i = 0; i < newPriceTablePlanHeader.length; i++) {
@@ -328,8 +313,6 @@ function setCurrency(curr, nextState) {
             }
         }
     }
-
-
     //Updating the popups
     var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
     var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
@@ -338,7 +321,14 @@ function setCurrency(curr, nextState) {
     if (productName == "Freshdesk" || productName == "Freshchat" || productName == "Freshservice") {
         numberOfPlans = 4;
     }
-
+    if (pricTablePlan[0].tagName == "THEAD") {
+        var featureTable = pricTablePlan[1];
+        //console.log(featureTable);
+        var openSectionIndex = [];
+        for(var i=0;i<featureTable.childNodes.length;i++){
+            console.log(featureTable.childNodes[i].className);
+        }
+    }
     if (pricTablePlan[0].tagName == "THEAD") {
         var newAddonRow = document.getElementsByClassName("rfWFf");
         for (var i = 0; i < newAddonRow.length; i++) {
@@ -358,8 +348,8 @@ function setCurrency(curr, nextState) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
                             if (productName == "Freshservice") {
                                 //console.log(j);
-                                //console.log(addonName);
-                                //console.log(rowPrice);
+                                console.log(addonName);
+                                console.log(rowPrice);
                                 var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
                                 //console.log(returnValidAddonPriceFS(1, rowPrice, annualTerm));
                                 if (nextState == "USD") {
@@ -375,8 +365,6 @@ function setCurrency(curr, nextState) {
                                 } else {
                                     target.innerText = "$" + returnValidAddonPriceFS(1, rowPrice, annualTerm);
                                 }
-
-
                                 //Add website custom text below
                                 if (addonName == "Freddy AI Copilot") {
                                     target.innerText = target.innerText + "/agent/month";
@@ -391,13 +379,11 @@ function setCurrency(curr, nextState) {
                                 } else if (addonName == "Orchestration Transaction Packs") {
                                     target.innerText = target.innerText + "/pack for 1000 transactions. Valid until the end of the billing cycle.";
                                 } else if (addonName == "Connector App Tasks") {
-                                    target.innerText = "Includes one-time free credit of 500 tasks, with additional packs at "+target.innerText + " per 5000 tasks. Valid until the end of the billing cycle.";
+                                    target.innerText = "Includes one-time free credit of 500 tasks, with additional packs at " + target.innerText + " per 5000 tasks. Valid until the end of the billing cycle.";
                                 } else if (addonName == "@mentions, Private Projects & Additional Project Management Licenses") {
                                     target.innerText = target.innerText + "/user/month";
                                 } else {
-
                                 }
-
                             } else {
                                 //console.log(addonName + ":" + rowPrice);
                                 var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
@@ -419,7 +405,6 @@ function setCurrency(curr, nextState) {
                                 } else {
                                     target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
                                 }
-
                                 //Add website custom text below
                                 if (addonName == "Freshcaller" || addonName == "Freshsales") {
                                     target.innerText = "Starting from " + target.innerText;
@@ -432,18 +417,13 @@ function setCurrency(curr, nextState) {
                                 } else if (addonName == "Freddy AI Copilot" && productName == "Freshdesk" && j == 2) {
                                     target.innerText = "Included"
                                 } else {
-
                                 }
                             }
                         }
-
                     }
-
                 }
             }
-
         }
-
     } else {
         for (var i = 0; i < addonPopup.length; i++) {
             var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
@@ -487,7 +467,6 @@ function setCurrency(curr, nextState) {
             }
         }
     }
-
     function checkIfExistsInArray(text, array) {
         for (var i = 0; i < array.length; i++) {
             if (text == array[i]) {
@@ -496,7 +475,6 @@ function setCurrency(curr, nextState) {
         }
         return false;
     }
-
     function searchAddonPrice(text, array) {
         for (var i = 0; i < array.length; i++) {
             if (text == array[i].title || (text == "Freddy Self Service" && array[i].title == "Freshbots by Freddy Self Service")) {
@@ -505,7 +483,6 @@ function setCurrency(curr, nextState) {
         }
         return null;
     }
-
     function returnValidAddonPrice(index, array) {
         if (array.items[index]) {
             return array.items[index];
@@ -513,7 +490,6 @@ function setCurrency(curr, nextState) {
             return array.items[0];
         }
     }
-
     function returnValidAddonPriceFS(currIndex, array, annual) {
         if (array[currIndex].fields && annual) {
             return array[currIndex].fields.annual;
@@ -523,7 +499,6 @@ function setCurrency(curr, nextState) {
             return "NA";
         }
     }
-
     function freshserviceAddonCheck(obj) {
         if (obj == "Asset Pack") {
             return true;
@@ -546,10 +521,8 @@ function setCurrency(curr, nextState) {
         }
     }
 }
-
 chrome.tabs.onUpdated.addListener(
     function(tab_id, changeInfo, tab) {
-
         if (tab.url.startsWith(extensions)) {
             priceCount = 0;
             chrome.scripting
