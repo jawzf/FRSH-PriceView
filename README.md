@@ -19,6 +19,8 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.75beta2 - March 10, 2026
+- Fixed references to new class names
 v1.75beta1 - November 14, 2025
 - Updated the code to fix the main pricing
 - The addon pricing is being reworked and is in progress

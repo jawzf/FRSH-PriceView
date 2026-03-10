@@ -144,7 +144,7 @@ function setCurrency(curr, nextState) {
     //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
     var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
     const addonPrices = [];
-    if (productName == "Freshservice") {
+    if (productName == "Freshservice for IT teams") {
         var addonPlanCount = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items.length;
         var addonInfo = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items;
         //console.log(addonPlanCount);
@@ -185,20 +185,20 @@ function setCurrency(curr, nextState) {
             }
         }
         //console.log(addonPrices);
-        console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+        //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
     }
     //console.log(addonPrices);
-    console.log(document.getElementsByClassName("sc-662dedcb-0 kIzbos"));
-    if (productName == "Freshservice" || productName == "Freshdesk" || productName == "Freshdesk Omni" || productName == "Freshchat") {
-        var pricTablePlan = document.getElementsByClassName("sc-f36f809e-0 bQyrDJ")[0].childNodes;
+    //console.log(document.getElementsByClassName("sc-662dedcb-0 kIzbos"));
+    if (productName == "Freshdesk" || productName == "Freshdesk Omni" || productName == "Freshchat" || productName == "Freshservice for IT teams") {
+        var pricTablePlan = document.getElementsByClassName("sc-8f0b39d4-0 lexhVu")[0].childNodes;
     } else if (productName == "Freshcaller") {
-        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 fsydGs")[0].childNodes[5].childNodes;
-    } else if (productName == "Freshservice for MSPs") {
-        var pricTablePlan = document.getElementsByClassName("sc-662dedcb-0 kIzbos")[0].childNodes[0].chikdNodes[0].childNodes;
+        var pricTablePlan = document.getElementsByClassName("sc-662dedcb-0 krVsJD")[0].childNodes[5].childNodes;
+    } else if (productName == "Freshservice for MSPs" || productName == "Freshservice for Business Teams") {
+        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 oPCsi")[0].childNodes[0].chikdNodes[0].childNodes;
     } else {
         var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 dQhDwa")[0].childNodes[5].childNodes;
     }
-    console.log(pricTablePlan);
+    console.log("Pricing Table:"+pricTablePlan);
     //identifying the billing cycle
     var annualTerm = true;
     var pricingTermDiv = document.querySelector('[aria-label="Pricing Term"]').childNodes;
@@ -318,7 +318,7 @@ function setCurrency(curr, nextState) {
     var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
     var ignoreAddonList = ["Freddy AI Insights", "Advanced Discovery and Dependency Mapping", "Sandbox Add-on"];
     var numberOfPlans = 3;
-    if (productName == "Freshdesk" || productName == "Freshchat" || productName == "Freshservice") {
+    if (productName == "Freshdesk" || productName == "Freshchat" || productName == "Freshservice for IT teams") {
         numberOfPlans = 4;
     }
     if (pricTablePlan[0].tagName == "THEAD") {
@@ -346,7 +346,7 @@ function setCurrency(curr, nextState) {
                     }
                     for (var j = 0; j < numberOfPlans; j++) {
                         if (newAddonRow[i].childNodes[j + 1].innerText != "") {
-                            if (productName == "Freshservice") {
+                            if (productName == "Freshservice for IT teams") {
                                 //console.log(j);
                                 console.log(addonName);
                                 console.log(rowPrice);
