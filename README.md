@@ -2,15 +2,22 @@
 
 Chrome Webstore - https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc
 
-Switch between prices in different currencies on the Freshservice pricing pages.
+Switch between prices in different currencies on the Freshworks pricing pages.
 
-This app allows you to switch between available currencies on the Freshservice pricing pages:
-- IT teams - freshworks.com/freshservice/pricing/
-- MSPs - freshworks.com/freshservice/msp/pricing/
-- Business Teams - freshworks.com/freshservice/business-teams/pricing/
-- IT Asset Management - freshworks.com/freshservice/itam/pricing/
+This app allows you to switch between available currencies on the following Freshworks pricing pages:
+- Freshservice for IT teams - freshworks.com/freshservice/pricing/
+- Freshservice for MSPs - freshworks.com/freshservice/msp/pricing/
+- Freshservice for Business Teams - freshworks.com/freshservice/business-teams/pricing/
+- Freshservice IT Asset Management - freshworks.com/freshservice/itam/pricing/
+- Freshdesk - freshworks.com/freshdesk/pricing/
+- Freshdesk Omni - freshworks.com/freshdesk/omni/pricing/
+- Freshcaller - freshworks.com/freshcaller-cloud-pbx/pricing/
+- Freshchat (live chat) - freshworks.com/live-chat-software/pricing/
+- Freshsales (CRM) - freshworks.com/crm/pricing/
+- Freshsales Suite - freshworks.com/crm/suite/pricing/
+- Freshmarketer - freshworks.com/crm/marketing/pricing/
 
-Support for Freshservice for CX is coming soon. Support for the other Freshworks pricing pages (Freshdesk, Freshchat, Freshcaller, CRM, Omnichannel, etc.) was removed while those pages are rebuilt against the redesigned site.
+Support for Freshservice for CX is coming soon. The other Freshworks pricing pages (Omnichannel, comparison pages, etc.) aren't supported yet while they're checked against the redesigned site.
 
 The steps are simple:
 1. Install the App
@@ -25,6 +32,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.77.0 - September 1, 2026
+- Added support for Freshdesk, Freshdesk Omni, Freshcaller, Freshchat (live chat), and the CRM pricing pages (Freshsales, Freshsales Suite, Freshmarketer) - they share the same redesigned page structure as the Freshservice pricing pages
+- Addon/"Compare features" pricing now works on these pages too (e.g. Day passes and Connector app tasks on Freshdesk/Freshdesk Omni)
+
 v1.76.1 - September 1, 2026
 - Added support for the Freshservice for MSPs, Business Teams, and IT Asset Management pricing pages (same underlying page structure as Freshservice for IT teams)
 - Support for Freshservice for CX pricing is coming soon

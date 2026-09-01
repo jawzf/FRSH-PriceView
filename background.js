@@ -21,7 +21,14 @@ const targetUrls = [
     "https://www.freshworks.com/freshservice/pricing/",
     "https://www.freshworks.com/freshservice/msp/pricing/",
     "https://www.freshworks.com/freshservice/business-teams/pricing/",
-    "https://www.freshworks.com/freshservice/itam/pricing/"
+    "https://www.freshworks.com/freshservice/itam/pricing/",
+    "https://www.freshworks.com/freshdesk/pricing/",
+    "https://www.freshworks.com/freshdesk/omni/pricing/",
+    "https://www.freshworks.com/freshcaller-cloud-pbx/pricing/",
+    "https://www.freshworks.com/live-chat-software/pricing/",
+    "https://www.freshworks.com/crm/pricing/",
+    "https://www.freshworks.com/crm/suite/pricing/",
+    "https://www.freshworks.com/crm/marketing/pricing/"
 ];
 function isSupportedUrl(url) {
     return targetUrls.some(function(u) { return url.startsWith(u); });
@@ -72,17 +79,19 @@ chrome.action.onClicked.addListener(async (tab) => {
     }
 });
 
-// The Freshservice pricing pages (IT teams, MSPs, Business Teams, IT Asset Management) were rebuilt by
-// Freshworks around mid-2026 with a new Contentful-backed JSON shape
-// (pricingDetails.pricingPlansCollection instead of a flat top-level items collection) and new HTML
-// structure (stable BEM-ish classnames like .pricing-plan-card-price__value and data-pricing-* attributes
-// instead of the old styled-components hash classnames). All four pages share this same structure, so
-// this single function handles them all. Freshservice for CX pricing support is coming soon.
+// The Freshworks pricing pages listed in targetUrls above (Freshservice, Freshdesk, Freshcaller,
+// Freshchat/live-chat, CRM) were rebuilt by Freshworks around mid-2026 with a new Contentful-backed
+// JSON shape (pricingDetails.pricingPlansCollection instead of a flat top-level items collection) and
+// new HTML structure (stable BEM-ish classnames like .pricing-plan-card-price__value and data-pricing-*
+// attributes instead of the old styled-components hash classnames). All of these pages share this same
+// structure, so this single function handles them all. Freshservice for CX pricing support is coming soon.
 function setCurrency(currCode, nextState) {
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
-    var pageItem = addData.props.pageProps.pageProps.componentsCollection.items[0];
-    if (!pageItem || !pageItem.pricingDetails) {
-        console.log("FRSH PriceView: unrecognised Freshservice pricing page structure, skipping.");
+    var pageItem = addData.props.pageProps.pageProps.componentsCollection.items.filter(function(it) {
+        return it.pricingDetails;
+    })[0];
+    if (!pageItem) {
+        console.log("FRSH PriceView: unrecognised pricing page structure, skipping.");
         return;
     }
 

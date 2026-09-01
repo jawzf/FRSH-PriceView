@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "FRSH PriceView",
-    "version": "1.76.1",
-    "description": "Switch between prices in different currencies on the Freshservice pricing pages.",
+    "version": "1.77.0",
+    "description": "Switch between prices in different currencies on the Freshworks pricing pages.",
     "author": "joseph.kuriackal@freshworks.com",
     "icons":
     {
@@ -30,7 +30,14 @@
         "https://www.freshworks.com/freshservice/pricing/*",
         "https://www.freshworks.com/freshservice/msp/pricing/*",
         "https://www.freshworks.com/freshservice/business-teams/pricing/*",
-        "https://www.freshworks.com/freshservice/itam/pricing/*"
+        "https://www.freshworks.com/freshservice/itam/pricing/*",
+        "https://www.freshworks.com/freshdesk/pricing/*",
+        "https://www.freshworks.com/freshdesk/omni/pricing/*",
+        "https://www.freshworks.com/freshcaller-cloud-pbx/pricing/*",
+        "https://www.freshworks.com/live-chat-software/pricing/*",
+        "https://www.freshworks.com/crm/pricing/*",
+        "https://www.freshworks.com/crm/suite/pricing/*",
+        "https://www.freshworks.com/crm/marketing/pricing/*"
     ],
     "content_scripts": [
     {
@@ -39,7 +46,14 @@
             "https://www.freshworks.com/freshservice/pricing/*",
             "https://www.freshworks.com/freshservice/msp/pricing/*",
             "https://www.freshworks.com/freshservice/business-teams/pricing/*",
-            "https://www.freshworks.com/freshservice/itam/pricing/*"
+            "https://www.freshworks.com/freshservice/itam/pricing/*",
+            "https://www.freshworks.com/freshdesk/pricing/*",
+            "https://www.freshworks.com/freshdesk/omni/pricing/*",
+            "https://www.freshworks.com/freshcaller-cloud-pbx/pricing/*",
+            "https://www.freshworks.com/live-chat-software/pricing/*",
+            "https://www.freshworks.com/crm/pricing/*",
+            "https://www.freshworks.com/crm/suite/pricing/*",
+            "https://www.freshworks.com/crm/marketing/pricing/*"
         ]
     }]
 }
