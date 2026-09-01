@@ -1,142 +1,699 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRSH PriceView</title>
+    <link rel="icon" href="images/icon-32.png">
     <style>
-    * {
-        box-sizing: border-box;
-    }
+        :root {
+            --bg: #f7f7f5;
+            --bg-elevated: #ffffff;
+            --text: #16181d;
+            --text-muted: #5b6270;
+            --border: #e6e6e2;
+            --accent: #0a7a52;
+            --accent-soft: #e3f3ec;
+            --accent-contrast: #ffffff;
+            --chip-bg: #f0f0ec;
+            --callout-bg: #fff7e8;
+            --callout-border: #f0d99b;
+            --code-bg: #f0f0ec;
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.10);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
 
-    .menu {
-        float: left;
-        width: 20%;
-    }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0e0f11;
+                --bg-elevated: #17181b;
+                --text: #f2f3f5;
+                --text-muted: #9a9fa8;
+                --border: #2a2c30;
+                --accent: #33c48a;
+                --accent-soft: #163527;
+                --accent-contrast: #06120c;
+                --chip-bg: #1f2124;
+                --callout-bg: #241d0f;
+                --callout-border: #4a3c19;
+                --code-bg: #1f2124;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+            }
+        }
 
-    .menuitem {
-        padding: 8px;
-        margin-top: 7px;
-        border-bottom: 1px solid #f1f1f1;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    .main {
-        float: left;
-        width: 60%;
-        padding: 0 20px;
-        overflow: hidden;
-    }
-
-    .right {
-        background-color: lightblue;
-        float: left;
-        width: 20%;
-        padding: 10px 15px;
-        margin-top: 7px;
-    }
-
-    @media only screen and (max-width:800px) {
-
-        /* For tablets: */
-        .main {
-            width: 80%;
+        html,
+        body {
+            margin: 0;
             padding: 0;
         }
 
-        .right {
-            width: 100%;
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
         }
-    }
 
-    @media only screen and (max-width:500px) {
-
-        /* For mobile phones: */
-        .menu,
-        .main,
-        .right {
-            width: 100%;
+        a {
+            color: var(--accent);
         }
-    }
+
+        .wrap {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .hero img {
+            width: 68px;
+            height: 68px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .hero-text h1 {
+            margin: 0 0 4px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-text .byline {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--accent-soft);
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .pill-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .btn-primary:hover {
+            border-color: var(--text);
+            opacity: 0.9;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ---------- Stats ---------- */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 40px;
+        }
+
+        .stat {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+        }
+
+        .stat .num {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .stat .label {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        /* ---------- Sections ---------- */
+        section {
+            margin-top: 48px;
+        }
+
+        h2 {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin: 0 0 16px;
+        }
+
+        .card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .callout {
+            background: var(--callout-bg);
+            border: 1px solid var(--callout-border);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            font-size: 14.5px;
+            margin-top: 16px;
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        ol.steps {
+            margin: 0;
+            padding-left: 22px;
+        }
+
+        ol.steps li {
+            margin-bottom: 8px;
+        }
+
+        ol.steps li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ---------- Chips grid ---------- */
+        .chip-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            background: var(--chip-bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 13.5px;
+            font-weight: 500;
+        }
+
+        .chip.soon {
+            background: transparent;
+            border-style: dashed;
+            color: var(--text-muted);
+        }
+
+        /* ---------- Changelog ---------- */
+        .changelog-entry {
+            position: relative;
+            padding-left: 22px;
+            border-left: 2px solid var(--border);
+            padding-bottom: 22px;
+        }
+
+        .changelog-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .changelog-entry::before {
+            content: "";
+            position: absolute;
+            left: -6px;
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+        }
+
+        .changelog-entry.latest::before {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .changelog-head {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .changelog-version {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .changelog-date {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .changelog-entry ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text);
+        }
+
+        .changelog-entry ul li {
+            margin-bottom: 4px;
+            font-size: 14.5px;
+        }
+
+        details {
+            margin-top: 28px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--accent);
+            list-style: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: "History \25B8";
+        }
+
+        details[open] summary::before {
+            content: "Hide history \25BE";
+        }
+
+        details .changelog-entry {
+            border-left-color: var(--border);
+        }
+
+        details .history-body {
+            margin-top: 20px;
+        }
+
+        /* ---------- Footer info ---------- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .info-grid .card {
+            padding: 20px;
+        }
+
+        .info-grid h3 {
+            margin: 0 0 6px;
+            font-size: 14px;
+        }
+
+        .info-grid p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        footer {
+            margin-top: 56px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 12.5px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .wrap {
+                padding: 32px 18px 56px;
+            }
+
+            .actions {
+                margin-left: 0;
+            }
+
+            .stats,
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>FRSH PriceView</title>
 </head>
 
-<body style="font-family:Roboto;font-size: 16px">
-    <div style="background-color:#b7d18c;padding:15px;" class="row">
-        <img src="images/icon-256.png" style="width:10%;height:10%" class="col-md-3">
-        <div class="col-md-9">
-            <h1>FRSH PriceView by Joe Kuriackal</h1>
-            <h4>Thank you for installing version 2.0.1</h4>
-            <a class="btn btn-secondary" style="font-size:18px" href="https://github.com/jawzf/FRSH-PriceView">View on <i class="fa fa-github"></i> Github</a>
+<body>
+    <div class="wrap">
+
+        <div class="hero">
+            <img src="images/icon-256.png" alt="FRSH PriceView icon">
+            <div class="hero-text">
+                <h1>FRSH PriceView</h1>
+                <p class="byline">by Joe Kuriackal</p>
+                <div class="hero-meta">
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.0.1</span>
+                </div>
+            </div>
+            <div class="actions">
+                <a class="btn" href="https://github.com/jawzf/FRSH-PriceView">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+                    GitHub
+                </a>
+                <a class="btn btn-primary" href="mailto:joseph.kuriackal@freshworks.com">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.75 3A1.75 1.75 0 0 0 0 4.75v6.5C0 12.216.784 13 1.75 13h12.5A1.75 1.75 0 0 0 16 11.25v-6.5A1.75 1.75 0 0 0 14.25 3H1.75ZM1.5 4.75a.25.25 0 0 1 .25-.25h12.5a.25.25 0 0 1 .25.25v.638L8 9.402 1.5 5.388V4.75Zm0 2.075v4.425c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V6.825L8.334 10.61a.75.75 0 0 1-.668 0L1.5 6.825Z"></path></svg>
+                    Contact support
+                </a>
+            </div>
         </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="num">Free</div>
+                <div class="label">No cost, no account</div>
+            </div>
+            <div class="stat">
+                <div class="num">11</div>
+                <div class="label">Pricing pages supported</div>
+            </div>
+            <div class="stat">
+                <div class="num">5</div>
+                <div class="label">Currencies &mdash; USD, EUR, GBP, INR, AUD</div>
+            </div>
+        </div>
+
+        <section>
+            <h2>How it works</h2>
+            <div class="card">
+                <ol class="steps">
+                    <li>Install the extension and pin it to your toolbar.</li>
+                    <li>Visit any supported Freshworks pricing page.</li>
+                    <li>Click the extension icon to cycle through currencies &mdash; the badge shows the current one.</li>
+                </ol>
+                <div class="callout">
+                    <strong>Addons with a dropdown</strong>
+                    For addon pricing that depends on an option you choose (e.g. a plan or usage tier), select the value you want first, then click the extension to convert that price too.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Supported pages</h2>
+            <div class="chip-grid">
+                <span class="chip">Freshservice for IT teams</span>
+                <span class="chip">Freshservice for MSPs</span>
+                <span class="chip">Freshservice for Business Teams</span>
+                <span class="chip">Freshservice IT Asset Management</span>
+                <span class="chip">Freshdesk</span>
+                <span class="chip">Freshdesk Omni</span>
+                <span class="chip">Freshcaller</span>
+                <span class="chip">Freshchat</span>
+                <span class="chip">Freshsales</span>
+                <span class="chip">Freshsales Suite</span>
+                <span class="chip">Freshmarketer</span>
+                <span class="chip soon">Freshservice for CX &mdash; coming soon</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>Changelog</h2>
+            <div class="card">
+
+                <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.0.1 &mdash; Major rework</span>
+                        <span class="changelog-date">September 1, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Rebuilt the pricing logic against the redesigned Freshworks pricing pages (new Contentful JSON shape and HTML structure)</li>
+                        <li>Addon and "Compare features" table pricing (E-signature, Freddy AI Copilot, Business Agent License, Orchestration Transaction Packs, Connector App Tasks, @mentions, Day passes, etc.) now derived directly from each page's JSON instead of a hardcoded list</li>
+                        <li>Added support for Freshservice (IT teams, MSPs, Business Teams, IT Asset Management), Freshdesk, Freshdesk Omni, Freshcaller, Freshchat, and CRM (Freshsales, Freshsales Suite, Freshmarketer)</li>
+                        <li>Support for Freshservice for CX is coming soon</li>
+                        <li>Removed all legacy code, permissions, and orphaned files for pages using the old site structure</li>
+                    </ul>
+                </div>
+
+                <details>
+                    <summary></summary>
+                    <div class="history-body">
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">March 10, 2026</span>
+                            </div>
+                            <ul>
+                                <li>Fixed references for new class names</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">November 14, 2025</span>
+                            </div>
+                            <ul>
+                                <li>Updated the code to fix the main pricing</li>
+                                <li>The addon pricing is being reworked and is in progress</li>
+                                <li>Freshcaller and FS for MSP still in progress</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">August 5, 2025</span>
+                            </div>
+                            <ul>
+                                <li>Updated the code to support the latest Freshworks website layout</li>
+                                <li>Fixed bug with FS Enterprise pricing</li>
+                                <li>Fixed the new addon name for Copilot and Insights</li>
+                                <li>Freshservice for MSPs still in progress</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">January 14, 2025</span>
+                            </div>
+                            <ul>
+                                <li>Updated the code to support the latest changes to the website with the Freshservice Enterprise price</li>
+                                <li>Added a fix to handle branding changes of Freddy AI</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">September 19, 2024</span>
+                            </div>
+                            <ul>
+                                <li>Updated the code to support the latest changes to the website code class including the newer Freshdesk and Freshchat pricing</li>
+                                <li>Added a fix to handle GBP pricing for Connector Task on FD pricing page</li>
+                                <li>Updated currency symbol for AUD to A$</li>
+                                <li>Added Sandbox add-on modal details</li>
+                                <li>Fixed Asset Pack price display</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">July 31, 2024</span>
+                            </div>
+                            <ul>
+                                <li>Customer Service Suite pricing table updated 90%</li>
+                                <li>CSS main table updated &mdash; prices now displayed correctly</li>
+                                <li>Campaign Contacts pop up in CSS still a work in progress</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">July 26, 2024</span>
+                            </div>
+                            <ul>
+                                <li>New beta to work with the Customer Service Suite pricing table changes in the website design &mdash; in beta until Freshworks consolidates the design of the entire pricing section</li>
+                                <li>Work in progress &mdash; CSS table headers updated</li>
+                                <li>Calculate Discount context menu code added</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">March 25, 2024</span>
+                            </div>
+                            <ul>
+                                <li>Updated the extension from beta to release</li>
+                                <li>Renamed DEFAULT to FRSH as the default app title</li>
+                                <li>Updated the branding as per Freshworks guidelines</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">March 23, 2024 (beta 4)</span>
+                            </div>
+                            <ul>
+                                <li>All dropdowns and pricing corrected to work with the new format &mdash; no known issues yet</li>
+                                <li>Fixed the bug on Freshchat pricing page due to a change in the "Free" text</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">March 23, 2024 (beta 2)</span>
+                            </div>
+                            <ul>
+                                <li>Fixed the Freshchat pricing bug</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">January 31, 2024 (beta 1)</span>
+                            </div>
+                            <ul>
+                                <li>Refreshed implementation to work with the new website design &mdash; beta, bugs still being fixed</li>
+                                <li>Addons do not work if there is a variable dropdown that defines the price &mdash; to be fixed soon</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">v1.62 / v1.61b &mdash; January 30, 2024</span>
+                            </div>
+                            <ul>
+                                <li>App is broken &mdash; fix is on the way</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">v1.61 &mdash; March 9, 2023</span>
+                            </div>
+                            <ul>
+                                <li>Updated permissions</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">v1.6 &mdash; March 5, 2023</span>
+                            </div>
+                            <ul>
+                                <li>Added support for detailed comparison pages for all products</li>
+                                <li>Added an auto update check to the extension</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">v1.5 &mdash; March 3, 2023</span>
+                            </div>
+                            <ul>
+                                <li>Added currency reset on page change</li>
+                                <li>Added support for dropdowns in the addons</li>
+                                <li>Added installation page</li>
+                                <li>Added LICENSE</li>
+                            </ul>
+                        </div>
+
+                        <div class="changelog-entry">
+                            <div class="changelog-head">
+                                <span class="changelog-version">v1.0 &mdash; February 24, 2023</span>
+                            </div>
+                            <ul>
+                                <li>Initial release</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section>
+            <div class="info-grid">
+                <div class="card">
+                    <h3>What is this?</h3>
+                    <p>Switch the displayed currency on Freshworks pricing pages without leaving the tab.</p>
+                </div>
+                <div class="card">
+                    <h3>Price</h3>
+                    <p>Free, forever. No account, no tracking.</p>
+                </div>
+                <div class="card">
+                    <h3>Support</h3>
+                    <p><a href="mailto:joseph.kuriackal@freshworks.com">joseph.kuriackal@freshworks.com</a></p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            FRSH PriceView &middot; Licensed under GNU General Public License v3.0
+        </footer>
+
     </div>
-    <div style="overflow:auto;padding-top:15px">
-        <div class="menu">
-            <div class="menuitem"></div>
-        </div>
-        <div class="main">
-            <h2>Important Instructions</h2>
-            <p>This extension currently supports the Freshservice (IT teams, MSPs, Business Teams, IT Asset Management), Freshdesk, Freshdesk Omni, Freshcaller, Freshchat, and CRM (Freshsales, Freshsales Suite, Freshmarketer) pricing pages. Support for Freshservice for CX is coming soon. Please reach out to me on Slack/Email for any quick feedback.</p>
-            <p><b>When viewing the price of addons which dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.</b></p>
-            <p><i style="background-color: orange;">Upcoming features - Check Discount Percentage by right clicking, Additional currency support. <br>Please Slack me your feedback and ideas.</b></i>
-                <h2>Changelog</h2>
-                <p></p>
-                <p>GNU General Public License v3.0</p>
-                <p>September 1, 2026 (2.0.1) - Major rework<br>- Rebuilt the pricing logic against the redesigned Freshworks pricing pages (new Contentful JSON shape and HTML structure)
-                    <br>- Addon and "Compare features" pricing (E-signature, Freddy AI Copilot, Business Agent License, Orchestration Transaction Packs, Connector App Tasks, @mentions, Day passes, etc.) now derived directly from each page's JSON instead of a hardcoded list
-                    <br>- Added support for Freshservice (IT teams, MSPs, Business Teams, IT Asset Management), Freshdesk, Freshdesk Omni, Freshcaller, Freshchat, and CRM (Freshsales, Freshsales Suite, Freshmarketer)
-                    <br>- Support for Freshservice for CX is coming soon
-                    <br>- Removed all legacy code, permissions, and orphaned files for pages using the old site structure</p>
-                <p>March 10, 2026<br>- Fixed references for new class names</p>
-                <p>November 14, 2025<br>- Updated the code to fix the main pricing
-                    <br>- The addon pricing is being reworked and is in progress
-                    <br>- Freshcaller and FS for MSP still in progress</p>
-                <p>August 05, 2025<br>- Updated the code to support the latest Freshworks website layout.
-                    <br>- Fixed Bug with FS Enterprise Pricing
-                    <br>- Fixed the new addon name for Copilot and Insights
-                    <br>- Freshservice for MSPs still in progress</p>
-                <p>January 14, 2025<br>- Updated the code to support the latest changes to the website with the Freshservice Enterprise Price.
-                    <br>- Added a fix to handle branding changes of Freddy AI</p>
-                <p>September 19, 2024<br>- Updated the code to support the latest changes to the website code class including the newer Freshdesk and Freshchat pricing.
-                    <br>- Added a fix to handle GBP pricing for Connector Task on FD pricing page
-                    <br>- Updated currency symbol for AUD to A$
-                    <br>- Added Sandbox add-on modal details
-                    <br>- Fixed Asset Pack price display</p>
-                <p>Jul 31, 2024<br>- Customer Service Suite pricing table updated 90%.
-                    <br>- CSS Main Table Updated. Prices are now displayed correctly
-                    <br>- Campaign Contacts Pop Up in CSS is still a work in progress.</p>
-                <p>Jul 26, 2024<br>- New beta to work with the Customer Service Suite pricing table changes in the website design. This will be in beta, until Freshworks consolidates the design of the entire pricing section.
-                    <br>- Work In Progress. CSS Table Headers updated.
-                    <br>- Calculate Discount Context menu code added.</p>
-                <p>Mar 25, 2024<br>- Updated the extension from beta to release.
-                    <br>- Renamed DEFAULT to FRSH as the default app title.
-                    <br>- Updated the branding as per Freshworks Guidelines.</p>
-                <p>Mar 23, 2024<br>- All drop downs and pricing corrected to work with the new format. No known issues yet.
-                    <br>- Fixed the bug on Freshchat pricing page due to a change in the "Free" text</p>
-                <p>Jan 30, 2024<br>- Refreshed Implementation to work with the new website design. This is a beta and has bugs still being fixed.<br>
-                    - Addons do not work if there is a variable drop down which defines the price. It will be fixed soon.</p>
-                <p>Mar 09, 2023<br>- Updated Permissions<br></p>
-                <p>Mar 05, 2023<br>- Detailed Pricing Comparison supported with currencies<br>
-                    - Added auto update check<br></p>
-                <p>Mar 02, 2023<br>- All tabs for addon pricing fixed<br>
-                    - optimised code<br>
-                    - install page and changelog with license</p>
-                <p>Mar 02, 2023<br>- Beta code for variable dropdowns<br>
-                    - cleaned up content.js</p>
-                <p>Feb 28, 2023<br>Initial Commit</p>
-        </div>
-        <div class="right">
-            <h2>What?</h2>
-            <p>Change the currency on Freshworks pricing pages.</p>
-            <h2>Price?</h2>
-            <p>Free!</p>
-            <h2>Support:</h2>
-            <p>joseph.kuriackal@freshworks.com</p>
-        </div>
-    </div>
-    <div style="background-color:#f1f1f1;text-align:center;padding:10px;margin-top:7px;font-size:12px;"> </div>
 </body>
 
 </html>
