@@ -32,6 +32,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.0.2 - September 2, 2026
+- Redesigned the install page (installed.html) to match freshworks.com's own look and feel: warm off-white background, black/white pill buttons, and a serif display accent for the tagline, with colors sampled directly from the live site
+- Replaced the extension icon (16 through 256px) with an original mark using the same vibrant multicolor palette as Freshworks' current logomark (sampled from their live site assets, not a copy of the mark itself); the new icon is used everywhere the extension shows an icon - toolbar, chrome://extensions, and the install page
+
 v2.0.1 - September 1, 2026
 Major rework of the extension for the redesigned Freshworks pricing pages:
 - Rebuilt the pricing logic against the new Contentful JSON shape (pricingDetails.pricingPlansCollection) and new HTML structure (stable classnames/data attributes instead of styled-components hashes)

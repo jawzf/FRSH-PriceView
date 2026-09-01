@@ -6,40 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FRSH PriceView</title>
     <link rel="icon" href="images/icon-32.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f7f7f5;
+            --bg: #f7f7f4;
             --bg-elevated: #ffffff;
-            --text: #16181d;
-            --text-muted: #5b6270;
-            --border: #e6e6e2;
-            --accent: #0a7a52;
-            --accent-soft: #e3f3ec;
+            --text: #101114;
+            --text-muted: #63625a;
+            --border: #e3e2da;
+            --accent: #101114;
+            --accent-soft: #ffffff;
             --accent-contrast: #ffffff;
-            --chip-bg: #f0f0ec;
-            --callout-bg: #fff7e8;
-            --callout-border: #f0d99b;
-            --code-bg: #f0f0ec;
-            --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.10);
+            --chip-bg: #ffffff;
+            --callout-bg: #f0efe8;
+            --callout-border: #d9d7ca;
+            --code-bg: #f0efe8;
+            --brand-red: #ff5a4e;
+            --brand-orange: #f5a623;
+            --brand-pink: #f76ec5;
+            --brand-purple: #8b3fd1;
+            --brand-blue: #0088ff;
+            --brand-green: #00ac4b;
+            --shadow: 0 1px 2px rgba(16, 17, 20, 0.04), 0 8px 24px -12px rgba(16, 17, 20, 0.12);
             --radius-lg: 20px;
             --radius-md: 14px;
             --radius-sm: 10px;
+            --font-serif: "Lora", Georgia, "Times New Roman", serif;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg: #0e0f11;
-                --bg-elevated: #17181b;
-                --text: #f2f3f5;
-                --text-muted: #9a9fa8;
-                --border: #2a2c30;
-                --accent: #33c48a;
-                --accent-soft: #163527;
-                --accent-contrast: #06120c;
-                --chip-bg: #1f2124;
-                --callout-bg: #241d0f;
-                --callout-border: #4a3c19;
-                --code-bg: #1f2124;
+                --bg: #0b0b0c;
+                --bg-elevated: #17181a;
+                --text: #f5f5f2;
+                --text-muted: #9b9b93;
+                --border: #2b2b2c;
+                --accent: #f5f5f2;
+                --accent-soft: #17181a;
+                --accent-contrast: #0b0b0c;
+                --chip-bg: #17181a;
+                --callout-bg: #1c1c1e;
+                --callout-border: #333335;
+                --code-bg: #1c1c1e;
                 --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
             }
         }
@@ -96,10 +106,16 @@
             letter-spacing: -0.02em;
         }
 
-        .hero-text .byline {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin: 0;
+        .hero-text .tagline {
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--text);
+            margin: 2px 0 0;
+        }
+
+        .hero-text .tagline em {
+            font-style: italic;
         }
 
         .pill {
@@ -111,7 +127,8 @@
             font-size: 13px;
             font-weight: 600;
             background: var(--accent-soft);
-            color: var(--accent);
+            color: var(--text);
+            border: 1px solid var(--border);
             white-space: nowrap;
         }
 
@@ -119,7 +136,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: var(--accent);
+            background: var(--brand-green);
         }
 
         .hero-meta {
@@ -294,8 +311,8 @@
         }
 
         .changelog-entry.latest::before {
-            background: var(--accent);
-            border-color: var(--accent);
+            background: var(--brand-blue);
+            border-color: var(--brand-blue);
         }
 
         .changelog-head {
@@ -335,7 +352,7 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
-            color: var(--accent);
+            color: var(--brand-blue);
             list-style: none;
         }
 
@@ -414,9 +431,10 @@
             <img src="images/icon-256.png" alt="FRSH PriceView icon">
             <div class="hero-text">
                 <h1>FRSH PriceView</h1>
-                <p class="byline">by Joe Kuriackal</p>
+                <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.0.1</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.0.2</span>
+                    <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
             <div class="actions">
@@ -484,6 +502,17 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.0.2 &mdash; Freshworks-style redesign</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Redesigned this install page to match freshworks.com's own look: warm off-white background, black/white pill buttons, and a serif display accent for the tagline &mdash; palette sampled directly from the live site</li>
+                        <li>Replaced the extension icon (16 through 256px) with an original mark using the same vibrant multicolor palette as Freshworks' current logomark; the new icon is used everywhere &mdash; the toolbar button, the Chrome extensions page, and this install page</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.0.1 &mdash; Major rework</span>
                         <span class="changelog-date">September 1, 2026</span>
