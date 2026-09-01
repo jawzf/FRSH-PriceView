@@ -6,28 +6,26 @@ chrome.runtime.onInstalled.addListener((details) => {
         text: "FRSH",
     });
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        // Code to be executed on first install
-        // eg. open a tab with a url
         chrome.tabs.create({
             url: "./installed.html"
         });
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
-        // When extension is updated
         chrome.tabs.create({
             url: "./installed.html"
         });
-    } else if (details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE) {
-        // When browser is updated
-    } else if (details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE) {
-        // When a shared module is updated
     }
-    chrome.contextMenus.create({
-        title: "Calculate Discounts",
-        contexts: ["selection"],
-        id: "calculateDiscount"
-    });
 });
-const extensions = "https://www.freshworks.com/";
+
+// Freshservice for CX (Customer Experience) pricing support is coming soon.
+const targetUrls = [
+    "https://www.freshworks.com/freshservice/pricing/",
+    "https://www.freshworks.com/freshservice/msp/pricing/",
+    "https://www.freshworks.com/freshservice/business-teams/pricing/",
+    "https://www.freshworks.com/freshservice/itam/pricing/"
+];
+function isSupportedUrl(url) {
+    return targetUrls.some(function(u) { return url.startsWith(u); });
+}
 const currency = [{
         "code": "US",
         "label": "USD"
@@ -50,25 +48,13 @@ const currency = [{
     }
 ];
 var priceCount = 0;
-//Context Menu Feature
-/*
-chrome.contextMenus.onClicked.addListener((item, tab) => {
-    const menuItemId = item.menuItemId;
-    const selectionText = item.selectionText;
-    chrome.scripting
-        .executeScript({
-            target: { tabId: tab.id },
-            func: calculateDiscountFunction,
-            args: [selectionText]
-        })
-        .then(() => console.log("injected the calculateDiscount function"));
-});*/
+
 function initialiseDropDown() {
     //donothing
 }
+
 chrome.action.onClicked.addListener(async (tab) => {
-    if (tab.url.startsWith(extensions)) {
-        const prevState = await chrome.action.getBadgeText({ tabId: tab.id });
+    if (isSupportedUrl(tab.url)) {
         const nextState = currency[priceCount++].label;
         // Set the action badge to the next state
         await chrome.action.setBadgeText({
@@ -85,445 +71,193 @@ chrome.action.onClicked.addListener(async (tab) => {
         if (priceCount == 5) priceCount = 0;
     }
 });
-function calculateDiscountFunction(selectionText) {
-    var styles = `
-    #discountPopUp {
-      position: fixed;
-      top:200;
-      left:200;
-      display: block;
-      padding: 10px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-      font-size: 14px;
-      z-index: 10; /* Make sure the window is above other elements */
-      width: 200px; /* Set a fixed width for the window */
-    }
-    #close-button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      cursor: pointer; /* Change cursor to indicate clickability */
-      width: 20px;
-      height: 20px;
-      text-align: center;
-      line-height: 20px; /* Center text vertically */
-      background-color: #ccc;
-      border: none;
-      border-radius: 50%; /* Create a circular button */
-    }
-`
-    var styleSheet = document.createElement("style")
-    styleSheet.innerText = styles
-    document.head.appendChild(styleSheet)
-    //console.log(selectionText);
-    var discountPop = '<div id="discountPopUp">' + selectionText + '<button id="close-button">X</button></div>';
-    var bdy = document.getElementById("main-content");
-    bdy.innerHTML += discountPop;
-    const windowElement = document.getElementById('floating-window');
-    const closeButton = document.getElementById('close-button');
-    closeButton.addEventListener('click', () => {
-        // Hide the window on button click
-        windowElement.style.display = 'none';
-    });
-}
-function getOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY
-    };
-}
-function setCurrency(curr, nextState) {
-    //Identify Product being displayed
-    var productName = document.getElementsByClassName("sc-e5af17da-0 jhFKWQ")[0].innerHTML;
-    console.log("Product:" + productName);
+
+// The Freshservice pricing pages (IT teams, MSPs, Business Teams, IT Asset Management) were rebuilt by
+// Freshworks around mid-2026 with a new Contentful-backed JSON shape
+// (pricingDetails.pricingPlansCollection instead of a flat top-level items collection) and new HTML
+// structure (stable BEM-ish classnames like .pricing-plan-card-price__value and data-pricing-* attributes
+// instead of the old styled-components hash classnames). All four pages share this same structure, so
+// this single function handles them all. Freshservice for CX pricing support is coming soon.
+function setCurrency(currCode, nextState) {
     var addData = JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML);
-    //console.log(addData);
-    //console.log(addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection);
-    var currentPricingData = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection;
-    const addonPrices = [];
-    if (productName == "Freshservice for IT teams") {
-        var addonPlanCount = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items.length;
-        var addonInfo = addData.props.pageProps.pageProps.componentsCollection.items[1].pricingPlansCollection.items;
-        //console.log(addonPlanCount);
-        //console.log(addonInfo);
-        //console.log(currentPricingData);
-        //Pulling the addon prices
-        for (var i = 0; i < addonPlanCount; i++) {
-            var featureCount = addonInfo[i].planFeaturesGroupCollection.items.length;
-            //console.log(featureCount);
-            var featureList = addonInfo[i].planFeaturesGroupCollection.items;
-            //console.log(featureList);
-            for (var j = 0; j < featureCount; j++) {
-                if (featureList[j].includedInPlan && freshserviceAddonCheck(featureList[j].productFeature.name)) {
-                    //console.log(featureList[j].description.links.entries.inline);
-                    var obj = {
-                        planIndex: i,
-                        title: featureList[j].productFeature.name,
-                        price: featureList[j].description.links.entries.inline[0].localePrices
-                    };
-                    addonPrices.push(obj);
-                }
-            }
-        }
-        //console.log(addonPrices);
-        //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
-    } else {
-        var numberOfAddons = addData.props.pageProps.pageProps.componentsCollection.items.length;
-        //console.log(numberOfAddons);
-        //console.log(currentPricingData);
-        //Pulling the addon prices
-        for (var i = 0; i < numberOfAddons; i++) {
-            if (addData.props.pageProps.pageProps.componentsCollection.items[i].__typename == "ComponentStaticModalPopup") {
-                var obj = {
-                    title: addData.props.pageProps.pageProps.componentsCollection.items[i].heading,
-                    price: addData.props.pageProps.pageProps.componentsCollection.items[i].pricingCollection
-                };
-                addonPrices.push(obj);
-            }
-        }
-        //console.log(addonPrices);
-        //console.log(addData.props.pageProps.pageProps.componentsCollection.items);
+    var pageItem = addData.props.pageProps.pageProps.componentsCollection.items[0];
+    if (!pageItem || !pageItem.pricingDetails) {
+        console.log("FRSH PriceView: unrecognised Freshservice pricing page structure, skipping.");
+        return;
     }
-    //console.log(addonPrices);
-    //console.log(document.getElementsByClassName("sc-662dedcb-0 kIzbos"));
-    if (productName == "Freshdesk" || productName == "Freshdesk Omni" || productName == "Freshchat" || productName == "Freshservice for IT teams") {
-        var pricTablePlan = document.getElementsByClassName("sc-8f0b39d4-0 lexhVu")[0].childNodes;
-    } else if (productName == "Freshcaller") {
-        var pricTablePlan = document.getElementsByClassName("sc-662dedcb-0 krVsJD")[0].childNodes[5].childNodes;
-    } else if (productName == "Freshservice for MSPs" || productName == "Freshservice for Business Teams") {
-        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 oPCsi")[0].childNodes[0].chikdNodes[0].childNodes;
-    } else {
-        var pricTablePlan = document.getElementsByClassName("sc-ace17a57-0 dQhDwa")[0].childNodes[5].childNodes;
-    }
-    console.log("Pricing Table:"+pricTablePlan);
-    //identifying the billing cycle
-    var annualTerm = true;
-    var pricingTermDiv = document.querySelector('[aria-label="Pricing Term"]').childNodes;
-    //console.log(pricingTermDiv);
-    if (pricingTermDiv[0].ariaPressed == "true" && pricingTermDiv[1].ariaPressed == "false") {
-        annualTerm = false;
-    }
-    //console.log("annualTerm:"+annualTerm);
-    //Update the currency and price on the main Table
-    if (pricTablePlan[0].tagName == "THEAD") {
-        var newPriceTablePlanHeader = pricTablePlan[0].children[0].children;
-        for (var i = 0; i < newPriceTablePlanHeader.length; i++) {
-            //console.log(newPriceTablePlanHeader[i].childNodes);
-            if (currentPricingData.items[i] && currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
-                continue;
-            }
-            if (newPriceTablePlanHeader[i + 1]) {
-                if (nextState == "USD") {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
-                    }
-                } else if (nextState == "EUR") {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEurAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€" + currentPricingData.items[i].priceEur;
-                    }
-                } else if (nextState == "GBP") {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbpAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£" + currentPricingData.items[i].priceGbp;
-                    }
-                } else if (nextState == "INR") {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInrAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹" + currentPricingData.items[i].priceInr;
-                    }
-                } else if (nextState == "AUD") {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$" + currentPricingData.items[i].priceAudAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$" + currentPricingData.items[i].priceAud;
-                    }
-                } else {
-                    if (annualTerm) {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsdAnnual;
-                    } else {
-                        newPriceTablePlanHeader[i + 1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$" + currentPricingData.items[i].priceUsd;
-                    }
-                }
-            }
+
+    var currencyMap = {
+        "USD": { symbol: "$", suffix: "Usd", field: "Usd" },
+        "EUR": { symbol: "€", suffix: "Eur", field: "Eur" },
+        "GBP": { symbol: "£", suffix: "Gbp", field: "Gbp" },
+        "INR": { symbol: "₹", suffix: "Inr", field: "Inr" },
+        "AUD": { symbol: "A$", suffix: "Aud", field: "Aud" }
+    };
+    var curr = currencyMap[nextState] || currencyMap["USD"];
+    var plans = pageItem.pricingDetails.pricingPlansCollection.items;
+
+    var termGroup = document.querySelector('[aria-label="Pricing term"]');
+    var annualBtn = termGroup && [].slice.call(termGroup.querySelectorAll('[role="radio"]')).filter(function(b) {
+        return b.innerText.trim() === "Annually";
+    })[0];
+    var annualTerm = annualBtn ? annualBtn.getAttribute("aria-checked") === "true" : true;
+
+    // Addon prices (E-signature, Freddy AI Copilot, Orchestration Transaction Packs, etc.) are stored
+    // as Contentful rich text with an embedded price entry inlined mid-sentence. The embedded entry is
+    // resolved either directly on the node (planSummary) or via the rich text's own links.entries.inline
+    // array keyed by sys.id (planFeaturesGroupCollection[].description).
+    function resolveLocalePrices(node, richText) {
+        if (node.data && node.data.target && node.data.target.fields && node.data.target.fields.localePrices) {
+            return node.data.target.fields.localePrices;
         }
-    } else {
-        for (var i = 0; i < pricTablePlan.length; i++) {
-            if (pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML != "Free") {
-                if (currentPricingData.items[i] && currentPricingData.items[i].internalName == "fs-pricing-enterprise-plan") {
-                    continue;
-                }
-                if (nextState == "USD") {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsdAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsd;
-                    }
-                } else if (nextState == "EUR") {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceEurAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "€"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceEur;
-                    }
-                } else if (nextState == "GBP") {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceGbpAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "£"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceGbp;
-                    }
-                } else if (nextState == "INR") {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceInrAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "₹"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceInr;
-                    }
-                } else if (nextState == "AUD") {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAudAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "A$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceAud;
-                    }
-                } else {
-                    if (annualTerm) {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsdAnnual;
-                    } else {
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[0].innerHTML = "$"
-                        pricTablePlan[i].childNodes[1].childNodes[0].childNodes[1].childNodes[1].innerHTML = currentPricingData.items[i].priceUsd;
-                    }
-                }
-            }
-        }
-    }
-    //Updating the popups
-    var addonPopup = document.querySelectorAll(".sc-ace17a57-0.kChrSf");
-    var dynamicAddonList = ["Day Passes", "Freshcaller", "Freshsales", "Campaign Contacts", "Marketing Contacts", "Conversion Rate Optimization"];
-    var ignoreAddonList = ["Freddy AI Insights", "Advanced Discovery and Dependency Mapping", "Sandbox Add-on"];
-    var numberOfPlans = 3;
-    if (productName == "Freshdesk" || productName == "Freshchat" || productName == "Freshservice for IT teams") {
-        numberOfPlans = 4;
-    }
-    if (pricTablePlan[0].tagName == "THEAD") {
-        var featureTable = pricTablePlan[1];
-        //console.log(featureTable);
-        var openSectionIndex = [];
-        for(var i=0;i<featureTable.childNodes.length;i++){
-            console.log(featureTable.childNodes[i].className);
-        }
-    }
-    if (pricTablePlan[0].tagName == "THEAD") {
-        var newAddonRow = document.getElementsByClassName("rfWFf");
-        for (var i = 0; i < newAddonRow.length; i++) {
-            var addonName = newAddonRow[i].childNodes[0].innerText;
-            if (addonName == "Campaign Contacts") {
-                var tagLocal = newAddonRow[i].childNodes[numberOfPlans - 1].childNodes[0].localName;
-            } else {
-                var tagLocal = newAddonRow[i].childNodes[numberOfPlans].childNodes[0].localName;
-            }
-            if (addonName != "Collaborators" && addonName != "Freddy AI Insights (Beta)" && addonName != "Freddy AI Insights" && addonName != "Advanced ITAM" && addonName != "Orchestration Transactions" && addonName != "API Access") {
-                if (tagLocal == "div") {
-                    var rowPrice = searchAddonPrice(addonName, addonPrices);
-                    if (addonName == "Freddy AI Agent") {
-                        rowPrice = searchAddonPrice("AI agent by Freddy AI Agent", addonPrices);
-                    }
-                    for (var j = 0; j < numberOfPlans; j++) {
-                        if (newAddonRow[i].childNodes[j + 1].innerText != "") {
-                            if (productName == "Freshservice for IT teams") {
-                                //console.log(j);
-                                console.log(addonName);
-                                console.log(rowPrice);
-                                var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
-                                //console.log(returnValidAddonPriceFS(1, rowPrice, annualTerm));
-                                if (nextState == "USD") {
-                                    target.innerText = "$" + returnValidAddonPriceFS(0, rowPrice, annualTerm);
-                                } else if (nextState == "EUR") {
-                                    target.innerText = "€" + returnValidAddonPriceFS(2, rowPrice, annualTerm);
-                                } else if (nextState == "GBP") {
-                                    target.innerText = "£" + returnValidAddonPriceFS(4, rowPrice, annualTerm);
-                                } else if (nextState == "INR") {
-                                    target.innerText = "₹" + returnValidAddonPriceFS(1, rowPrice, annualTerm);
-                                } else if (nextState == "AUD") {
-                                    target.innerText = "A$" + returnValidAddonPriceFS(3, rowPrice, annualTerm);
-                                } else {
-                                    target.innerText = "$" + returnValidAddonPriceFS(1, rowPrice, annualTerm);
-                                }
-                                //Add website custom text below
-                                if (addonName == "Freddy AI Copilot") {
-                                    target.innerText = target.innerText + "/agent/month";
-                                } else if (addonName == "Asset Pack") {
-                                    target.innerText = "Includes 100 assets by default, with the option to add 500 assets for " + target.innerText + "/month";
-                                } else if (addonName == "SaaS Management") {
-                                    target.innerText = target.innerText + "/employee/month Billed based on total employee count. Valid through end of billing cycle.";
-                                } else if (addonName == "Business Agent License (See what’s included)") {
-                                    target.innerText = target.innerText + "/agent/month";
-                                } else if (addonName == "E-signature") {
-                                    target.innerText = target.innerText + "/pack/account, with 30 signature credits per pack";
-                                } else if (addonName == "Orchestration Transaction Packs") {
-                                    target.innerText = target.innerText + "/pack for 1000 transactions. Valid until the end of the billing cycle.";
-                                } else if (addonName == "Connector App Tasks") {
-                                    target.innerText = "Includes one-time free credit of 500 tasks, with additional packs at " + target.innerText + " per 5000 tasks. Valid until the end of the billing cycle.";
-                                } else if (addonName == "@mentions, Private Projects & Additional Project Management Licenses") {
-                                    target.innerText = target.innerText + "/user/month";
-                                } else {
-                                }
-                            } else {
-                                //console.log(addonName + ":" + rowPrice);
-                                var target = newAddonRow[i].childNodes[j + 1].childNodes[0].childNodes[0].childNodes[0];
-                                if (nextState == "USD") {
-                                    target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
-                                } else if (nextState == "EUR") {
-                                    target.innerText = "€" + returnValidAddonPrice(j, rowPrice).priceEurAnnual;
-                                } else if (nextState == "GBP") {
-                                    //Fix to correct the bug on Freshdesk page which uses the wrong JSON key
-                                    if (productName == "Freshdesk" && addonName == "Connector App Tasks") {
-                                        target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceZarAnnual;
-                                    } else {
-                                        target.innerText = "£" + returnValidAddonPrice(j, rowPrice).priceGbpAnnual;
-                                    }
-                                } else if (nextState == "INR") {
-                                    target.innerText = "₹" + returnValidAddonPrice(j, rowPrice).priceInrAnnual;
-                                } else if (nextState == "AUD") {
-                                    target.innerText = "A$" + returnValidAddonPrice(j, rowPrice).priceAudAnnual;
-                                } else {
-                                    target.innerText = "$" + returnValidAddonPrice(j, rowPrice).priceUsdAnnual;
-                                }
-                                //Add website custom text below
-                                if (addonName == "Freshcaller" || addonName == "Freshsales") {
-                                    target.innerText = "Starting from " + target.innerText;
-                                } else if (addonName == "Freddy AI Agent") {
-                                    target.innerText = "First 500 sessions included. " + target.innerText + " for 1000 sessions."
-                                } else if (addonName == "Connector App Tasks") {
-                                    target.innerText = target.innerText + " per 5,000 tasks"
-                                } else if (addonName == "Campaign Contacts") {
-                                    target.innerText = target.innerText + " 5,000 contacts"
-                                } else if (addonName == "Freddy AI Copilot" && productName == "Freshdesk" && j == 2) {
-                                    target.innerText = "Included"
-                                } else {
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        for (var i = 0; i < addonPopup.length; i++) {
-            var popupName = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML;
-            //console.log("Popup Name " + popupName);
-            //differentiate between a static popup and a dynamic popup
-            if (checkIfExistsInArray(popupName, dynamicAddonList) || checkIfExistsInArray(popupName, ignoreAddonList)) {
-                if (!checkIfExistsInArray(popupName, ignoreAddonList)) {
-                    var visOption = addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[1].childNodes[0].value;
-                    for (var j = 0; j < addonPrices[i].price.items.length; j++) {
-                        if (visOption == addonPrices[i].price.items[j].planName) {
-                            if (nextState == "USD") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
-                            } else if (nextState == "EUR") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].price.items[j].priceEurAnnual;
-                            } else if (nextState == "GBP") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].price.items[j].priceGbpAnnual;
-                            } else if (nextState == "INR") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[j].priceInrAnnual;
-                            } else if (nextState == "AUD") {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "A$" + addonPrices[i].price.items[j].priceAudAnnual;
-                            } else {
-                                addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[j].priceUsdAnnual;
-                            }
-                        }
-                    }
-                }
-            } else {
-                if (nextState == "USD") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
-                } else if (nextState == "EUR") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "€" + addonPrices[i].price.items[0].priceEurAnnual;
-                } else if (nextState == "GBP") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "£" + addonPrices[i].price.items[0].priceGbpAnnual;
-                } else if (nextState == "INR") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "₹" + addonPrices[i].price.items[0].priceInrAnnual;
-                } else if (nextState == "AUD") {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "A$" + addonPrices[i].price.items[0].priceAudAnnual;
-                } else {
-                    addonPopup[i].childNodes[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerHTML = "$" + addonPrices[i].price.items[0].priceUsdAnnual;
-                }
-            }
-        }
-    }
-    function checkIfExistsInArray(text, array) {
-        for (var i = 0; i < array.length; i++) {
-            if (text == array[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-    function searchAddonPrice(text, array) {
-        for (var i = 0; i < array.length; i++) {
-            if (text == array[i].title || (text == "Freddy Self Service" && array[i].title == "Freshbots by Freddy Self Service")) {
-                return array[i].price;
-            }
+        var targetId = node.data && node.data.target && node.data.target.sys && node.data.target.sys.id;
+        if (targetId && richText.links && richText.links.entries && richText.links.entries.inline) {
+            var match = richText.links.entries.inline.filter(function(e) { return e.sys && e.sys.id === targetId; })[0];
+            if (match) return match.localePrices;
         }
         return null;
     }
-    function returnValidAddonPrice(index, array) {
-        if (array.items[index]) {
-            return array.items[index];
-        } else {
-            return array.items[0];
+
+    function priceForCurrency(localePrices, annual) {
+        if (!localePrices) return null;
+        var entry = localePrices.filter(function(p) { return p.fields && p.fields.currency === curr.field; })[0];
+        if (!entry) return null;
+        return annual ? entry.fields.annual : entry.fields.monthly;
+    }
+
+    function renderRichText(richText, annual) {
+        if (!richText || !richText.json) return "";
+        var out = "";
+        function walk(node) {
+            if (!node) return;
+            if (node.nodeType === "text") { out += node.value; return; }
+            if (node.nodeType === "embedded-entry-inline") {
+                var price = priceForCurrency(resolveLocalePrices(node, richText), annual);
+                if (price !== null && price !== undefined) {
+                    out += curr.symbol + Number(price).toLocaleString("en-US");
+                }
+                return;
+            }
+            if (node.content) node.content.forEach(walk);
+        }
+        walk(richText.json);
+        return out;
+    }
+
+    function extractEmbeddedLocalePrices(richText) {
+        var results = [];
+        if (!richText || !richText.json) return results;
+        function walk(node) {
+            if (!node) return;
+            if (node.nodeType === "embedded-entry-inline") {
+                var lp = resolveLocalePrices(node, richText);
+                if (lp) results.push(lp);
+                return;
+            }
+            if (node.content) node.content.forEach(walk);
+        }
+        walk(richText.json);
+        return results;
+    }
+
+    // 1. Main plan card prices (Starter / Growth / Pro / Enterprise "Custom")
+    var priceEls = document.querySelectorAll(".pricing-plan-card-price__value");
+    for (var i = 0; i < priceEls.length && i < plans.length; i++) {
+        var plan = plans[i];
+        if (plan.hidePrices) continue;
+        var mainKey = "price" + curr.suffix + (annualTerm ? "Annual" : "");
+        if (plan[mainKey] !== undefined && plan[mainKey] !== null) {
+            priceEls[i].innerText = curr.symbol + plan[mainKey];
         }
     }
-    function returnValidAddonPriceFS(currIndex, array, annual) {
-        if (array[currIndex].fields && annual) {
-            return array[currIndex].fields.annual;
-        } else if (array[currIndex].fields && !annual) {
-            return array[currIndex].fields.monthly;
-        } else {
-            return "NA";
+
+    // 2. "Compare features" table plan price headers
+    var ctaEls = document.querySelectorAll("[data-pricing-feature-cta]");
+    ctaEls.forEach(function(a) {
+        var planName = a.getAttribute("data-pricing-plan-name");
+        var plan = plans.filter(function(p) { return p.planName === planName; })[0];
+        if (!plan || plan.hidePrices) return;
+        var priceDiv = a.previousElementSibling;
+        if (!priceDiv) return;
+        var headerKey = "price" + curr.suffix + (annualTerm ? "Annual" : "");
+        var unit = annualTerm ? plan.planUnitAnnual : plan.planUnit;
+        if (plan[headerKey] !== undefined) {
+            priceDiv.innerText = curr.symbol + plan[headerKey] + " " + (unit || "");
+        }
+    });
+
+    // 3. Inline add-on prices shown directly on plan cards (e.g. "Freddy AI Copilot €29/agent/month")
+    var inlineGreySpans = document.querySelectorAll(".rt-inline-grey");
+    var inlinePricesQueue = [];
+    plans.forEach(function(plan) {
+        if (plan.planSummary) {
+            extractEmbeddedLocalePrices(plan.planSummary).forEach(function(lp) {
+                inlinePricesQueue.push(lp);
+            });
+        }
+    });
+    for (var j = 0; j < inlineGreySpans.length && j < inlinePricesQueue.length; j++) {
+        var inlinePrice = priceForCurrency(inlinePricesQueue[j], annualTerm);
+        if (inlinePrice === null || inlinePrice === undefined) continue;
+        var span = inlineGreySpans[j];
+        var textNode = null;
+        for (var n = 0; n < span.childNodes.length; n++) {
+            if (span.childNodes[n].nodeType === 3) { textNode = span.childNodes[n]; break; }
+        }
+        if (textNode) {
+            textNode.nodeValue = curr.symbol + Number(inlinePrice).toLocaleString("en-US");
         }
     }
-    function freshserviceAddonCheck(obj) {
-        if (obj == "Asset Pack") {
-            return true;
-        } else if (obj == "Freddy AI Copilot") {
-            return true;
-        } else if (obj == "SaaS Management") {
-            return true;
-        } else if (obj == "Business Agent License (See what’s included)") {
-            return true;
-        } else if (obj == "E-signature") {
-            return true;
-        } else if (obj == "Orchestration Transaction Packs") {
-            return true;
-        } else if (obj == "Connector App Tasks") {
-            return true;
-        } else if (obj == "@mentions, Private Projects & Additional Project Management Licenses") {
-            return true;
-        } else {
-            return false;
-        }
+
+    // 4. Addon rows inside the (initially collapsed) "View all features" comparison table, e.g.
+    // E-signature, Business Agent License, Orchestration Transaction Packs, Connector App Tasks,
+    // @mentions. The set of priced features is derived from the JSON itself rather than a hardcoded
+    // list, so it keeps working if Freshworks adds or removes a priced addon.
+    if (ctaEls.length) {
+        var comparisonRoot = ctaEls[0].parentElement.parentElement;
+        var pricedFeatureNames = {};
+        plans.forEach(function(plan) {
+            plan.planFeaturesGroupCollection.items.forEach(function(g) {
+                if (g.productFeature && g.description && g.description.links && g.description.links.entries.inline.length > 0) {
+                    pricedFeatureNames[g.productFeature.name] = true;
+                }
+            });
+        });
+        Object.keys(pricedFeatureNames).forEach(function(featureName) {
+            var divs = comparisonRoot.querySelectorAll("div");
+            var nameDiv = null;
+            for (var d = 0; d < divs.length; d++) {
+                var firstChild = divs[d].children[0];
+                if (firstChild && (firstChild.tagName === "SPAN" || firstChild.tagName === "A") && firstChild.textContent.trim() === featureName) {
+                    nameDiv = divs[d];
+                    break;
+                }
+            }
+            if (!nameDiv) return;
+            var cells = [];
+            var sib = nameDiv.nextElementSibling;
+            while (sib && cells.length < plans.length && sib.tagName === "DIV") {
+                cells.push(sib);
+                sib = sib.nextElementSibling;
+            }
+            for (var p = 0; p < plans.length && p < cells.length; p++) {
+                if (cells[p].innerText.trim() === "") continue; // not included in this plan
+                var group = plans[p].planFeaturesGroupCollection.items.filter(function(g) {
+                    return g.productFeature && g.productFeature.name === featureName;
+                })[0];
+                if (!group || !group.includedInPlan || !group.description) continue;
+                var rendered = renderRichText(group.description, annualTerm);
+                if (rendered) {
+                    cells[p].innerText = rendered;
+                }
+            }
+        });
     }
 }
+
 chrome.tabs.onUpdated.addListener(
     function(tab_id, changeInfo, tab) {
-        if (tab.url.startsWith(extensions)) {
+        if (isSupportedUrl(tab.url)) {
             priceCount = 0;
             chrome.scripting
                 .executeScript({

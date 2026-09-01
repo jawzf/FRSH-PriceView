@@ -2,9 +2,15 @@
 
 Chrome Webstore - https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc
 
-Switch between prices in different currencies on the Freshworks pricing pages.
+Switch between prices in different currencies on the Freshservice pricing pages.
 
-This app allows you to switch between available currencies on the pricing pages of Freshworks websites. 
+This app allows you to switch between available currencies on the Freshservice pricing pages:
+- IT teams - freshworks.com/freshservice/pricing/
+- MSPs - freshworks.com/freshservice/msp/pricing/
+- Business Teams - freshworks.com/freshservice/business-teams/pricing/
+- IT Asset Management - freshworks.com/freshservice/itam/pricing/
+
+Support for Freshservice for CX is coming soon. Support for the other Freshworks pricing pages (Freshdesk, Freshchat, Freshcaller, CRM, Omnichannel, etc.) was removed while those pages are rebuilt against the redesigned site.
 
 The steps are simple:
 1. Install the App
@@ -19,6 +25,15 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v1.76.1 - September 1, 2026
+- Added support for the Freshservice for MSPs, Business Teams, and IT Asset Management pricing pages (same underlying page structure as Freshservice for IT teams)
+- Support for Freshservice for CX pricing is coming soon
+
+v1.76.0 - September 1, 2026
+- Rebuilt the extension to match the redesigned Freshservice pricing page (new Contentful JSON shape under pricingDetails.pricingPlansCollection, and new HTML structure with stable classnames/data attributes instead of styled-components hashes)
+- Addon and "Compare features" table pricing (E-signature, Freddy AI Copilot, Business Agent License, Orchestration Transaction Packs, Connector App Tasks, @mentions) is now derived directly from the page's JSON instead of a hardcoded addon list
+- Removed all legacy code and permissions for the other Freshworks pricing pages (Freshdesk, Freshchat, Freshcaller, CRM, Omnichannel, comparison pages); the extension now only runs on freshworks.com/freshservice/pricing/
+
 v1.75beta2 - March 10, 2026
 - Fixed references to new class names
 v1.75beta1 - November 14, 2025
