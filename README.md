@@ -32,18 +32,13 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
-v1.77.0 - September 1, 2026
-- Added support for Freshdesk, Freshdesk Omni, Freshcaller, Freshchat (live chat), and the CRM pricing pages (Freshsales, Freshsales Suite, Freshmarketer) - they share the same redesigned page structure as the Freshservice pricing pages
-- Addon/"Compare features" pricing now works on these pages too (e.g. Day passes and Connector app tasks on Freshdesk/Freshdesk Omni)
-
-v1.76.1 - September 1, 2026
-- Added support for the Freshservice for MSPs, Business Teams, and IT Asset Management pricing pages (same underlying page structure as Freshservice for IT teams)
-- Support for Freshservice for CX pricing is coming soon
-
-v1.76.0 - September 1, 2026
-- Rebuilt the extension to match the redesigned Freshservice pricing page (new Contentful JSON shape under pricingDetails.pricingPlansCollection, and new HTML structure with stable classnames/data attributes instead of styled-components hashes)
-- Addon and "Compare features" table pricing (E-signature, Freddy AI Copilot, Business Agent License, Orchestration Transaction Packs, Connector App Tasks, @mentions) is now derived directly from the page's JSON instead of a hardcoded addon list
-- Removed all legacy code and permissions for the other Freshworks pricing pages (Freshdesk, Freshchat, Freshcaller, CRM, Omnichannel, comparison pages); the extension now only runs on freshworks.com/freshservice/pricing/
+v2.0.1 - September 1, 2026
+Major rework of the extension for the redesigned Freshworks pricing pages:
+- Rebuilt the pricing logic against the new Contentful JSON shape (pricingDetails.pricingPlansCollection) and new HTML structure (stable classnames/data attributes instead of styled-components hashes)
+- Addon and "Compare features" table pricing (E-signature, Freddy AI Copilot, Business Agent License, Orchestration Transaction Packs, Connector App Tasks, @mentions, Day passes, etc.) is now derived directly from each page's JSON instead of a hardcoded addon list
+- Added support for Freshservice (IT teams, MSPs, Business Teams, IT Asset Management), Freshdesk, Freshdesk Omni, Freshcaller, Freshchat (live chat), and the CRM pricing pages (Freshsales, Freshsales Suite, Freshmarketer)
+- Support for Freshservice for CX is coming soon
+- Removed all legacy code, permissions, and orphaned files (popup.html/js/css) for pages using the old site structure
 
 v1.75beta2 - March 10, 2026
 - Fixed references to new class names
