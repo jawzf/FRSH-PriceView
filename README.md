@@ -45,6 +45,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.3.4 - September 2, 2026
+- Removed the "Freshservice for CX - coming soon" entry from the install page's Supported pages list, since it isn't a page this extension tracks
+
 v2.3.3 - September 2, 2026
 - Replaced the letter placeholders in the install page's "Available on" row with the actual Chrome, Firefox, Edge, and Safari logos
 
