@@ -188,6 +188,68 @@
             height: 16px;
         }
 
+        /* ---------- Store availability ---------- */
+        .store-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .store-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 16px 9px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            text-decoration: none;
+            color: var(--text);
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        a.store-badge:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .store-badge.soon {
+            opacity: 0.55;
+            cursor: default;
+        }
+
+        .store-glyph {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .store-badge-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .store-badge-label {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .store-badge-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
         /* ---------- Stats ---------- */
         .stats {
             display: grid;
@@ -832,7 +894,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.1</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.2</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -846,6 +908,37 @@
                     Contact support
                 </a>
             </div>
+        </div>
+
+        <div class="store-row">
+            <a class="store-badge" href="https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc" target="_blank" rel="noopener">
+                <span class="store-glyph" style="background:#ea4335">C</span>
+                <span class="store-badge-text">
+                    <span class="store-badge-label">Available on</span>
+                    <span class="store-badge-name">Chrome Web Store</span>
+                </span>
+            </a>
+            <span class="store-badge soon">
+                <span class="store-glyph" style="background:#ff7139">F</span>
+                <span class="store-badge-text">
+                    <span class="store-badge-label">Coming soon</span>
+                    <span class="store-badge-name">Firefox Add-ons</span>
+                </span>
+            </span>
+            <span class="store-badge soon">
+                <span class="store-glyph" style="background:#0078d7">E</span>
+                <span class="store-badge-text">
+                    <span class="store-badge-label">Coming soon</span>
+                    <span class="store-badge-name">Edge Add-ons</span>
+                </span>
+            </span>
+            <span class="store-badge soon">
+                <span class="store-glyph" style="background:#006cff">S</span>
+                <span class="store-badge-text">
+                    <span class="store-badge-label">Coming soon</span>
+                    <span class="store-badge-name">Safari Extensions</span>
+                </span>
+            </span>
         </div>
 
         <div class="stats">
@@ -919,6 +1012,17 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.3.2 &mdash; Icon redirect and store links</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Clicking the toolbar icon on any page that isn't one of the tracked pricing pages now takes you straight to the Freshservice pricing page instead of doing nothing</li>
+                        <li>Added an "Available on" row at the top of this page linking to the Chrome Web Store listing, with placeholders for Firefox, Edge, and Safari</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.3.1 &mdash; Email fix and Unit Price correction</span>
                         <span class="changelog-date">September 2, 2026</span>

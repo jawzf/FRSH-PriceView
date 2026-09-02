@@ -23,7 +23,9 @@ The steps are simple:
 1. Install the App
 2. Pin the app
 3. Visit any Freshworks pricing sheet
-4. Click the extension to switch between prices. 
+4. Click the extension to switch between prices.
+
+Clicking the toolbar icon on any tab that isn't one of the supported pricing pages above takes you straight to the Freshservice pricing page instead of doing nothing.
 
 Important
 When viewing the price of addons which are dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.
@@ -43,6 +45,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.3.2 - September 2, 2026
+- Clicking the toolbar icon on any page that isn't one of the tracked pricing pages now redirects to the Freshservice pricing page instead of doing nothing
+- Added an "Available on" row at the top of the install page linking to the Chrome Web Store listing, with placeholders for Firefox, Edge, and Safari
+
 v2.3.1 - September 2, 2026
 - Fixed "Email quote" for real this time: it now hands off to the mail app via the browser's own mailto navigation instead of a synthetic link click, which some browsers were silently ignoring
 - Fixed Unit Price to always show the flat per-month rate, even for Quarterly/Half-yearly items, instead of the full multiplied cycle amount; Invoice Value still reflects the full amount charged for that billing cycle

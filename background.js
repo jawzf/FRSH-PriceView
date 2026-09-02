@@ -99,6 +99,10 @@ function initialiseDropDown() {
     //donothing
 }
 
+// Freshservice for IT teams is the "home" pricing page - clicking the toolbar icon anywhere that
+// isn't one of the pages we actually track sends the user there instead of doing nothing.
+const DEFAULT_PRICING_URL = "https://www.freshworks.com/freshservice/pricing/";
+
 chrome.action.onClicked.addListener(async (tab) => {
     if (isSupportedUrl(tab.url)) {
         const nextState = currency[priceCount++].label;
@@ -115,6 +119,8 @@ chrome.action.onClicked.addListener(async (tab) => {
             })
             .then(() => console.log("injected the currency function"));
         if (priceCount == 5) priceCount = 0;
+    } else {
+        chrome.tabs.update(tab.id, { url: DEFAULT_PRICING_URL });
     }
 });
 
