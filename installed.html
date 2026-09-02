@@ -421,10 +421,385 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ---------- What's new modal ---------- */
+        .wn-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(16, 17, 20, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5vh 16px;
+        }
+
+        .wn-overlay[hidden] {
+            display: none;
+        }
+
+        .wn-modal {
+            position: relative;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 540px;
+            padding: 32px 32px 26px;
+        }
+
+        .wn-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--callout-bg);
+            color: var(--text);
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .wn-close:hover {
+            background: var(--border);
+        }
+
+        .wn-kicker {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--brand-blue);
+        }
+
+        .wn-title {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 27px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin: 6px 0 22px;
+            padding-right: 24px;
+        }
+
+        .wn-carousel {
+            overflow: hidden;
+            border-radius: var(--radius-md);
+        }
+
+        .wn-track {
+            display: flex;
+            transition: transform 0.35s ease;
+        }
+
+        .wn-slide {
+            flex: 0 0 100%;
+            min-width: 0;
+        }
+
+        .wn-shot {
+            background: var(--callout-bg);
+            border: 1px solid var(--callout-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .wn-browser-dots {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 14px;
+        }
+
+        .wn-browser-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .wn-browser-dots span:nth-child(1) {
+            background: var(--brand-red);
+        }
+
+        .wn-browser-dots span:nth-child(2) {
+            background: var(--brand-orange);
+        }
+
+        .wn-browser-dots span:nth-child(3) {
+            background: var(--brand-green);
+        }
+
+        .wn-slide h3 {
+            margin: 0 0 6px;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .wn-slide p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Slide 1 mockup: pricing cards */
+        .wn-cards-mockup {
+            display: flex;
+            gap: 8px;
+        }
+
+        .wn-mini-card {
+            flex: 1;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .wn-mini-card.highlighted {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 1px var(--brand-blue) inset;
+        }
+
+        .wn-mini-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: var(--border);
+            margin-bottom: 10px;
+        }
+
+        .wn-mini-price {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        /* Slide 2 mockup: quote builder */
+        .wn-quote-tabs {
+            display: inline-flex;
+            gap: 3px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 3px;
+            margin-bottom: 12px;
+        }
+
+        .wn-tab {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .wn-tab.active {
+            background: var(--brand-blue);
+            color: #fff;
+        }
+
+        .wn-quote-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .wn-quote-row span:last-child {
+            font-weight: 600;
+        }
+
+        .wn-quote-delta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .wn-quote-delta strong.up {
+            color: #1f9d55;
+            font-size: 14px;
+        }
+
+        /* Slide 3 mockup: CX / EX coverage */
+        .wn-cxex-mockup {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .wn-cxex-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wn-cxex-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .wn-cxex-divider {
+            width: 1px;
+            align-self: stretch;
+            background: var(--border);
+        }
+
+        .wn-cxex-col .chip {
+            font-size: 12px;
+            padding: 5px 12px;
+        }
+
+        .wn-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        .wn-arrow {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .wn-arrow:hover {
+            border-color: var(--accent);
+        }
+
+        .wn-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wn-dot {
+            width: 7px;
+            height: 7px;
+            padding: 0;
+            border: none;
+            border-radius: 999px;
+            background: var(--border);
+            cursor: pointer;
+        }
+
+        .wn-dot.active {
+            width: 20px;
+            background: var(--brand-blue);
+        }
+
+        .wn-footer {
+            margin-top: 22px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 640px) {
+            .wn-modal {
+                padding: 26px 20px 22px;
+            }
+
+            .wn-title {
+                font-size: 23px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="wn-overlay" id="wnOverlay" hidden>
+        <div class="wn-modal" role="dialog" aria-modal="true" aria-label="What's new in FRSH PriceView">
+            <button type="button" class="wn-close" id="wnCloseBtn" aria-label="Close">✕</button>
+            <span class="wn-kicker">Thank you for installing FRSH PriceView</span>
+            <h2 class="wn-title">See what's new</h2>
+            <div class="wn-carousel">
+                <div class="wn-track" id="wnTrack">
+                    <div class="wn-slide">
+                        <div class="wn-shot">
+                            <div class="wn-browser-dots"><span></span><span></span><span></span></div>
+                            <div class="wn-cards-mockup">
+                                <div class="wn-mini-card">
+                                    <div class="wn-mini-bar" style="width:70%"></div>
+                                    <div class="wn-mini-price">$49</div>
+                                </div>
+                                <div class="wn-mini-card highlighted">
+                                    <div class="wn-mini-bar" style="width:55%"></div>
+                                    <div class="wn-mini-price">$79</div>
+                                </div>
+                                <div class="wn-mini-card">
+                                    <div class="wn-mini-bar" style="width:85%"></div>
+                                    <div class="wn-mini-price">$119</div>
+                                </div>
+                            </div>
+                        </div>
+                        <h3>Built from the ground up</h3>
+                        <p>Rebuilt end to end for Freshworks' redesigned pricing pages &mdash; new pricing logic, new detection, and a classier interface across all 11 supported pages.</p>
+                    </div>
+                    <div class="wn-slide">
+                        <div class="wn-shot">
+                            <div class="wn-browser-dots"><span></span><span></span><span></span></div>
+                            <div class="wn-quote-tabs">
+                                <span class="wn-tab active">Quote 1</span>
+                                <span class="wn-tab">Quote 2</span>
+                            </div>
+                            <div class="wn-quote-row"><span>Growth &mdash; Annual</span><span>$588.00</span></div>
+                            <div class="wn-quote-row"><span>Freddy AI Copilot</span><span>$348.00</span></div>
+                            <div class="wn-quote-delta">ARR vs &quot;Quote 1&quot; <strong class="up">+$708.00</strong></div>
+                        </div>
+                        <h3>Generate and compare multiple quotes, right on the page</h3>
+                        <p>Right-click any price to build a quote, add plans and addons, then compare Direct vs. Reseller or multiple scenarios side by side against the customer's current subscription.</p>
+                    </div>
+                    <div class="wn-slide">
+                        <div class="wn-shot">
+                            <div class="wn-browser-dots"><span></span><span></span><span></span></div>
+                            <div class="wn-cxex-mockup">
+                                <div class="wn-cxex-col">
+                                    <span class="wn-cxex-label">EX</span>
+                                    <span class="chip">Freshservice</span>
+                                    <span class="chip">ITAM</span>
+                                </div>
+                                <div class="wn-cxex-divider"></div>
+                                <div class="wn-cxex-col">
+                                    <span class="wn-cxex-label">CX</span>
+                                    <span class="chip">Freshdesk</span>
+                                    <span class="chip">Freshchat</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h3>CX and EX pricing updates</h3>
+                        <p>Pricing detection is current across both sides of the house &mdash; Customer Experience (Freshdesk, Omni, Freshcaller, Freshchat, CRM) and Employee Experience (Freshservice, MSP, ITAM).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="wn-controls">
+                <button type="button" class="wn-arrow" id="wnPrev" aria-label="Previous slide">‹</button>
+                <div class="wn-dots" id="wnDots"></div>
+                <button type="button" class="wn-arrow" id="wnNext" aria-label="Next slide">›</button>
+            </div>
+            <div class="wn-footer">
+                <button type="button" class="btn btn-primary" id="wnGotItBtn">Got it, thanks</button>
+            </div>
+        </div>
+    </div>
+
     <div class="wrap">
 
         <div class="hero">
@@ -532,6 +907,7 @@
                         <li>Restyled the quote tabs to match the site's own category pill selector</li>
                         <li>Replaced the CSV download with a proper Excel (.xls) file to fix formatting issues when opened</li>
                         <li>Fixed "Email quote" so it actually opens your mail app/Gmail compose window</li>
+                        <li>Added a "What's new" welcome carousel on this page after install/update</li>
                     </ul>
                 </div>
 
@@ -786,6 +1162,65 @@
         </footer>
 
     </div>
+
+    <script>
+        (function () {
+            // Bumped alongside the extension version so a genuine update shows this again,
+            // but reopening this page (e.g. from the GitHub link) after dismissing it doesn't.
+            var WHATS_NEW_VERSION = "2.3.0";
+            var STORAGE_KEY = "frshWhatsNewSeen";
+
+            var overlay = document.getElementById("wnOverlay");
+            var track = document.getElementById("wnTrack");
+            var dotsEl = document.getElementById("wnDots");
+            var slides = track.querySelectorAll(".wn-slide");
+            var index = 0;
+
+            function hasSeenThisVersion() {
+                try { return localStorage.getItem(STORAGE_KEY) === WHATS_NEW_VERSION; }
+                catch (e) { return false; }
+            }
+
+            function markSeen() {
+                try { localStorage.setItem(STORAGE_KEY, WHATS_NEW_VERSION); } catch (e) { /* private mode etc. */ }
+            }
+
+            function renderDots() {
+                dotsEl.innerHTML = "";
+                slides.forEach(function (_, i) {
+                    var dot = document.createElement("button");
+                    dot.type = "button";
+                    dot.className = "wn-dot" + (i === index ? " active" : "");
+                    dot.setAttribute("aria-label", "Go to slide " + (i + 1) + " of " + slides.length);
+                    dot.addEventListener("click", function () { goTo(i); });
+                    dotsEl.appendChild(dot);
+                });
+            }
+
+            function goTo(i) {
+                index = Math.max(0, Math.min(slides.length - 1, i));
+                track.style.transform = "translateX(-" + (index * 100) + "%)";
+                renderDots();
+            }
+
+            function closeModal() {
+                overlay.hidden = true;
+                markSeen();
+            }
+
+            document.getElementById("wnPrev").addEventListener("click", function () { goTo(index - 1); });
+            document.getElementById("wnNext").addEventListener("click", function () { goTo(index + 1); });
+            document.getElementById("wnCloseBtn").addEventListener("click", closeModal);
+            document.getElementById("wnGotItBtn").addEventListener("click", closeModal);
+            overlay.addEventListener("mousedown", function (e) { if (e.target === overlay) closeModal(); });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && !overlay.hidden) closeModal();
+            });
+
+            renderDots();
+            if (!hasSeenThisVersion()) overlay.hidden = false;
+        })();
+    </script>
 </body>
 
 </html>

@@ -51,6 +51,7 @@ v2.3.0 - September 2, 2026
 - Restyled the quote tabs to match the site's own IT Service/Customer Service category pill selector
 - Replaced the CSV download with an Excel-compatible download (an .xls file with a proper column layout) to avoid CSV formatting/encoding issues in Excel
 - Fixed "Email quote" to actually open the mail app/Gmail compose window instead of doing nothing
+- Added a dismissible "What's new" welcome carousel to the install page, shown after install/update
 
 v2.2.0 - September 2, 2026
 - Generate Quote: replaced the separate Monthly/Annual cost columns with a single Annual Cost (ARR) column, and added a Monthly/Quarterly/Half-yearly invoicing cadence dropdown for month-to-month plans
