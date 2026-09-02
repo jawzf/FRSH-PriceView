@@ -29,10 +29,13 @@ Important
 When viewing the price of addons which are dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.
 
 Generate Quote
-Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder for that plan:
-- The clicked plan, its billing cycle, and license cost are added as the first line item. Set the number of licenses and a discount %, and it shows the monthly and annual cost.
-- Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page itself), and "+ Add plan" to quote multiple plans/products from the same page.
-- Toggle "Direct Customer" / "Reseller Customer" at the top. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
+Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder:
+- The clicked plan, its billing cycle, and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Set the number of licenses and a discount %, and it shows the Annual Cost. Plans billed month-to-month also get a Monthly / Quarterly / Half-yearly invoicing cadence dropdown, which only changes the displayed unit price, not the ARR.
+- Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
+- Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
+- A summary panel shows the quote's Total ARR and total discount applied (amount and blended %).
+- Build multiple quotes side by side with the quote tabs (double-click a tab to rename it, e.g. "Direct" vs "Reseller"). Mark one quote as the customer's current subscription to see an ARR delta on every other quote.
+- Download the quote(s) you choose as a CSV, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
 This is an estimate only, generated from the pricing shown on the page - not a binding quote.
 
@@ -40,6 +43,15 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.2.0 - September 2, 2026
+- Generate Quote: replaced the separate Monthly/Annual cost columns with a single Annual Cost (ARR) column, and added a Monthly/Quarterly/Half-yearly invoicing cadence dropdown for month-to-month plans
+- Added a quote summary panel (Total ARR, total discount applied) and a "Clear quote" button
+- Fixed addon detection to also pick up addons embedded in a plan's summary text (e.g. Freddy AI Copilot), not just the feature comparison table
+- "+ Add plan" now includes Custom/"Contact us" plans (e.g. Enterprise), which still have a real list price behind the public "Custom" label
+- Added support for multiple quotes per session (tabs, rename, remove) so you can compare scenarios like Direct vs Reseller, plus a "mark as current subscription" baseline that shows an ARR delta on every other quote
+- Added CSV export and a pre-filled email option, both with a picker for which quote(s) to include
+- Restyled the quote modal to match freshworks.com more closely: the extension icon plus a serif "FRSH PriceView" title, "Generate Quote" as a subheading, and a cream/white card layout
+
 v2.1.0 - September 2, 2026
 - Added "Generate Quote": a right-click context menu (on a price, or on the extension icon) that opens an in-page quote builder - product/plan/billing cycle/license cost, quantity, per-line discount, addons scoped to the clicked plan's actual valid addons, and a Direct/Reseller toggle with per-line partner margin % and partner cost when reselling
 - Works across all 11 supported pricing pages

@@ -433,7 +433,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.1.0</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.2.0</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -484,9 +484,11 @@
             <div class="card">
                 <p style="margin-top:0">Right-click any price on a supported pricing page &mdash; or right-click the extension icon itself &mdash; and choose <strong>Generate Quote</strong> to open a quote builder right on the page.</p>
                 <ol class="steps">
-                    <li>The plan you clicked, its billing cycle, and its license cost are added as the first line item. Set the number of licenses and a discount %, and it shows the monthly and annual cost.</li>
-                    <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page.</li>
-                    <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> at the top. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
+                    <li>The plan you clicked, its billing cycle, and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Set the number of licenses and a discount %, and it shows the Annual Cost. Month-to-month plans also get a Monthly / Quarterly / Half-yearly invoicing cadence dropdown.</li>
+                    <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page's own data), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page &mdash; including Custom/"Contact us" plans, which still carry a real list price behind the scenes.</li>
+                    <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> per quote. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
+                    <li>Build multiple quotes with the quote tabs (double-click to rename, e.g. "Direct" vs "Reseller") and mark one as the customer's <strong>current subscription</strong> to see an ARR delta on every other quote, alongside the Total ARR and total discount applied.</li>
+                    <li>Use <strong>Download CSV</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
                 </ol>
                 <div class="callout">
                     <strong>From the toolbar icon</strong>
@@ -518,6 +520,22 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.2.0 &mdash; Compare, export, and email quotes</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Replaced the separate Monthly/Annual cost columns with a single Annual Cost (ARR) column, and added a Monthly/Quarterly/Half-yearly invoicing cadence dropdown for month-to-month plans</li>
+                        <li>Added a quote summary panel (Total ARR, total discount applied) and a "Clear quote" button</li>
+                        <li>Fixed addon detection to also pick up addons embedded in a plan's summary text (e.g. Freddy AI Copilot), not just the feature comparison table</li>
+                        <li>"+ Add plan" now includes Custom/"Contact us" plans (e.g. Enterprise), which still have a real list price behind the public label</li>
+                        <li>Added support for multiple quotes per session (tabs, rename, remove) to compare scenarios like Direct vs Reseller, plus a "mark as current subscription" baseline with an ARR delta on every other quote</li>
+                        <li>Added CSV export and a pre-filled email option, both with a picker for which quote(s) to include</li>
+                        <li>Restyled the quote modal to match freshworks.com more closely: the extension icon plus a serif "FRSH PriceView" title, "Generate Quote" as a subheading, and a cream/white card layout</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.1.0 &mdash; Generate Quote</span>
                         <span class="changelog-date">September 2, 2026</span>
