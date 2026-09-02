@@ -45,6 +45,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.3.3 - September 2, 2026
+- Replaced the letter placeholders in the install page's "Available on" row with the actual Chrome, Firefox, Edge, and Safari logos
+
 v2.3.2 - September 2, 2026
 - Clicking the toolbar icon on any page that isn't one of the tracked pricing pages now redirects to the Freshservice pricing page instead of doing nothing
 - Added an "Available on" row at the top of the install page linking to the Chrome Web Store listing, with placeholders for Firefox, Edge, and Safari
