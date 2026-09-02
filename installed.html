@@ -467,6 +467,26 @@
             background: var(--border);
         }
 
+        .wn-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .wn-brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .wn-brand span {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
         .wn-kicker {
             display: block;
             font-size: 12px;
@@ -728,7 +748,11 @@
     <div class="wn-overlay" id="wnOverlay" hidden>
         <div class="wn-modal" role="dialog" aria-modal="true" aria-label="What's new in FRSH PriceView">
             <button type="button" class="wn-close" id="wnCloseBtn" aria-label="Close">✕</button>
-            <span class="wn-kicker">Thank you for installing FRSH PriceView</span>
+            <div class="wn-brand">
+                <img src="images/icon-128.png" alt="">
+                <span>FRSH PriceView</span>
+            </div>
+            <span class="wn-kicker">Thank you for installing</span>
             <h2 class="wn-title">See what's new</h2>
             <div class="wn-carousel">
                 <div class="wn-track" id="wnTrack">
@@ -808,7 +832,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.0</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.1</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -859,7 +883,7 @@
             <div class="card">
                 <p style="margin-top:0">Right-click any price on a supported pricing page &mdash; or right-click the extension icon itself &mdash; and choose <strong>Generate Quote</strong> to open a quote builder right on the page.</p>
                 <ol class="steps">
-                    <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Every line has its own <strong>Billing Cycle</strong> dropdown (Annual / Monthly / Quarterly / Half-yearly) you can change any time, which updates that line's unit price and Invoice Value. Set the number of licenses and a discount % too.</li>
+                    <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Every line has its own <strong>Billing Cycle</strong> dropdown (Annual / Monthly / Quarterly / Half-yearly) you can change any time. <strong>Unit Price</strong> always shows the flat per-month rate; <strong>Invoice Value</strong> shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly). Set the number of licenses and a discount % too.</li>
                     <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page's own data), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page &mdash; including Custom/"Contact us" plans, which still carry a real list price behind the scenes.</li>
                     <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> per quote. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
                     <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller") and mark one as the customer's <strong>current subscription</strong> to see a green (higher cost) or red (lower cost) ARR delta on every other quote, alongside the Total ARR and total discount applied.</li>
@@ -895,6 +919,19 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.3.1 &mdash; Email fix and Unit Price correction</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Fixed "Email quote" for real this time: it now hands off to your mail app via the browser's own mailto navigation instead of a synthetic link click, which some browsers were silently ignoring</li>
+                        <li>Fixed Unit Price to always show the flat per-month rate, even for Quarterly/Half-yearly items - it no longer looks like the price jumped 3x/6x. Invoice Value (the total) still reflects the full amount charged for that billing cycle</li>
+                        <li>Fixed the extension page CSP blocking the "What's new" modal's inline script so it actually opens</li>
+                        <li>Added the FRSH PriceView logo and title to the top of the "What's new" modal</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.3.0 &mdash; Bug fixes and polish</span>
                         <span class="changelog-date">September 2, 2026</span>

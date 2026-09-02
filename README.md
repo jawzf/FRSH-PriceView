@@ -30,7 +30,7 @@ When viewing the price of addons which are dependent on an option you choose, pl
 
 Generate Quote
 Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder:
-- The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked - it updates the unit price and Invoice Value shown for that line, without changing the line's ARR. Set the number of licenses and a discount % too.
+- The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
 - Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
 - A summary panel shows the quote's Total ARR and total discount applied (amount and blended %).
@@ -43,6 +43,12 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.3.1 - September 2, 2026
+- Fixed "Email quote" for real this time: it now hands off to the mail app via the browser's own mailto navigation instead of a synthetic link click, which some browsers were silently ignoring
+- Fixed Unit Price to always show the flat per-month rate, even for Quarterly/Half-yearly items, instead of the full multiplied cycle amount; Invoice Value still reflects the full amount charged for that billing cycle
+- Fixed the extension page CSP blocking the "What's new" modal's inline script so it actually opens
+- Added the FRSH PriceView logo and title to the top of the "What's new" modal
+
 v2.3.0 - September 2, 2026
 - Fixed the ARR delta on a non-current quote to color green when it costs more than the current subscription and red when it costs less (was inverted)
 - Fixed quote numbering: deleting a quote now renumbers the default "Quote N" names of the ones after it, so a new quote reuses the freed-up number instead of always incrementing

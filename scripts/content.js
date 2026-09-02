@@ -313,9 +313,14 @@
         var annualTotal = listAnnualTotal * (1 - discount / 100);
         var margin = Math.min(100, Math.max(0, toNumber(item.marginPct)));
         var partnerCost = annualTotal * (1 - margin / 100);
-        var cadenceMultiplier = isAnnual ? 1 : (BILLING_CYCLE_MONTHS[cycle] || 1);
-        var cadenceUnitPrice = isAnnual ? unit.annual : unit.monthly * cadenceMultiplier;
-        var invoiceValue = cadenceUnitPrice * qty * (1 - discount / 100);
+        // Unit Price always shows the flat per-month rate (the annual-commit monthly-equivalent, or
+        // the month-to-month rate) - never multiplied by the invoicing cadence, so a quarterly/
+        // half-yearly item doesn't look like it costs 3x/6x more per unit. Invoice Value is the
+        // actual amount charged for one full billing cycle at that rate (12 months for annual,
+        // 1/3/6 otherwise), which is why it - not Unit Price - reflects the billing terms.
+        var termMonths = BILLING_CYCLE_MONTHS[cycle] || 1;
+        var cadenceUnitPrice = isAnnual ? unit.annual : unit.monthly;
+        var invoiceValue = cadenceUnitPrice * termMonths * qty * (1 - discount / 100);
         return {
             unit: unit,
             cadenceUnitPrice: cadenceUnitPrice,
@@ -794,13 +799,11 @@
             body = body.slice(0, 1500) + "\n\n[Quote truncated for email - use \"Download Excel\" for the full breakdown.]";
         }
         var mailto = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-        // A real <a> click (not window.open, which mailto: links can silently no-op or get popup-blocked
-        // for) is the reliable way to hand off to the OS/browser's registered mail handler.
-        var a = document.createElement("a");
-        a.href = mailto;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        // Setting location.href directly is the reliable way to hand off to the OS/browser's
+        // registered mail handler - for a non-http(s) scheme like mailto: the browser triggers the
+        // external handler and leaves the current page in place, it doesn't actually navigate away.
+        // window.open() and a synthetic <a> click can both silently no-op for mailto: in some browsers.
+        window.location.href = mailto;
     }
 
     function openModal(planIndex) {
