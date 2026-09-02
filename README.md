@@ -51,6 +51,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.4.3 - September 2, 2026
+- The "What's new" welcome carousel now leads with the prorated charges calculator as its marquee slide
+- Added a "What's new" thumbnail strip above How it works on the install page - click any thumbnail to reopen the full tour on that feature
+
 v2.4.2 - September 2, 2026
 - Calculate Prorated Charges no longer asks for a line item - it now estimates a value for the whole quote's Total Invoice Value, with a Billing Cycle dropdown replacing the per-item picker
 - Relabeled the result "Estimated prorated value" and added a note that actual charges depend on the exact date and time of invoicing

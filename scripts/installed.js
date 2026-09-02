@@ -3,7 +3,7 @@
 
     // Bumped alongside the extension version so a genuine update shows this again,
     // but reopening this page (e.g. from the GitHub link) after dismissing it doesn't.
-    var WHATS_NEW_VERSION = "2.3.0";
+    var WHATS_NEW_VERSION = "2.4.2";
     var STORAGE_KEY = "frshWhatsNewSeen";
 
     var overlay = document.getElementById("wnOverlay");
@@ -51,6 +51,15 @@
     overlay.addEventListener("mousedown", function (e) { if (e.target === overlay) closeModal(); });
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && !overlay.hidden) closeModal();
+    });
+
+    // The small "What's new" thumbnail strip further down the page reopens this same modal
+    // scrolled to the clicked feature's slide, regardless of whether it's already been dismissed.
+    document.querySelectorAll(".feature-card[data-slide]").forEach(function (card) {
+        card.addEventListener("click", function () {
+            overlay.hidden = false;
+            goTo(Number(card.getAttribute("data-slide")));
+        });
     });
 
     renderDots();
