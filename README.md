@@ -40,7 +40,8 @@ Right-click any price on a supported pricing page (or right-click the extension 
 - A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, an "ARR in USD" field appears next to Total ARR with the equivalent value, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
 - Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it).
 - Check "Compare Prices" to pick exactly two quotes and mark one of them as the customer's current subscription - the other then shows a green (costs more) or red (costs less) ARR delta against it.
-- Check "Calculate Prorated Charges" to prorate one line item's Invoice Value between a Subscription Change Date and a Subscription End Date - the charge scales by the fraction of that item's billing cycle (in milliseconds) falling between the two dates, using a flat 30-day month per billing-cycle unit.
+- Check "Calculate Prorated Charges" to estimate a prorated value for the whole quote: pick a Billing Cycle, a Subscription Change Date, and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of that billing cycle (in milliseconds, using a flat 30-day month per billing-cycle unit) falling between the two dates. This is an estimate only - actual charges depend on the exact date and time of invoicing.
+- A "Total Invoice Value" row below the line items sums every line's Invoice Value in the quote's currency.
 - Hover over any field, button, or column header in the builder for a short tooltip explaining what it does.
 - Download the quote(s) you choose as an Excel file, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
@@ -50,6 +51,11 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.4.2 - September 2, 2026
+- Calculate Prorated Charges no longer asks for a line item - it now estimates a value for the whole quote's Total Invoice Value, with a Billing Cycle dropdown replacing the per-item picker
+- Relabeled the result "Estimated prorated value" and added a note that actual charges depend on the exact date and time of invoicing
+- Added a "Total Invoice Value" row below the line items, summing every line's Invoice Value in the quote's currency
+
 v2.4.1 - September 2, 2026
 - ARR in USD is now its own field next to Total ARR for non-USD quotes, instead of only showing on hover
 - Added "Calculate Prorated Charges": pick a line item and a Subscription Change Date / Subscription End Date to prorate that item's Invoice Value by the fraction of its billing cycle (in milliseconds) that falls between the two dates

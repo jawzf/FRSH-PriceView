@@ -900,7 +900,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.4.1</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.4.2</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -989,7 +989,8 @@
                     <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller").</li>
                     <li>Check <strong>Compare Prices</strong> to pick exactly two quotes and mark one of them as the customer's current subscription &mdash; the other then shows a green (costs more) or red (costs less) ARR delta against it, alongside the Total ARR and total discount applied.</li>
                     <li>For any non-USD currency, an <strong>ARR in USD</strong> field appears next to Total ARR with the equivalent value, converted using a fixed reference rate.</li>
-                    <li>Check <strong>Calculate Prorated Charges</strong> to prorate one line item's Invoice Value between a Subscription Change Date and a Subscription End Date &mdash; the charge scales by the fraction of that item's billing cycle (in milliseconds) falling between the two dates.</li>
+                    <li>Check <strong>Calculate Prorated Charges</strong> to estimate a prorated value for the whole quote: pick a Billing Cycle, a Subscription Change Date, and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of that billing cycle (in milliseconds) falling between the two dates. This is an estimate only &mdash; actual charges depend on the exact date and time of invoicing.</li>
+                    <li>A <strong>Total Invoice Value</strong> row below the line items sums every line's Invoice Value in the quote's currency.</li>
                     <li>Hover over any field, button, or column header in the builder for a short explanation of what it does.</li>
                     <li>Use <strong>Download Excel</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
                 </ol>
@@ -1022,6 +1023,18 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.4.2 &mdash; Prorated Charges reworked to the quote level</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Calculate Prorated Charges no longer asks for a line item &mdash; it now estimates a value for the whole quote's Total Invoice Value, with a Billing Cycle dropdown replacing the per-item picker</li>
+                        <li>Relabeled the result "Estimated prorated value" and added a note that actual charges depend on the exact date and time of invoicing</li>
+                        <li>Added a "Total Invoice Value" row below the line items, summing every line's Invoice Value in the quote's currency</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.4.1 &mdash; Prorated charges, ARR in USD as a field</span>
                         <span class="changelog-date">September 2, 2026</span>

@@ -218,7 +218,7 @@
         quotes: [],
         activeIndex: 0,
         compare: { enabled: false, quoteIds: [] }, // quoteIds: up to 2 quote ids being compared
-        proration: { enabled: false, itemId: null, changeDate: "", endDate: "" }
+        proration: { enabled: false, billingCycle: "annual", changeDate: "", endDate: "" }
     };
     var nextItemId = 1;
     var nextQuoteId = 1;
@@ -378,11 +378,13 @@
         els.comparePickList = shadowRoot.getElementById("comparePickList");
         els.prorationCheckbox = shadowRoot.getElementById("prorationCheckbox");
         els.prorationPanel = shadowRoot.getElementById("prorationPanel");
-        els.prorationItemSelect = shadowRoot.getElementById("prorationItemSelect");
+        els.prorationCycleSelect = shadowRoot.getElementById("prorationCycleSelect");
         els.prorationChangeDate = shadowRoot.getElementById("prorationChangeDate");
         els.prorationEndDate = shadowRoot.getElementById("prorationEndDate");
         els.prorationResult = shadowRoot.getElementById("prorationResult");
         els.tbody = shadowRoot.getElementById("tbody");
+        els.totalInvoiceRow = shadowRoot.getElementById("totalInvoiceRow");
+        els.totalInvoiceValueCell = shadowRoot.getElementById("totalInvoiceValueCell");
         els.theadReseller = shadowRoot.getElementById("theadReseller");
         els.addPlanSelect = shadowRoot.getElementById("addPlanSelect");
         els.addPlanBtn = shadowRoot.getElementById("addPlanBtn");
@@ -483,9 +485,12 @@
         '  .compare-current-radio { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #63625a; font-weight: 600; cursor: pointer; }',
         '  .proration-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }',
         '  .proration-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: #63625a; }',
-        '  .proration-field select { min-width: 200px; }',
+        '  .proration-field select { min-width: 140px; }',
         '  .proration-result { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #f0efe8; font-size: 13px; color: #63625a; }',
         '  .proration-result strong { display: block; font-size: 19px; font-weight: 700; color: #101114; margin-top: 2px; }',
+        '  .proration-note { margin-top: 10px; font-size: 11.5px; color: #a9a89e; }',
+        '  tfoot td { border-bottom: none; border-top: 2px solid #e3e2da; padding-top: 12px; }',
+        '  .total-invoice-label { font-weight: 700; color: #101114; }',
         '  .frsh-actions { display: flex; gap: 10px; margin-top: 16px; }',
         '  .frsh-action-btn { border: 1px solid #101114; background: #fff; color: #101114; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .frsh-action-btn:hover { background: #101114; color: #fff; }',
@@ -535,10 +540,15 @@
         '      <div id="comparePickList" class="frsh-compare-list"></div>',
         '    </div>',
         '    <div class="frsh-compare-panel" id="prorationPanel" hidden>',
-        '      <div class="frsh-compare-title">Prorate a line item\'s Invoice Value between two dates</div>',
+        '      <div class="frsh-compare-title">Estimate a prorated value for this quote between two dates</div>',
         '      <div class="proration-row">',
-        '        <label class="proration-field">Line item',
-        '          <select id="prorationItemSelect" title="Choose which line item to prorate"></select>',
+        '        <label class="proration-field">Billing Cycle',
+        '          <select id="prorationCycleSelect" title="The cadence this quote is invoiced on">',
+        '            <option value="annual">Annual</option>',
+        '            <option value="monthly">Monthly</option>',
+        '            <option value="quarterly">Quarterly</option>',
+        '            <option value="halfyearly">Half-yearly</option>',
+        '          </select>',
         '        </label>',
         '        <label class="proration-field">Subscription Change Date',
         '          <input type="date" id="prorationChangeDate" title="The date the subscription change takes effect">',
@@ -548,6 +558,7 @@
         '        </label>',
         '      </div>',
         '      <div class="proration-result" id="prorationResult"></div>',
+        '      <div class="proration-note">Estimate only - actual prorated charges depend on the exact date and time of invoicing.</div>',
         '    </div>',
         '    <div class="frsh-card">',
         '    <table>',
@@ -558,12 +569,21 @@
         '          <th class="num" title="Flat per-month rate, regardless of billing cycle">Unit Price</th>',
         '          <th class="num" title="Discount percentage applied to this line">Discount %</th>',
         '          <th class="num" title="The amount actually charged for one full billing cycle at the chosen terms">Invoice Value</th>',
-        '          <th class="num" id="theadReseller" hidden title="Percentage the partner keeps as margin over the annual cost">Margin %</th>',
-        '          <th class="num" id="theadResellerCost" hidden title="Annual cost after the partner margin is applied">Partner cost</th>',
+        '          <th class="num reseller-col" id="theadReseller" hidden title="Percentage the partner keeps as margin over the annual cost">Margin %</th>',
+        '          <th class="num reseller-col" id="theadResellerCost" hidden title="Annual cost after the partner margin is applied">Partner cost</th>',
         '          <th></th>',
         '        </tr>',
         '      </thead>',
         '      <tbody id="tbody"></tbody>',
+        '      <tfoot id="totalInvoiceRow" hidden>',
+        '        <tr>',
+        '          <td colspan="4" class="total-invoice-label" title="Sum of every line item\'s Invoice Value, each at its own billing cycle">Total Invoice Value</td>',
+        '          <td class="num total-invoice-label" id="totalInvoiceValueCell"></td>',
+        '          <td class="reseller-col" hidden></td>',
+        '          <td class="reseller-col" hidden></td>',
+        '          <td></td>',
+        '        </tr>',
+        '      </tfoot>',
         '    </table>',
         '    <div class="frsh-add-plan">',
         '      <select id="addPlanSelect" title="Choose a plan to add as a new line item"></select>',
@@ -639,11 +659,11 @@
             render();
         });
 
-        // Item picker, change date, and end date all live-recompute the result without a full
-        // render() - a render() would rebuild the date inputs and drop whatever the user just typed.
+        // Billing cycle picker, change date, and end date all live-recompute the result without a
+        // full render() - a render() would rebuild the date inputs and drop whatever was just typed.
         els.prorationPanel.addEventListener("change", function(e) {
-            if (e.target === els.prorationItemSelect) {
-                appState.proration.itemId = Number(els.prorationItemSelect.value);
+            if (e.target === els.prorationCycleSelect) {
+                appState.proration.billingCycle = els.prorationCycleSelect.value;
                 renderProrationResult();
             } else if (e.target === els.prorationChangeDate || e.target === els.prorationEndDate) {
                 appState.proration.changeDate = els.prorationChangeDate.value;
@@ -742,6 +762,7 @@
             var partnerCell = row.querySelector(".cell-partner");
             if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
             if (partnerCell) partnerCell.textContent = money(computed.partnerCost);
+            updateTotalInvoiceValue(plans);
             renderSummary();
         });
 
@@ -763,6 +784,7 @@
             var invoiceCell = row.querySelector(".cell-invoice");
             if (unitCell) unitCell.textContent = money(computed.cadenceUnitPrice);
             if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
+            updateTotalInvoiceValue(plans);
         });
 
         els.tbody.addEventListener("click", function(e) {
@@ -921,14 +943,23 @@
     // Totals for one quote, without touching the DOM - used both to render that quote's own
     // summary and to compute the "current subscription" baseline for every other quote's delta.
     function totalsForQuote(quote, plans) {
-        var totalListArr = 0, totalArr = 0, totalPartner = 0;
+        var totalListArr = 0, totalArr = 0, totalPartner = 0, totalInvoiceValue = 0;
         quote.items.forEach(function(it) {
             var row = computeRow(it, plans);
             totalListArr += row.listAnnualTotal;
             totalArr += row.annualTotal;
             totalPartner += row.partnerCost;
+            totalInvoiceValue += row.invoiceValue;
         });
-        return { totalListArr: totalListArr, totalArr: totalArr, totalPartner: totalPartner };
+        return { totalListArr: totalListArr, totalArr: totalArr, totalPartner: totalPartner, totalInvoiceValue: totalInvoiceValue };
+    }
+
+    // Keeps the Total Invoice Value footer cell (and, if open, the prorated-value estimate that's
+    // derived from it) in sync with a row-level edit, without a full render().
+    function updateTotalInvoiceValue(plans) {
+        if (!els.totalInvoiceValueCell || els.totalInvoiceRow.hidden) return;
+        els.totalInvoiceValueCell.textContent = money(totalsForQuote(activeQuote(), plans).totalInvoiceValue);
+        if (appState.proration.enabled) renderProrationResult();
     }
 
     function renderSummary() {
@@ -1003,28 +1034,15 @@
         }).join("");
     }
 
-    // Lets the user prorate one line item's Invoice Value between two dates - e.g. a mid-cycle
-    // upgrade, downgrade, or cancellation - using the fraction of that item's billing cycle that
-    // falls between the change date and the end date.
+    // Lets the user estimate a prorated value for the whole quote (its Total Invoice Value) between
+    // two dates - e.g. a mid-cycle upgrade, downgrade, or cancellation - using the fraction of the
+    // chosen billing cycle that falls between the change date and the end date. This is scoped to
+    // the overall quote rather than one line item, so there's no per-item picker.
     function renderProrationPanel() {
         if (!els.prorationPanel) return;
         els.prorationPanel.hidden = !appState.proration.enabled;
         if (!appState.proration.enabled) return;
-        var plans = getPlans();
-        var items = activeQuote().items;
-        if (!items.length) {
-            els.prorationItemSelect.innerHTML = "";
-            els.prorationResult.textContent = "Add a line item to this quote first.";
-            return;
-        }
-        // Keep the previously-picked item selected if it still exists on this quote, otherwise
-        // fall back to the first line item.
-        var validIds = items.map(function(it) { return it.id; });
-        if (validIds.indexOf(appState.proration.itemId) === -1) appState.proration.itemId = items[0].id;
-        els.prorationItemSelect.innerHTML = items.map(function(it) {
-            var selected = it.id === appState.proration.itemId ? " selected" : "";
-            return '<option value="' + it.id + '"' + selected + ">" + escapeHtml(itemLabel(it, plans)) + "</option>";
-        }).join("");
+        els.prorationCycleSelect.value = appState.proration.billingCycle;
         els.prorationChangeDate.value = appState.proration.changeDate;
         els.prorationEndDate.value = appState.proration.endDate;
         renderProrationResult();
@@ -1033,23 +1051,22 @@
     function renderProrationResult() {
         if (!els.prorationResult) return;
         var plans = getPlans();
-        var item = activeQuote().items.filter(function(it) { return it.id === appState.proration.itemId; })[0];
-        if (!item || !plans) {
+        if (!plans || !activeQuote().items.length) {
             els.prorationResult.textContent = "Add a line item to this quote first.";
             return;
         }
         if (!appState.proration.changeDate || !appState.proration.endDate) {
-            els.prorationResult.textContent = "Enter both dates to calculate the prorated charge.";
+            els.prorationResult.textContent = "Enter both dates to estimate the prorated value.";
             return;
         }
         var changeMs = new Date(appState.proration.changeDate + "T00:00:00").getTime();
         var endMs = new Date(appState.proration.endDate + "T00:00:00").getTime();
         if (isNaN(changeMs) || isNaN(endMs)) {
-            els.prorationResult.textContent = "Enter valid dates to calculate the prorated charge.";
+            els.prorationResult.textContent = "Enter valid dates to estimate the prorated value.";
             return;
         }
-        var row = computeRow(item, plans);
-        var cycle = item.billingCycle || "monthly";
+        var totalInvoiceValue = totalsForQuote(activeQuote(), plans).totalInvoiceValue;
+        var cycle = appState.proration.billingCycle || "annual";
         // A flat 30-day month, matching the same month-count model the rest of the app already uses
         // for billing cycles (annual = 12x monthly, quarterly = 3x, etc.) rather than mixing in
         // calendar-accurate month lengths.
@@ -1057,11 +1074,11 @@
         var cycleMs = (BILLING_CYCLE_MONTHS[cycle] || 1) * 30 * msPerDay;
         var spanMs = endMs - changeMs;
         var fraction = cycleMs > 0 ? Math.max(0, Math.min(1, spanMs / cycleMs)) : 0;
-        var proratedAmount = row.invoiceValue * fraction;
+        var estimatedAmount = totalInvoiceValue * fraction;
         var cycleDays = Math.round(cycleMs / msPerDay);
         var spanDays = Math.max(0, Math.min(cycleDays, Math.round(spanMs / msPerDay)));
-        els.prorationResult.innerHTML = "Prorated charge<strong>" + money(proratedAmount) + "</strong>" +
-            "<div>" + spanDays + " of " + cycleDays + " days in the " + BILLING_CYCLE_LABELS[cycle].toLowerCase() + " cycle (" + fmt(fraction * 100) + "%) &middot; full Invoice Value " + money(row.invoiceValue) + "</div>";
+        els.prorationResult.innerHTML = "Estimated prorated value<strong>" + money(estimatedAmount) + "</strong>" +
+            "<div>" + spanDays + " of " + cycleDays + " days in the " + BILLING_CYCLE_LABELS[cycle].toLowerCase() + " cycle (" + fmt(fraction * 100) + "%) &middot; Total Invoice Value " + money(totalInvoiceValue) + "</div>";
     }
 
     function render() {
@@ -1079,12 +1096,11 @@
             b.classList.toggle("active", b.getAttribute("data-value") === quote.customerType);
         });
         var isReseller = quote.customerType === "reseller";
-        var theadResellerCost = shadowRoot.getElementById("theadResellerCost");
-        els.theadReseller.hidden = !isReseller;
-        theadResellerCost.hidden = !isReseller;
+        [].forEach.call(shadowRoot.querySelectorAll(".reseller-col"), function(el) { el.hidden = !isReseller; });
 
         if (!plans) {
             els.tbody.innerHTML = '<tr><td colspan="8" class="frsh-empty">Could not read pricing data on this page.</td></tr>';
+            els.totalInvoiceRow.hidden = true;
             renderSummary();
             return;
         }
@@ -1098,6 +1114,7 @@
 
         if (!quote.items.length) {
             els.tbody.innerHTML = '<tr><td colspan="8" class="frsh-empty">No line items yet. Pick a plan below to start the quote.</td></tr>';
+            els.totalInvoiceRow.hidden = true;
         } else {
             var rowsHtml = [];
             quote.items.filter(function(it) { return it.kind === "plan"; }).forEach(function(planItem) {
@@ -1108,6 +1125,8 @@
                 rowsHtml.push(renderAddAddonRow(planItem, plans, isReseller));
             });
             els.tbody.innerHTML = rowsHtml.join("");
+            els.totalInvoiceRow.hidden = false;
+            els.totalInvoiceValueCell.textContent = money(totalsForQuote(quote, plans).totalInvoiceValue);
         }
 
         renderSummary();
