@@ -433,7 +433,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.0.2</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.1.0</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -480,6 +480,22 @@
         </section>
 
         <section>
+            <h2>Generate Quote</h2>
+            <div class="card">
+                <p style="margin-top:0">Right-click any price on a supported pricing page &mdash; or right-click the extension icon itself &mdash; and choose <strong>Generate Quote</strong> to open a quote builder right on the page.</p>
+                <ol class="steps">
+                    <li>The plan you clicked, its billing cycle, and its license cost are added as the first line item. Set the number of licenses and a discount %, and it shows the monthly and annual cost.</li>
+                    <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page.</li>
+                    <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> at the top. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
+                </ol>
+                <div class="callout">
+                    <strong>From the toolbar icon</strong>
+                    Right-clicking the extension icon (instead of a specific price) opens the same builder empty, so you pick the plan yourself &mdash; the product is whichever pricing page you're currently on. This is an estimate only, generated from the pricing shown on the page &mdash; not a binding quote.
+                </div>
+            </div>
+        </section>
+
+        <section>
             <h2>Supported pages</h2>
             <div class="chip-grid">
                 <span class="chip">Freshservice for IT teams</span>
@@ -502,6 +518,19 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.1.0 &mdash; Generate Quote</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Added "Generate Quote": right-click a price (or the extension icon) on any supported pricing page to open an in-page quote builder</li>
+                        <li>Line items show product, plan, billing cycle, and license cost, with per-line quantity and discount %</li>
+                        <li>Addons can be added per plan, scoped to only the addons actually valid for that plan on the pricing page</li>
+                        <li>Direct Customer / Reseller Customer toggle; Reseller mode adds a per-line Partner Margin % and computed Partner Cost</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.0.2 &mdash; Freshworks-style redesign</span>
                         <span class="changelog-date">September 2, 2026</span>

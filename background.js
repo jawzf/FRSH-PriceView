@@ -5,6 +5,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     chrome.action.setBadgeText({
         text: "FRSH",
     });
+    setupContextMenus();
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
         chrome.tabs.create({
             url: "./installed.html"
@@ -15,6 +16,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
     }
 });
+chrome.runtime.onStartup.addListener(setupContextMenus);
 
 // Freshservice for CX (Customer Experience) pricing support is coming soon.
 const targetUrls = [
@@ -33,6 +35,43 @@ const targetUrls = [
 function isSupportedUrl(url) {
     return targetUrls.some(function(u) { return url.startsWith(u); });
 }
+const documentUrlPatterns = targetUrls.map(function(u) { return u + "*"; });
+
+// "Generate Quote" is offered two ways: right-clicking anywhere on a supported pricing page (the
+// content script figures out which plan/price was under the cursor), and right-clicking the
+// extension's own toolbar icon (no price context, so the quote modal opens empty and the user picks
+// a plan). Chrome automatically shows the extension's own icon next to both menu items.
+function setupContextMenus() {
+    chrome.contextMenus.removeAll(function() {
+        chrome.contextMenus.create({
+            id: "frsh-generate-quote-page",
+            title: "Generate Quote",
+            contexts: ["page"],
+            documentUrlPatterns: documentUrlPatterns
+        });
+        chrome.contextMenus.create({
+            id: "frsh-generate-quote-action",
+            title: "Generate Quote",
+            contexts: ["action"]
+        });
+    });
+}
+
+function sendOpenQuoteMessage(tabId, source) {
+    chrome.tabs.sendMessage(tabId, { type: "FRSH_OPEN_QUOTE", source: source }, function() {
+        void chrome.runtime.lastError; // no content script on this tab (unsupported page) - ignore
+    });
+}
+
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    if (!tab || !tab.id) return;
+    if (info.menuItemId === "frsh-generate-quote-page") {
+        sendOpenQuoteMessage(tab.id, "page");
+    } else if (info.menuItemId === "frsh-generate-quote-action") {
+        if (!isSupportedUrl(tab.url)) return;
+        sendOpenQuoteMessage(tab.id, "action");
+    }
+});
 const currency = [{
         "code": "US",
         "label": "USD"

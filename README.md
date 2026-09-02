@@ -2,7 +2,7 @@
 
 Chrome Webstore - https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc
 
-Switch between prices in different currencies on the Freshworks pricing pages.
+Switch currencies, and generate customer quotes, on the Freshworks pricing pages.
 
 This app allows you to switch between available currencies on the following Freshworks pricing pages:
 - Freshservice for IT teams - freshworks.com/freshservice/pricing/
@@ -28,10 +28,22 @@ The steps are simple:
 Important
 When viewing the price of addons which are dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.
 
+Generate Quote
+Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder for that plan:
+- The clicked plan, its billing cycle, and license cost are added as the first line item. Set the number of licenses and a discount %, and it shows the monthly and annual cost.
+- Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page itself), and "+ Add plan" to quote multiple plans/products from the same page.
+- Toggle "Direct Customer" / "Reseller Customer" at the top. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
+- Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
+This is an estimate only, generated from the pricing shown on the page - not a binding quote.
+
 Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.1.0 - September 2, 2026
+- Added "Generate Quote": a right-click context menu (on a price, or on the extension icon) that opens an in-page quote builder - product/plan/billing cycle/license cost, quantity, per-line discount, addons scoped to the clicked plan's actual valid addons, and a Direct/Reseller toggle with per-line partner margin % and partner cost when reselling
+- Works across all 11 supported pricing pages
+
 v2.0.2 - September 2, 2026
 - Redesigned the install page (installed.html) to match freshworks.com's own look and feel: warm off-white background, black/white pill buttons, and a serif display accent for the tagline, with colors sampled directly from the live site
 - Replaced the extension icon (16 through 256px) with an original mark using the same vibrant multicolor palette as Freshworks' current logomark (sampled from their live site assets, not a copy of the mark itself); the new icon is used everywhere the extension shows an icon - toolbar, chrome://extensions, and the install page
