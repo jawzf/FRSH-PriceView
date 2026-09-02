@@ -27,6 +27,8 @@ The steps are simple:
 
 Clicking the toolbar icon on any tab that isn't one of the supported pricing pages above takes you straight to the Freshservice pricing page instead of doing nothing.
 
+Right-click the extension icon for a menu with "Generate Quote", "Help" (opens the install page scrolled to How it works), and "About FRSH PriceView" (opens the install page).
+
 Important
 When viewing the price of addons which are dependent on an option you choose, please ensure that you choose the value you want to pick and then click the extension to switch through the prices.
 
@@ -35,8 +37,10 @@ Right-click any price on a supported pricing page (or right-click the extension 
 - The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
 - Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
-- A summary panel shows the quote's Total ARR and total discount applied (amount and blended %).
-- Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it). Mark one quote as the customer's current subscription to see a green (cost increase) or red (cost decrease) ARR delta on every other quote.
+- A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, hover over Total ARR to see the equivalent value in USD, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
+- Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it).
+- Check "Compare Prices" to pick exactly two quotes and mark one of them as the customer's current subscription - the other then shows a green (costs more) or red (costs less) ARR delta against it.
+- Hover over any field, button, or column header in the builder for a short tooltip explaining what it does.
 - Download the quote(s) you choose as an Excel file, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
 This is an estimate only, generated from the pricing shown on the page - not a binding quote.
@@ -45,6 +49,13 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.4.0 - September 2, 2026
+- Added "Help" and "About FRSH PriceView" to the extension icon's right-click menu - Help jumps to the install page's How it works section, About opens the install page
+- Replaced "Mark as current subscription" with "Compare Prices": pick exactly two quotes and mark one as the current subscription to see an ARR delta on the other
+- Added tooltips to every major field, button, and column header in the quote builder
+- For non-USD quotes, hovering over Total ARR now shows the equivalent value in USD at a fixed reference rate
+- Updated the install page's How it works and Generate Quote sections to cover all of the above
+
 v2.3.4 - September 2, 2026
 - Removed the "Freshservice for CX - coming soon" entry from the install page's Supported pages list, since it isn't a page this extension tracks
 

@@ -42,6 +42,10 @@
     var BILLING_CYCLE_LABELS = { annual: "Annual", monthly: "Monthly", quarterly: "Quarterly", halfyearly: "Half-yearly" };
     var BILLING_CYCLE_MONTHS = { annual: 12, monthly: 1, quarterly: 3, halfyearly: 6 };
 
+    // Fixed reference rates (1 unit of that currency = this many USD), used only to show an
+    // approximate USD figure alongside a non-USD ARR - not live/market rates.
+    var USD_CONVERSION_RATES = { EUR: 1.1739, GBP: 1.3438, AUD: 0.6679, INR: 0.0111 };
+
     function currencyInfo(code) {
         for (var i = 0; i < CURRENCIES.length; i++) {
             if (CURRENCIES[i].code === code) return CURRENCIES[i];
@@ -203,15 +207,17 @@
 
     // ---------------------------------------------------------------------
     // App state: several independent quotes (e.g. "Direct" vs "Reseller", or
-    // just alternative scenarios) so they can be compared side by side. One
-    // quote can be flagged as the customer's current subscription, which is
-    // then used as the baseline for an ARR delta on every other quote.
+    // just alternative scenarios) so they can be compared side by side.
+    // "Compare Prices" picks exactly two of them (compare.quoteIds) and one of
+    // those two can be flagged as the customer's current subscription
+    // (isCurrent), used as the baseline for an ARR delta on the other one.
     // Currency is shared across all quotes so that delta is meaningful.
     // ---------------------------------------------------------------------
     var appState = {
         currency: "USD",
         quotes: [],
-        activeIndex: 0
+        activeIndex: 0,
+        compare: { enabled: false, quoteIds: [] } // quoteIds: up to 2 quote ids being compared
     };
     var nextItemId = 1;
     var nextQuoteId = 1;
@@ -346,6 +352,16 @@
         return currencyInfo(appState.currency).symbol + fmt(n);
     }
 
+    // Tooltip text for the Total ARR stat, showing the fixed-rate USD equivalent for a non-USD
+    // currency. Returns "" for USD (already in USD, nothing to convert).
+    function arrUsdTooltip(totalArr) {
+        var cur = appState.currency;
+        var rate = USD_CONVERSION_RATES[cur];
+        if (!rate) return "";
+        var usd = totalArr * rate;
+        return "ARR in USD: $" + fmt(usd) + " (converted at 1 " + cur + " = " + rate + " USD, fixed reference rate)";
+    }
+
     function ensureModal() {
         if (shadowRoot) return;
         var host = document.createElement("div");
@@ -359,7 +375,9 @@
         els.quoteTabs = shadowRoot.getElementById("quoteTabs");
         els.customerType = shadowRoot.getElementById("customerType");
         els.currencySelect = shadowRoot.getElementById("currencySelect");
-        els.isCurrentCheckbox = shadowRoot.getElementById("isCurrentCheckbox");
+        els.compareCheckbox = shadowRoot.getElementById("compareCheckbox");
+        els.comparePanel = shadowRoot.getElementById("comparePanel");
+        els.comparePickList = shadowRoot.getElementById("comparePickList");
         els.tbody = shadowRoot.getElementById("tbody");
         els.theadReseller = shadowRoot.getElementById("theadReseller");
         els.addPlanSelect = shadowRoot.getElementById("addPlanSelect");
@@ -437,6 +455,8 @@
         '  .frsh-footer-note { margin-top: 16px; font-size: 11.5px; color: #63625a; }',
         '  .frsh-summary { margin-top: 18px; border-radius: 16px; background: #101114; color: #fff; padding: 18px 24px; display: flex; gap: 36px; flex-wrap: wrap; }',
         '  .frsh-summary-item .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #a9a89e; }',
+        '  .frsh-summary-item[title] { cursor: help; }',
+        '  .stat-hint { font-size: 10px; letter-spacing: 0; text-transform: none; }',
         '  .frsh-summary-item .stat-value { font-size: 21px; font-weight: 700; margin-top: 3px; }',
         '  .frsh-summary-item .stat-sub { font-size: 13px; font-weight: 500; color: #a9a89e; }',
         '  .frsh-summary-item .stat-value.up { color: #4ee08a; }',
@@ -451,6 +471,12 @@
         '  .quote-tab-add { border: 1px dashed #a9a89e; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab-add:hover { border-color: #101114; color: #101114; }',
         '  .frsh-current-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #63625a; font-weight: 600; margin-left: auto; cursor: pointer; }',
+        '  .frsh-compare-panel { border: 1px solid #e3e2da; border-radius: 14px; padding: 14px 16px; background: #fff; margin-bottom: 18px; }',
+        '  .frsh-compare-title { font-size: 12px; font-weight: 700; color: #63625a; margin-bottom: 10px; }',
+        '  .frsh-compare-list { display: flex; flex-wrap: wrap; gap: 8px 20px; }',
+        '  .compare-row { display: flex; align-items: center; gap: 12px; }',
+        '  .compare-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }',
+        '  .compare-current-radio { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #63625a; font-weight: 600; cursor: pointer; }',
         '  .frsh-actions { display: flex; gap: 10px; margin-top: 16px; }',
         '  .frsh-action-btn { border: 1px solid #101114; background: #fff; color: #101114; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .frsh-action-btn:hover { background: #101114; color: #fff; }',
@@ -476,11 +502,11 @@
         '    </div>',
         '    <div class="frsh-quote-tabs" id="quoteTabs"></div>',
         '    <div class="frsh-controls">',
-        '      <div class="frsh-segmented" id="customerType">',
+        '      <div class="frsh-segmented" id="customerType" title="Switch whether this quote is for a direct customer or a reseller partner">',
         '        <button type="button" data-value="direct" class="active">Direct Customer</button>',
         '        <button type="button" data-value="reseller">Reseller Customer</button>',
         '      </div>',
-        '      <div>',
+        '      <div title="Change the currency shown for every quote">',
         '        <span class="frsh-field-label">Currency</span>',
         '        <select id="currencySelect">',
         '          <option value="USD">USD</option>',
@@ -490,34 +516,38 @@
         '          <option value="AUD">AUD</option>',
         '        </select>',
         '      </div>',
-        '      <label class="frsh-current-toggle"><input type="checkbox" id="isCurrentCheckbox">Mark as current subscription</label>',
+        '      <label class="frsh-current-toggle" title="Pick two quotes to compare and mark one as the current subscription"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
+        '    </div>',
+        '    <div class="frsh-compare-panel" id="comparePanel" hidden>',
+        '      <div class="frsh-compare-title">Pick two quotes to compare, then mark one as the current subscription</div>',
+        '      <div id="comparePickList" class="frsh-compare-list"></div>',
         '    </div>',
         '    <div class="frsh-card">',
         '    <table>',
         '      <thead>',
         '        <tr>',
         '          <th>Item</th>',
-        '          <th class="num">Qty</th>',
-        '          <th class="num">Unit Price</th>',
-        '          <th class="num">Discount %</th>',
-        '          <th class="num">Invoice Value</th>',
-        '          <th class="num" id="theadReseller" hidden>Margin %</th>',
-        '          <th class="num" id="theadResellerCost" hidden>Partner cost</th>',
+        '          <th class="num" title="Number of licenses on this line">Qty</th>',
+        '          <th class="num" title="Flat per-month rate, regardless of billing cycle">Unit Price</th>',
+        '          <th class="num" title="Discount percentage applied to this line">Discount %</th>',
+        '          <th class="num" title="The amount actually charged for one full billing cycle at the chosen terms">Invoice Value</th>',
+        '          <th class="num" id="theadReseller" hidden title="Percentage the partner keeps as margin over the annual cost">Margin %</th>',
+        '          <th class="num" id="theadResellerCost" hidden title="Annual cost after the partner margin is applied">Partner cost</th>',
         '          <th></th>',
         '        </tr>',
         '      </thead>',
         '      <tbody id="tbody"></tbody>',
         '    </table>',
         '    <div class="frsh-add-plan">',
-        '      <select id="addPlanSelect"></select>',
-        '      <button type="button" id="addPlanBtn">+ Add plan</button>',
-        '      <button type="button" id="clearBtn" class="frsh-clear-btn">Clear quote</button>',
+        '      <select id="addPlanSelect" title="Choose a plan to add as a new line item"></select>',
+        '      <button type="button" id="addPlanBtn" title="Add the selected plan as a new line item">+ Add plan</button>',
+        '      <button type="button" id="clearBtn" class="frsh-clear-btn" title="Remove every line item from this quote">Clear quote</button>',
         '    </div>',
         '    </div>',
         '    <div class="frsh-summary" id="summarySection" hidden></div>',
         '    <div class="frsh-actions">',
-        '      <button type="button" id="exportExcelBtn" class="frsh-action-btn">⬇ Download Excel</button>',
-        '      <button type="button" id="exportEmailBtn" class="frsh-action-btn">✉ Email quote</button>',
+        '      <button type="button" id="exportExcelBtn" class="frsh-action-btn" title="Download the quote(s) you choose as an Excel file">⬇ Download Excel</button>',
+        '      <button type="button" id="exportEmailBtn" class="frsh-action-btn" title="Open a pre-filled email with the quote(s) you choose">✉ Email quote</button>',
         '    </div>',
         '    <div class="frsh-export-panel" id="exportPanel" hidden>',
         '      <div class="frsh-export-title" id="exportPanelTitle">Choose quotes to include</div>',
@@ -550,11 +580,31 @@
             render();
         });
 
-        els.isCurrentCheckbox.addEventListener("change", function() {
-            var checked = els.isCurrentCheckbox.checked;
-            appState.quotes.forEach(function(q) { q.isCurrent = false; });
-            activeQuote().isCurrent = checked;
+        els.compareCheckbox.addEventListener("change", function() {
+            appState.compare.enabled = els.compareCheckbox.checked;
             render();
+        });
+
+        // The compare panel lists every quote with a checkbox (pick up to two) and, once a quote is
+        // picked, a radio button to mark it as the current subscription (the ARR delta baseline).
+        els.comparePanel.addEventListener("change", function(e) {
+            if (e.target.matches(".compare-pick")) {
+                var id = Number(e.target.value);
+                var ids = appState.compare.quoteIds;
+                var pos = ids.indexOf(id);
+                if (e.target.checked) {
+                    if (pos === -1 && ids.length < 2) ids.push(id);
+                } else if (pos !== -1) {
+                    ids.splice(pos, 1);
+                    var dropped = appState.quotes.filter(function(q) { return q.id === id; })[0];
+                    if (dropped) dropped.isCurrent = false; // no longer part of a comparison, so it can't be the baseline
+                }
+                render();
+            } else if (e.target.matches('input[name="compareCurrent"]')) {
+                var currentId = Number(e.target.value);
+                appState.quotes.forEach(function(q) { q.isCurrent = q.id === currentId; });
+                render();
+            }
         });
 
         els.addPlanBtn.addEventListener("click", function() {
@@ -591,8 +641,13 @@
             if (removeBtn) {
                 var idx = Number(removeBtn.getAttribute("data-index"));
                 if (appState.quotes.length <= 1) return;
+                var removedId = appState.quotes[idx].id;
                 appState.quotes.splice(idx, 1);
                 if (appState.activeIndex >= idx) appState.activeIndex = Math.max(0, appState.activeIndex - 1);
+                // Drop the deleted quote from the comparison pair too, so it doesn't linger as a
+                // dangling id once it no longer exists.
+                var cmpIdx = appState.compare.quoteIds.indexOf(removedId);
+                if (cmpIdx !== -1) appState.compare.quoteIds.splice(cmpIdx, 1);
                 render();
                 return;
             }
@@ -844,12 +899,18 @@
         var totalDiscountAmount = totals.totalListArr - totals.totalArr;
         var totalDiscountPct = totals.totalListArr > 0 ? (totalDiscountAmount / totals.totalListArr * 100) : 0;
         var isReseller = quote.customerType === "reseller";
-        var html = '<div class="frsh-summary-item"><div class="stat-label">Total ARR</div><div class="stat-value">' + money(totals.totalArr) + "</div></div>" +
+        var arrTooltip = arrUsdTooltip(totals.totalArr);
+        var arrTitleAttr = arrTooltip ? ' title="' + escapeHtml(arrTooltip) + '"' : "";
+        var html = '<div class="frsh-summary-item"' + arrTitleAttr + '><div class="stat-label">Total ARR' + (arrTooltip ? ' <span class="stat-hint">ⓘ</span>' : "") + '</div><div class="stat-value">' + money(totals.totalArr) + "</div></div>" +
             '<div class="frsh-summary-item"><div class="stat-label">Total discount applied</div><div class="stat-value">' + money(totalDiscountAmount) + ' <span class="stat-sub">(' + fmt(totalDiscountPct) + '%)</span></div></div>';
         if (isReseller) {
             html += '<div class="frsh-summary-item"><div class="stat-label">Total partner cost</div><div class="stat-value">' + money(totals.totalPartner) + "</div></div>";
         }
-        var currentQuote = appState.quotes.filter(function(q) { return q.isCurrent; })[0];
+        // The delta only appears when Compare Prices is on, exactly two quotes are picked, this quote
+        // is one of them, and the other one is marked as the current subscription.
+        var cmp = appState.compare;
+        var inComparison = cmp.enabled && cmp.quoteIds.length === 2 && cmp.quoteIds.indexOf(quote.id) !== -1;
+        var currentQuote = inComparison ? appState.quotes.filter(function(q) { return q.isCurrent && cmp.quoteIds.indexOf(q.id) !== -1; })[0] : null;
         if (currentQuote && currentQuote.id !== quote.id) {
             var baseline = totalsForQuote(currentQuote, plans);
             var delta = totals.totalArr - baseline.totalArr;
@@ -867,10 +928,31 @@
         var html = appState.quotes.map(function(q, i) {
             var active = i === appState.activeIndex ? " active" : "";
             var badge = q.isCurrent ? '<span class="tab-current-badge">Current</span>' : "";
-            var remove = appState.quotes.length > 1 ? '<span class="tab-remove" data-index="' + i + '" aria-label="Remove quote">✕</span>' : "";
-            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '">' + escapeHtml(quoteDisplayName(q)) + badge + remove + "</button>";
+            var remove = appState.quotes.length > 1 ? '<span class="tab-remove" data-index="' + i + '" aria-label="Remove quote" title="Remove this quote">✕</span>' : "";
+            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '" title="Double-click to rename this quote">' + escapeHtml(quoteDisplayName(q)) + badge + remove + "</button>";
         }).join("");
-        els.quoteTabs.innerHTML = '<div class="quote-tab-track">' + html + '</div><button type="button" id="newQuoteBtn" class="quote-tab-add">+ New quote</button>';
+        els.quoteTabs.innerHTML = '<div class="quote-tab-track">' + html + '</div><button type="button" id="newQuoteBtn" class="quote-tab-add" title="Start a new quote to compare against this one">+ New quote</button>';
+    }
+
+    // Lets the user pick exactly two quotes to compare (checkboxes disable once two are picked) and,
+    // for each picked quote, mark it as the current subscription - the ARR delta baseline the other
+    // picked quote is measured against.
+    function renderComparePanel() {
+        if (!els.comparePanel) return;
+        els.comparePanel.hidden = !appState.compare.enabled;
+        if (!appState.compare.enabled) return;
+        var ids = appState.compare.quoteIds;
+        els.comparePickList.innerHTML = appState.quotes.map(function(q) {
+            var picked = ids.indexOf(q.id) !== -1;
+            var checkedAttr = picked ? " checked" : "";
+            var disabledAttr = (!picked && ids.length >= 2) ? " disabled" : "";
+            var currentControl = picked ?
+                '<label class="compare-current-radio" title="Use this quote as the baseline the other one is compared against"><input type="radio" name="compareCurrent" value="' + q.id + '"' + (q.isCurrent ? " checked" : "") + '>Current subscription</label>' : "";
+            return '<div class="compare-row">' +
+                '<label class="compare-check" title="Pick this quote to compare (max 2)"><input type="checkbox" class="compare-pick" value="' + q.id + '"' + checkedAttr + disabledAttr + '>' + escapeHtml(quoteDisplayName(q)) + "</label>" +
+                currentControl +
+                "</div>";
+        }).join("");
     }
 
     function render() {
@@ -879,7 +961,8 @@
         var quote = activeQuote();
         els.productName.textContent = getProductName();
         renderTabs();
-        els.isCurrentCheckbox.checked = !!quote.isCurrent;
+        els.compareCheckbox.checked = appState.compare.enabled;
+        renderComparePanel();
 
         [].forEach.call(els.customerType.querySelectorAll("button"), function(b) {
             b.classList.toggle("active", b.getAttribute("data-value") === quote.customerType);
@@ -927,7 +1010,7 @@
 
     function resellerCells(row, isReseller, item) {
         if (!isReseller) return "";
-        return '<td class="num"><input type="number" class="margin-input" min="0" max="100" step="1" value="' + item.marginPct + '"></td>' +
+        return '<td class="num"><input type="number" class="margin-input" min="0" max="100" step="1" value="' + item.marginPct + '" title="Percentage the partner keeps as margin over the annual cost"></td>' +
             '<td class="num cell-partner">' + money(row.partnerCost) + "</td>";
     }
 
@@ -938,7 +1021,7 @@
             var selected = (item.billingCycle || "monthly") === c ? " selected" : "";
             return '<option value="' + c + '"' + selected + ">" + BILLING_CYCLE_LABELS[c] + "</option>";
         }).join("");
-        return '<select class="billing-cycle-select" aria-label="Billing cycle">' + options + "</select>";
+        return '<select class="billing-cycle-select" aria-label="Billing cycle" title="Change how this line item is invoiced">' + options + "</select>";
     }
 
     function renderPlanRow(item, plans, isReseller) {
@@ -947,12 +1030,12 @@
         return '<tr data-item-id="' + item.id + '">' +
             '<td><div class="item-name">' + escapeHtml(getProductName()) + " — " + escapeHtml(plan.planName) + "</div>" +
             cadenceControlHtml(item) + "</td>" +
-            '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '"></td>' +
+            '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '" title="Number of licenses"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
-            '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '"></td>' +
+            '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '" title="Discount percentage for this line"></td>' +
             '<td class="num cell-invoice">' + money(row.invoiceValue) + "</td>" +
             resellerCells(row, isReseller, item) +
-            '<td><button type="button" class="row-remove" aria-label="Remove">✕</button></td>' +
+            '<td><button type="button" class="row-remove" aria-label="Remove" title="Remove this line item">✕</button></td>' +
             "</tr>";
     }
 
@@ -961,12 +1044,12 @@
         return '<tr data-item-id="' + item.id + '" class="addon-row">' +
             '<td><div class="item-name">' + escapeHtml(item.name) + "</div>" +
             cadenceControlHtml(item) + "</td>" +
-            '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '"></td>' +
+            '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '" title="Number of licenses"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
-            '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '"></td>' +
+            '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '" title="Discount percentage for this line"></td>' +
             '<td class="num cell-invoice">' + money(row.invoiceValue) + "</td>" +
             resellerCells(row, isReseller, item) +
-            '<td><button type="button" class="row-remove" aria-label="Remove">✕</button></td>' +
+            '<td><button type="button" class="row-remove" aria-label="Remove" title="Remove this line item">✕</button></td>' +
             "</tr>";
     }
 
@@ -981,8 +1064,8 @@
         var options = available.map(function(a) { return "<option>" + escapeHtml(a.name) + "</option>"; }).join("");
         return '<tr class="add-addon-row"><td colspan="' + colCount + '">' +
             '<div class="add-addon-inline">' +
-            '<select id="addon-select-' + planItem.id + '">' + options + "</select>" +
-            '<button type="button" class="add-addon-btn" data-plan-item-id="' + planItem.id + '">+ Add addon</button>' +
+            '<select id="addon-select-' + planItem.id + '" title="Choose an addon valid for this plan">' + options + "</select>" +
+            '<button type="button" class="add-addon-btn" data-plan-item-id="' + planItem.id + '" title="Add the selected addon to this plan">+ Add addon</button>' +
             "</div></td></tr>";
     }
 

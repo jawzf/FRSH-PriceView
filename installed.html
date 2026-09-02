@@ -900,7 +900,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.4</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.4.0</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -962,13 +962,14 @@
             </div>
         </div>
 
-        <section>
+        <section id="how-it-works">
             <h2>How it works</h2>
             <div class="card">
                 <ol class="steps">
                     <li>Install the extension and pin it to your toolbar.</li>
                     <li>Visit any supported Freshworks pricing page.</li>
-                    <li>Click the extension icon to cycle through currencies &mdash; the badge shows the current one.</li>
+                    <li>Click the extension icon to cycle through currencies &mdash; the badge shows the current one. Clicking it on any other page takes you straight to the Freshservice pricing page instead.</li>
+                    <li>Right-click the extension icon for a menu with <strong>Generate Quote</strong>, <strong>Help</strong> (jumps back to this section), and <strong>About FRSH PriceView</strong>.</li>
                 </ol>
                 <div class="callout">
                     <strong>Addons with a dropdown</strong>
@@ -985,7 +986,10 @@
                     <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Every line has its own <strong>Billing Cycle</strong> dropdown (Annual / Monthly / Quarterly / Half-yearly) you can change any time. <strong>Unit Price</strong> always shows the flat per-month rate; <strong>Invoice Value</strong> shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly). Set the number of licenses and a discount % too.</li>
                     <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page's own data), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page &mdash; including Custom/"Contact us" plans, which still carry a real list price behind the scenes.</li>
                     <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> per quote. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
-                    <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller") and mark one as the customer's <strong>current subscription</strong> to see a green (higher cost) or red (lower cost) ARR delta on every other quote, alongside the Total ARR and total discount applied.</li>
+                    <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller").</li>
+                    <li>Check <strong>Compare Prices</strong> to pick exactly two quotes and mark one of them as the customer's current subscription &mdash; the other then shows a green (costs more) or red (costs less) ARR delta against it, alongside the Total ARR and total discount applied.</li>
+                    <li>For any non-USD currency, hover over <strong>Total ARR</strong> to see the equivalent value in USD, converted using a fixed reference rate.</li>
+                    <li>Hover over any field, button, or column header in the builder for a short explanation of what it does.</li>
                     <li>Use <strong>Download Excel</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
                 </ol>
                 <div class="callout">
@@ -1017,6 +1021,20 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.4.0 &mdash; Compare Prices, tooltips, ARR in USD</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Added <strong>Help</strong> and <strong>About FRSH PriceView</strong> to the extension icon's right-click menu &mdash; Help jumps to this page's How it works section, About opens this page</li>
+                        <li>Replaced "Mark as current subscription" with <strong>Compare Prices</strong>: pick exactly two quotes and mark one as the current subscription to see an ARR delta on the other</li>
+                        <li>Added tooltips to every major field, button, and column header in the quote builder</li>
+                        <li>For non-USD quotes, hovering over Total ARR now shows the equivalent value in USD at a fixed reference rate</li>
+                        <li>Updated this page's How it works and Generate Quote sections to cover all of the above</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.3.4 &mdash; Cleanup</span>
                         <span class="changelog-date">September 2, 2026</span>

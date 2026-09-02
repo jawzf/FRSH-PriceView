@@ -54,6 +54,16 @@ function setupContextMenus() {
             title: "Generate Quote",
             contexts: ["action"]
         });
+        chrome.contextMenus.create({
+            id: "frsh-help-action",
+            title: "Help",
+            contexts: ["action"]
+        });
+        chrome.contextMenus.create({
+            id: "frsh-about-action",
+            title: "About FRSH PriceView",
+            contexts: ["action"]
+        });
     });
 }
 
@@ -70,6 +80,10 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     } else if (info.menuItemId === "frsh-generate-quote-action") {
         if (!isSupportedUrl(tab.url)) return;
         sendOpenQuoteMessage(tab.id, "action");
+    } else if (info.menuItemId === "frsh-help-action") {
+        chrome.tabs.create({ url: "installed.html#how-it-works" });
+    } else if (info.menuItemId === "frsh-about-action") {
+        chrome.tabs.create({ url: "installed.html" });
     }
 });
 const currency = [{
