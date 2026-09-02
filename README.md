@@ -30,12 +30,12 @@ When viewing the price of addons which are dependent on an option you choose, pl
 
 Generate Quote
 Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder:
-- The clicked plan, its billing cycle, and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Set the number of licenses and a discount %, and it shows the Annual Cost. Plans billed month-to-month also get a Monthly / Quarterly / Half-yearly invoicing cadence dropdown, which only changes the displayed unit price, not the ARR.
+- The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked - it updates the unit price and Invoice Value shown for that line, without changing the line's ARR. Set the number of licenses and a discount % too.
 - Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
 - A summary panel shows the quote's Total ARR and total discount applied (amount and blended %).
-- Build multiple quotes side by side with the quote tabs (double-click a tab to rename it, e.g. "Direct" vs "Reseller"). Mark one quote as the customer's current subscription to see an ARR delta on every other quote.
-- Download the quote(s) you choose as a CSV, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
+- Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it). Mark one quote as the customer's current subscription to see a green (cost increase) or red (cost decrease) ARR delta on every other quote.
+- Download the quote(s) you choose as an Excel file, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
 This is an estimate only, generated from the pricing shown on the page - not a binding quote.
 
@@ -43,6 +43,15 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.3.0 - September 2, 2026
+- Fixed the ARR delta on a non-current quote to color green when it costs more than the current subscription and red when it costs less (was inverted)
+- Fixed quote numbering: deleting a quote now renumbers the default "Quote N" names of the ones after it, so a new quote reuses the freed-up number instead of always incrementing
+- Billing cycle (Annual/Monthly/Quarterly/Half-yearly) is now a dropdown on every line item that can be changed at any time, instead of being fixed to whichever cadence was active on the page when you right-clicked
+- Renamed the "Annual Cost" column to "Invoice Value" and it now reflects the line's actual per-billing-cycle charge (Total ARR in the summary panel is still always annualized)
+- Restyled the quote tabs to match the site's own IT Service/Customer Service category pill selector
+- Replaced the CSV download with an Excel-compatible download (an .xls file with a proper column layout) to avoid CSV formatting/encoding issues in Excel
+- Fixed "Email quote" to actually open the mail app/Gmail compose window instead of doing nothing
+
 v2.2.0 - September 2, 2026
 - Generate Quote: replaced the separate Monthly/Annual cost columns with a single Annual Cost (ARR) column, and added a Monthly/Quarterly/Half-yearly invoicing cadence dropdown for month-to-month plans
 - Added a quote summary panel (Total ARR, total discount applied) and a "Clear quote" button

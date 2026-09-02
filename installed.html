@@ -433,7 +433,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.2.0</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.3.0</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -484,11 +484,11 @@
             <div class="card">
                 <p style="margin-top:0">Right-click any price on a supported pricing page &mdash; or right-click the extension icon itself &mdash; and choose <strong>Generate Quote</strong> to open a quote builder right on the page.</p>
                 <ol class="steps">
-                    <li>The plan you clicked, its billing cycle, and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Set the number of licenses and a discount %, and it shows the Annual Cost. Month-to-month plans also get a Monthly / Quarterly / Half-yearly invoicing cadence dropdown.</li>
+                    <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Every line has its own <strong>Billing Cycle</strong> dropdown (Annual / Monthly / Quarterly / Half-yearly) you can change any time, which updates that line's unit price and Invoice Value. Set the number of licenses and a discount % too.</li>
                     <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page's own data), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page &mdash; including Custom/"Contact us" plans, which still carry a real list price behind the scenes.</li>
                     <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> per quote. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
-                    <li>Build multiple quotes with the quote tabs (double-click to rename, e.g. "Direct" vs "Reseller") and mark one as the customer's <strong>current subscription</strong> to see an ARR delta on every other quote, alongside the Total ARR and total discount applied.</li>
-                    <li>Use <strong>Download CSV</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
+                    <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller") and mark one as the customer's <strong>current subscription</strong> to see a green (higher cost) or red (lower cost) ARR delta on every other quote, alongside the Total ARR and total discount applied.</li>
+                    <li>Use <strong>Download Excel</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
                 </ol>
                 <div class="callout">
                     <strong>From the toolbar icon</strong>
@@ -520,6 +520,22 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.3.0 &mdash; Bug fixes and polish</span>
+                        <span class="changelog-date">September 2, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Fixed the ARR delta color: green when a quote costs more than the current subscription, red when it costs less (was inverted)</li>
+                        <li>Fixed quote numbering so deleting a quote renumbers the default "Quote N" names after it, instead of always incrementing</li>
+                        <li>Billing cycle is now a live dropdown on every line item (Annual/Monthly/Quarterly/Half-yearly), changeable any time instead of fixed to what was active on the page when you right-clicked</li>
+                        <li>Renamed "Annual Cost" to "Invoice Value" and it now reflects the line's actual per-billing-cycle charge, while Total ARR in the summary panel stays annualized</li>
+                        <li>Restyled the quote tabs to match the site's own category pill selector</li>
+                        <li>Replaced the CSV download with a proper Excel (.xls) file to fix formatting issues when opened</li>
+                        <li>Fixed "Email quote" so it actually opens your mail app/Gmail compose window</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.2.0 &mdash; Compare, export, and email quotes</span>
                         <span class="changelog-date">September 2, 2026</span>

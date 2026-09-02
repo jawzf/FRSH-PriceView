@@ -36,8 +36,11 @@
     var EXTENSION_ICON_URL = "";
     try { EXTENSION_ICON_URL = chrome.runtime.getURL("images/icon-48.png"); } catch (e) { /* not running as an extension */ }
 
-    var CADENCE_LABELS = { monthly: "Monthly", quarterly: "Quarterly", halfyearly: "Half-yearly" };
-    var CADENCE_MULTIPLIERS = { monthly: 1, quarterly: 3, halfyearly: 6 };
+    // Billing cycle is always user-editable after a line item is added (not fixed by however the
+    // page was toggled at right-click time), so "annual" lives in this same set rather than being a
+    // separate billedAnnually boolean.
+    var BILLING_CYCLE_LABELS = { annual: "Annual", monthly: "Monthly", quarterly: "Quarterly", halfyearly: "Half-yearly" };
+    var BILLING_CYCLE_MONTHS = { annual: 12, monthly: 1, quarterly: 3, halfyearly: 6 };
 
     function currencyInfo(code) {
         for (var i = 0; i < CURRENCIES.length; i++) {
@@ -213,11 +216,10 @@
     var nextItemId = 1;
     var nextQuoteId = 1;
 
-    function newQuote(name) {
-        var id = nextQuoteId++;
+    function newQuote() {
         return {
-            id: id,
-            name: name || ("Quote " + id), // based on a monotonic counter, not array length, so numbers never collide after a quote is removed
+            id: nextQuoteId++, // stable internal identity, never reused
+            customName: null, // set only once the user renames the tab; otherwise the display name is derived live from position
             isCurrent: false,
             customerType: "direct", // "direct" | "reseller"
             items: []
@@ -230,6 +232,15 @@
         return appState.quotes[appState.activeIndex];
     }
 
+    // Default quote names are always "Quote <position>" based on where the quote currently sits in
+    // the list, so deleting a quote in the middle renumbers the rest instead of leaving a gap or a
+    // never-reused counter. A user-supplied rename (customName) always wins and is never renumbered.
+    function quoteDisplayName(quote) {
+        if (quote.customName) return quote.customName;
+        var idx = appState.quotes.indexOf(quote);
+        return "Quote " + (idx + 1);
+    }
+
     function addPlanItem(planIndex, plans) {
         var plan = plans[planIndex];
         if (!plan) return null;
@@ -238,8 +249,7 @@
             kind: "plan",
             planIndex: planIndex,
             planName: plan.planName,
-            billedAnnually: getAnnualTermFromPage(),
-            cadence: "monthly",
+            billingCycle: getAnnualTermFromPage() ? "annual" : "monthly",
             qty: 1,
             discountPct: 0,
             marginPct: 20
@@ -248,15 +258,14 @@
         return item;
     }
 
-    function addAddonItem(parentItemId, addon, billedAnnually) {
+    function addAddonItem(parentItemId, addon, billingCycle) {
         var item = {
             id: nextItemId++,
             kind: "addon",
             parentItemId: parentItemId,
             name: addon.name,
             localePrices: addon.localePrices,
-            billedAnnually: billedAnnually,
-            cadence: "monthly",
+            billingCycle: billingCycle || "monthly",
             qty: 1,
             discountPct: 0,
             marginPct: 20
@@ -289,24 +298,30 @@
 
     // ARR (annual recurring revenue) for a line item is always the same regardless of how it's
     // actually invoiced: the plan's annual-commit rate if billed annually, otherwise its
-    // month-to-month rate x 12. The invoicing cadence (monthly/quarterly/half-yearly), when not on
-    // an annual commit, only changes what the displayed "per invoice" unit price looks like.
+    // month-to-month rate x 12. This stays comparable across items even when their billing cycles
+    // differ, so it's what the summary panel and CSV/Excel totals sum. Invoice Value is the
+    // discounted amount actually charged per billing cycle (what shows in the table row) - it is
+    // cycle-specific and not meaningful to sum across items on different cycles.
     function computeRow(item, plans) {
         var unit = unitPricesFor(item, plans);
         var qty = Math.max(0, toNumber(item.qty));
         var discount = Math.min(100, Math.max(0, toNumber(item.discountPct)));
-        var arrRate = item.billedAnnually ? unit.annual : unit.monthly;
+        var cycle = item.billingCycle || "monthly";
+        var isAnnual = cycle === "annual";
+        var arrRate = isAnnual ? unit.annual : unit.monthly;
         var listAnnualTotal = arrRate * qty * 12;
         var annualTotal = listAnnualTotal * (1 - discount / 100);
         var margin = Math.min(100, Math.max(0, toNumber(item.marginPct)));
         var partnerCost = annualTotal * (1 - margin / 100);
-        var cadenceMultiplier = item.billedAnnually ? 1 : (CADENCE_MULTIPLIERS[item.cadence] || 1);
-        var cadenceUnitPrice = item.billedAnnually ? unit.annual : unit.monthly * cadenceMultiplier;
+        var cadenceMultiplier = isAnnual ? 1 : (BILLING_CYCLE_MONTHS[cycle] || 1);
+        var cadenceUnitPrice = isAnnual ? unit.annual : unit.monthly * cadenceMultiplier;
+        var invoiceValue = cadenceUnitPrice * qty * (1 - discount / 100);
         return {
             unit: unit,
             cadenceUnitPrice: cadenceUnitPrice,
             listAnnualTotal: listAnnualTotal,
             annualTotal: annualTotal,
+            invoiceValue: invoiceValue,
             partnerCost: partnerCost
         };
     }
@@ -347,7 +362,7 @@
         els.clearBtn = shadowRoot.getElementById("clearBtn");
         els.summarySection = shadowRoot.getElementById("summarySection");
         els.closeBtn = shadowRoot.getElementById("closeBtn");
-        els.exportCsvBtn = shadowRoot.getElementById("exportCsvBtn");
+        els.exportExcelBtn = shadowRoot.getElementById("exportExcelBtn");
         els.exportEmailBtn = shadowRoot.getElementById("exportEmailBtn");
         els.exportPanel = shadowRoot.getElementById("exportPanel");
         els.exportPanelTitle = shadowRoot.getElementById("exportPanelTitle");
@@ -384,7 +399,7 @@
         '  .frsh-head h1 { font-family: "Lora", Georgia, serif; font-style: italic; font-size: 21px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }',
         '  .frsh-subheading { font-size: 13.5px; font-weight: 600; color: #63625a; margin-top: 1px; }',
         '  .frsh-head .sub { color: #a9a89e; font-size: 12px; margin-top: 2px; }',
-        '  .cadence-select { margin-top: 4px; font-size: 11px; padding: 2px 6px; }',
+        '  .billing-cycle-select { margin-top: 4px; font-size: 11px; padding: 2px 6px; }',
         '  .frsh-close { margin-left: auto; border: none; background: #f0efe8; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; color: #101114; }',
         '  .frsh-close:hover { background: #e3e2da; }',
         '  .frsh-controls { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }',
@@ -419,11 +434,12 @@
         '  .frsh-summary-item .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #a9a89e; }',
         '  .frsh-summary-item .stat-value { font-size: 21px; font-weight: 700; margin-top: 3px; }',
         '  .frsh-summary-item .stat-sub { font-size: 13px; font-weight: 500; color: #a9a89e; }',
-        '  .frsh-summary-item .stat-value.up { color: #ff8a7a; }',
-        '  .frsh-summary-item .stat-value.down { color: #4ee08a; }',
-        '  .frsh-quote-tabs { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }',
-        '  .quote-tab { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e3e2da; background: #f7f7f4; color: #63625a; border-radius: 999px; padding: 6px 8px 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
-        '  .quote-tab.active { background: #101114; color: #fff; border-color: #101114; }',
+        '  .frsh-summary-item .stat-value.up { color: #4ee08a; }',
+        '  .frsh-summary-item .stat-value.down { color: #ff8a7a; }',
+        '  .frsh-quote-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }',
+        '  .quote-tab-track { display: inline-flex; flex-wrap: wrap; gap: 3px; border-radius: 999px; padding: 3px; background: #f7f7f4; border: 1px solid #e3e2da; }',
+        '  .quote-tab { display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 8px 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
+        '  .quote-tab.active { background: #0387ff; color: #fff; }',
         '  .tab-current-badge { background: #00ac4b; color: #fff; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; }',
         '  .tab-remove { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; opacity: 0.6; }',
         '  .tab-remove:hover { opacity: 1; background: rgba(255,90,78,0.2); }',
@@ -479,7 +495,7 @@
         '          <th class="num">Qty</th>',
         '          <th class="num">Unit Price</th>',
         '          <th class="num">Discount %</th>',
-        '          <th class="num">Annual Cost</th>',
+        '          <th class="num">Invoice Value</th>',
         '          <th class="num" id="theadReseller" hidden>Margin %</th>',
         '          <th class="num" id="theadResellerCost" hidden>Partner cost</th>',
         '          <th></th>',
@@ -495,7 +511,7 @@
         '    </div>',
         '    <div class="frsh-summary" id="summarySection" hidden></div>',
         '    <div class="frsh-actions">',
-        '      <button type="button" id="exportCsvBtn" class="frsh-action-btn">⬇ Download CSV</button>',
+        '      <button type="button" id="exportExcelBtn" class="frsh-action-btn">⬇ Download Excel</button>',
         '      <button type="button" id="exportEmailBtn" class="frsh-action-btn">✉ Email quote</button>',
         '    </div>',
         '    <div class="frsh-export-panel" id="exportPanel" hidden>',
@@ -552,14 +568,14 @@
             render();
         });
 
-        els.exportCsvBtn.addEventListener("click", function() { openExportPanel("csv"); });
+        els.exportExcelBtn.addEventListener("click", function() { openExportPanel("excel"); });
         els.exportEmailBtn.addEventListener("click", function() { openExportPanel("email"); });
         els.exportCancelBtn.addEventListener("click", closeExportPanel);
         els.exportConfirmBtn.addEventListener("click", function() {
             var plans = getPlans();
             var selected = getSelectedQuotesFromPanel();
             if (!plans || !selected.length) return;
-            if (exportMode === "csv") downloadCsv(buildCsv(selected, plans), "frsh-quote.csv");
+            if (exportMode === "excel") downloadExcel(buildExcelHtml(selected, plans), "frsh-quote.xls");
             else if (exportMode === "email") openEmailCompose(selected, plans);
             closeExportPanel();
         });
@@ -594,9 +610,9 @@
             if (!tab) return;
             var quote = appState.quotes[Number(tab.getAttribute("data-index"))];
             if (!quote) return;
-            var name = window.prompt("Rename quote", quote.name);
+            var name = window.prompt("Rename quote", quoteDisplayName(quote));
             if (name && name.trim()) {
-                quote.name = name.trim();
+                quote.customName = name.trim();
                 render();
             }
         });
@@ -617,28 +633,31 @@
             var plans = getPlans();
             if (!plans) return;
             var computed = computeRow(item, plans);
-            var annualCell = row.querySelector(".cell-annual");
+            var invoiceCell = row.querySelector(".cell-invoice");
             var partnerCell = row.querySelector(".cell-partner");
-            if (annualCell) annualCell.textContent = money(computed.annualTotal);
+            if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
             if (partnerCell) partnerCell.textContent = money(computed.partnerCost);
             renderSummary();
         });
 
-        // The invoicing cadence (Monthly/Quarterly/Half-yearly) only changes the displayed unit
-        // price, never the ARR, so no other cell needs to change.
+        // Billing cycle is freely editable after the item is added (not locked to whatever was
+        // active on the page at right-click time) - changing it updates both the per-cycle unit
+        // price and the Invoice Value cell, but never the ARR used in the summary/totals.
         els.tbody.addEventListener("change", function(e) {
-            if (!e.target.matches(".cadence-select")) return;
+            if (!e.target.matches(".billing-cycle-select")) return;
             var row = e.target.closest("tr[data-item-id]");
             if (!row) return;
             var id = Number(row.getAttribute("data-item-id"));
             var item = activeQuote().items.filter(function(it) { return it.id === id; })[0];
             if (!item) return;
-            item.cadence = e.target.value;
+            item.billingCycle = e.target.value;
             var plans = getPlans();
             if (!plans) return;
             var computed = computeRow(item, plans);
             var unitCell = row.querySelector(".cell-unit");
+            var invoiceCell = row.querySelector(".cell-invoice");
             if (unitCell) unitCell.textContent = money(computed.cadenceUnitPrice);
+            if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
         });
 
         els.tbody.addEventListener("click", function(e) {
@@ -659,7 +678,7 @@
                 if (!plans || !planItem) return;
                 var addons = planAddons(plans[planItem.planIndex]);
                 var addon = addons.filter(function(a) { return a.name === select.value; })[0];
-                if (addon) addAddonItem(planItemId, addon, planItem.billedAnnually);
+                if (addon) addAddonItem(planItemId, addon, planItem.billingCycle);
                 render();
             }
         });
@@ -677,12 +696,12 @@
 
     function openExportPanel(mode) {
         exportMode = mode;
-        els.exportPanelTitle.textContent = mode === "csv" ? "Choose quotes to download" : "Choose quotes to email";
-        els.exportConfirmBtn.textContent = mode === "csv" ? "Download CSV" : "Open email";
+        els.exportPanelTitle.textContent = mode === "excel" ? "Choose quotes to download" : "Choose quotes to email";
+        els.exportConfirmBtn.textContent = mode === "excel" ? "Download Excel" : "Open email";
         var activeId = activeQuote().id;
         els.exportQuoteList.innerHTML = appState.quotes.map(function(q) {
             var checked = q.id === activeId ? " checked" : "";
-            return '<label><input type="checkbox" class="export-quote-check" value="' + q.id + '"' + checked + ">" + escapeHtml(q.name) + (q.isCurrent ? " (current subscription)" : "") + "</label>";
+            return '<label><input type="checkbox" class="export-quote-check" value="' + q.id + '"' + checked + ">" + escapeHtml(quoteDisplayName(q)) + (q.isCurrent ? " (current subscription)" : "") + "</label>";
         }).join("");
         els.exportPanel.hidden = false;
     }
@@ -697,46 +716,48 @@
         return appState.quotes.filter(function(q) { return ids.indexOf(q.id) !== -1; });
     }
 
-    function csvField(v) {
-        var s = String(v == null ? "" : v);
-        if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
-        return s;
-    }
-
     function itemLabel(item, plans) {
         if (item.kind === "plan") return getProductName() + " — " + plans[item.planIndex].planName;
         return item.name;
     }
 
-    function buildCsv(selectedQuotes, plans) {
-        var header = ["Quote", "Current Subscription", "Item", "Billing", "Qty", "Unit Price", "Discount %", "Annual Cost", "Margin %", "Partner Cost"];
-        var rows = [header.map(csvField).join(",")];
-        selectedQuotes.forEach(function(quote) {
-            quote.items.forEach(function(item) {
-                var row = computeRow(item, plans);
-                var billing = item.billedAnnually ? "Annual" : CADENCE_LABELS[item.cadence] || "Monthly";
-                var isReseller = quote.customerType === "reseller";
-                rows.push([
-                    quote.name,
-                    quote.isCurrent ? "Yes" : "",
-                    itemLabel(item, plans),
-                    billing,
-                    item.qty,
-                    fmt(row.cadenceUnitPrice),
-                    item.discountPct,
-                    fmt(row.annualTotal),
-                    isReseller ? item.marginPct : "",
-                    isReseller ? fmt(row.partnerCost) : ""
-                ].map(csvField).join(","));
-            });
-            var totals = totalsForQuote(quote, plans);
-            rows.push([quote.name, "", "TOTAL", "", "", "", "", fmt(totals.totalArr), "", quote.customerType === "reseller" ? fmt(totals.totalPartner) : ""].map(csvField).join(","));
-        });
-        return rows.join("\n");
+    // A real .xls file (Excel's own "HTML table" import format) rather than CSV: no delimiter/locale
+    // or encoding surprises when opened, columns always line up, and headers/totals can be bold.
+    // "Invoice Value" is the per-row, per-billing-cycle amount (so mixed-cadence rows aren't
+    // comparable) - the separate "Annualized Value (ARR)" column is what the TOTAL row sums, matching
+    // the Total ARR shown in the app's own summary panel.
+    function excelCell(v, bold) {
+        var s = escapeHtml(String(v == null ? "" : v));
+        return bold ? "<td style=\"font-weight:bold;\">" + s + "</td>" : "<td>" + s + "</td>";
     }
 
-    function downloadCsv(csvString, filename) {
-        var blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    function buildExcelHtml(selectedQuotes, plans) {
+        var header = ["Quote", "Current Subscription", "Item", "Billing Cycle", "Qty", "Unit Price", "Discount %", "Invoice Value", "Annualized Value (ARR)", "Margin %", "Partner Cost"];
+        var rows = ["<tr>" + header.map(function(h) { return "<th style=\"background:#101114;color:#fff;padding:6px 10px;text-align:left;\">" + escapeHtml(h) + "</th>"; }).join("") + "</tr>"];
+        selectedQuotes.forEach(function(quote) {
+            var name = quoteDisplayName(quote);
+            quote.items.forEach(function(item) {
+                var row = computeRow(item, plans);
+                var isReseller = quote.customerType === "reseller";
+                rows.push("<tr>" + [
+                    excelCell(name), excelCell(quote.isCurrent ? "Yes" : ""), excelCell(itemLabel(item, plans)),
+                    excelCell(BILLING_CYCLE_LABELS[item.billingCycle] || "Monthly"), excelCell(item.qty),
+                    excelCell(fmt(row.cadenceUnitPrice)), excelCell(item.discountPct), excelCell(fmt(row.invoiceValue)),
+                    excelCell(fmt(row.annualTotal)), excelCell(isReseller ? item.marginPct : ""), excelCell(isReseller ? fmt(row.partnerCost) : "")
+                ].join("") + "</tr>");
+            });
+            var totals = totalsForQuote(quote, plans);
+            rows.push("<tr>" + [
+                excelCell(name, true), excelCell("", true), excelCell("TOTAL", true), excelCell("", true), excelCell("", true),
+                excelCell("", true), excelCell("", true), excelCell("", true), excelCell(fmt(totals.totalArr), true),
+                excelCell("", true), excelCell(quote.customerType === "reseller" ? fmt(totals.totalPartner) : "", true)
+            ].join("") + "</tr>");
+        });
+        return "<html><head><meta charset=\"UTF-8\"></head><body><table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">" + rows.join("") + "</table></body></html>";
+    }
+
+    function downloadExcel(html, filename) {
+        var blob = new Blob(["﻿" + html], { type: "application/vnd.ms-excel;charset=utf-8;" });
         var url = URL.createObjectURL(blob);
         var a = document.createElement("a");
         a.href = url;
@@ -750,10 +771,10 @@
     function buildEmailBody(selectedQuotes, plans) {
         var lines = [getProductName() + " - Quote Summary", ""];
         selectedQuotes.forEach(function(quote) {
-            lines.push(quote.name + (quote.isCurrent ? " (current subscription)" : "") + (quote.customerType === "reseller" ? " [Reseller]" : ""));
+            lines.push(quoteDisplayName(quote) + (quote.isCurrent ? " (current subscription)" : "") + (quote.customerType === "reseller" ? " [Reseller]" : ""));
             quote.items.forEach(function(item) {
                 var row = computeRow(item, plans);
-                lines.push("  - " + itemLabel(item, plans) + " x" + item.qty + ": " + money(row.annualTotal) + "/yr");
+                lines.push("  - " + itemLabel(item, plans) + " x" + item.qty + " (" + (BILLING_CYCLE_LABELS[item.billingCycle] || "Monthly") + "): " + money(row.annualTotal) + "/yr");
             });
             var totals = totalsForQuote(quote, plans);
             lines.push("  Total ARR: " + money(totals.totalArr));
@@ -768,12 +789,18 @@
         var subject = getProductName() + " - Quote";
         var body = buildEmailBody(selectedQuotes, plans);
         // Most mail clients truncate very long mailto: bodies; keep it well under the common ~2000
-        // char limit and point to the CSV download for the full line-item breakdown.
+        // char limit and point to the Excel download for the full line-item breakdown.
         if (body.length > 1500) {
-            body = body.slice(0, 1500) + "\n\n[Quote truncated for email - use \"Download CSV\" for the full breakdown.]";
+            body = body.slice(0, 1500) + "\n\n[Quote truncated for email - use \"Download Excel\" for the full breakdown.]";
         }
         var mailto = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-        window.open(mailto, "_blank");
+        // A real <a> click (not window.open, which mailto: links can silently no-op or get popup-blocked
+        // for) is the reliable way to hand off to the OS/browser's registered mail handler.
+        var a = document.createElement("a");
+        a.href = mailto;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 
     function openModal(planIndex) {
@@ -826,7 +853,7 @@
             var deltaPct = baseline.totalArr > 0 ? (delta / baseline.totalArr * 100) : (delta === 0 ? 0 : 100);
             var sign = delta >= 0 ? "+" : "−";
             var cls = delta >= 0 ? "up" : "down";
-            html += '<div class="frsh-summary-item"><div class="stat-label">ARR vs "' + escapeHtml(currentQuote.name) + '"</div><div class="stat-value ' + cls + '">' + sign + money(Math.abs(delta)) + ' <span class="stat-sub">(' + sign + fmt(Math.abs(deltaPct)) + "%)</span></div></div>";
+            html += '<div class="frsh-summary-item"><div class="stat-label">ARR vs "' + escapeHtml(quoteDisplayName(currentQuote)) + '"</div><div class="stat-value ' + cls + '">' + sign + money(Math.abs(delta)) + ' <span class="stat-sub">(' + sign + fmt(Math.abs(deltaPct)) + "%)</span></div></div>";
         }
         els.summarySection.hidden = false;
         els.summarySection.innerHTML = html;
@@ -838,9 +865,9 @@
             var active = i === appState.activeIndex ? " active" : "";
             var badge = q.isCurrent ? '<span class="tab-current-badge">Current</span>' : "";
             var remove = appState.quotes.length > 1 ? '<span class="tab-remove" data-index="' + i + '" aria-label="Remove quote">✕</span>' : "";
-            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '">' + escapeHtml(q.name) + badge + remove + "</button>";
-        }).join("") + '<button type="button" id="newQuoteBtn" class="quote-tab-add">+ New quote</button>';
-        els.quoteTabs.innerHTML = html;
+            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '">' + escapeHtml(quoteDisplayName(q)) + badge + remove + "</button>";
+        }).join("");
+        els.quoteTabs.innerHTML = '<div class="quote-tab-track">' + html + '</div><button type="button" id="newQuoteBtn" class="quote-tab-add">+ New quote</button>';
     }
 
     function render() {
@@ -901,17 +928,14 @@
             '<td class="num cell-partner">' + money(row.partnerCost) + "</td>";
     }
 
-    // Annual-commit items just show a plain "Billed annually" badge (there's only one cadence).
-    // Non-annual items get a dropdown so the quote can reflect how they'll actually be invoiced.
+    // Always a live dropdown - billing cycle isn't locked to whatever was active on the page when
+    // the item was added, the user can change it (and the unit price / invoice value update).
     function cadenceControlHtml(item) {
-        if (item.billedAnnually) {
-            return '<span class="item-badge">Billed annually</span>';
-        }
-        var options = ["monthly", "quarterly", "halfyearly"].map(function(c) {
-            var selected = (item.cadence || "monthly") === c ? " selected" : "";
-            return '<option value="' + c + '"' + selected + ">" + CADENCE_LABELS[c] + "</option>";
+        var options = ["annual", "monthly", "quarterly", "halfyearly"].map(function(c) {
+            var selected = (item.billingCycle || "monthly") === c ? " selected" : "";
+            return '<option value="' + c + '"' + selected + ">" + BILLING_CYCLE_LABELS[c] + "</option>";
         }).join("");
-        return '<select class="cadence-select" aria-label="Billing cadence">' + options + "</select>";
+        return '<select class="billing-cycle-select" aria-label="Billing cycle">' + options + "</select>";
     }
 
     function renderPlanRow(item, plans, isReseller) {
@@ -923,7 +947,7 @@
             '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
             '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '"></td>' +
-            '<td class="num cell-annual">' + money(row.annualTotal) + "</td>" +
+            '<td class="num cell-invoice">' + money(row.invoiceValue) + "</td>" +
             resellerCells(row, isReseller, item) +
             '<td><button type="button" class="row-remove" aria-label="Remove">✕</button></td>' +
             "</tr>";
@@ -937,7 +961,7 @@
             '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
             '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '"></td>' +
-            '<td class="num cell-annual">' + money(row.annualTotal) + "</td>" +
+            '<td class="num cell-invoice">' + money(row.invoiceValue) + "</td>" +
             resellerCells(row, isReseller, item) +
             '<td><button type="button" class="row-remove" aria-label="Remove">✕</button></td>' +
             "</tr>";
