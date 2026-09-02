@@ -217,7 +217,8 @@
         currency: "USD",
         quotes: [],
         activeIndex: 0,
-        compare: { enabled: false, quoteIds: [] } // quoteIds: up to 2 quote ids being compared
+        compare: { enabled: false, quoteIds: [] }, // quoteIds: up to 2 quote ids being compared
+        proration: { enabled: false, itemId: null, changeDate: "", endDate: "" }
     };
     var nextItemId = 1;
     var nextQuoteId = 1;
@@ -352,14 +353,11 @@
         return currencyInfo(appState.currency).symbol + fmt(n);
     }
 
-    // Tooltip text for the Total ARR stat, showing the fixed-rate USD equivalent for a non-USD
-    // currency. Returns "" for USD (already in USD, nothing to convert).
-    function arrUsdTooltip(totalArr) {
-        var cur = appState.currency;
-        var rate = USD_CONVERSION_RATES[cur];
-        if (!rate) return "";
-        var usd = totalArr * rate;
-        return "ARR in USD: $" + fmt(usd) + " (converted at 1 " + cur + " = " + rate + " USD, fixed reference rate)";
+    // The fixed-rate USD equivalent of an ARR figure, for a non-USD currency. Returns null for USD
+    // (already in USD, nothing to convert).
+    function arrInUsd(totalArr) {
+        var rate = USD_CONVERSION_RATES[appState.currency];
+        return rate ? totalArr * rate : null;
     }
 
     function ensureModal() {
@@ -378,6 +376,12 @@
         els.compareCheckbox = shadowRoot.getElementById("compareCheckbox");
         els.comparePanel = shadowRoot.getElementById("comparePanel");
         els.comparePickList = shadowRoot.getElementById("comparePickList");
+        els.prorationCheckbox = shadowRoot.getElementById("prorationCheckbox");
+        els.prorationPanel = shadowRoot.getElementById("prorationPanel");
+        els.prorationItemSelect = shadowRoot.getElementById("prorationItemSelect");
+        els.prorationChangeDate = shadowRoot.getElementById("prorationChangeDate");
+        els.prorationEndDate = shadowRoot.getElementById("prorationEndDate");
+        els.prorationResult = shadowRoot.getElementById("prorationResult");
         els.tbody = shadowRoot.getElementById("tbody");
         els.theadReseller = shadowRoot.getElementById("theadReseller");
         els.addPlanSelect = shadowRoot.getElementById("addPlanSelect");
@@ -456,7 +460,6 @@
         '  .frsh-summary { margin-top: 18px; border-radius: 16px; background: #101114; color: #fff; padding: 18px 24px; display: flex; gap: 36px; flex-wrap: wrap; }',
         '  .frsh-summary-item .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #a9a89e; }',
         '  .frsh-summary-item[title] { cursor: help; }',
-        '  .stat-hint { font-size: 10px; letter-spacing: 0; text-transform: none; }',
         '  .frsh-summary-item .stat-value { font-size: 21px; font-weight: 700; margin-top: 3px; }',
         '  .frsh-summary-item .stat-sub { font-size: 13px; font-weight: 500; color: #a9a89e; }',
         '  .frsh-summary-item .stat-value.up { color: #4ee08a; }',
@@ -470,13 +473,19 @@
         '  .tab-remove:hover { opacity: 1; background: rgba(255,90,78,0.2); }',
         '  .quote-tab-add { border: 1px dashed #a9a89e; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab-add:hover { border-color: #101114; color: #101114; }',
-        '  .frsh-current-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #63625a; font-weight: 600; margin-left: auto; cursor: pointer; }',
+        '  .frsh-toggle-group { display: flex; align-items: center; gap: 16px; margin-left: auto; flex-wrap: wrap; }',
+        '  .frsh-current-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #63625a; font-weight: 600; cursor: pointer; }',
         '  .frsh-compare-panel { border: 1px solid #e3e2da; border-radius: 14px; padding: 14px 16px; background: #fff; margin-bottom: 18px; }',
         '  .frsh-compare-title { font-size: 12px; font-weight: 700; color: #63625a; margin-bottom: 10px; }',
         '  .frsh-compare-list { display: flex; flex-wrap: wrap; gap: 8px 20px; }',
         '  .compare-row { display: flex; align-items: center; gap: 12px; }',
         '  .compare-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }',
         '  .compare-current-radio { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #63625a; font-weight: 600; cursor: pointer; }',
+        '  .proration-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }',
+        '  .proration-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: #63625a; }',
+        '  .proration-field select { min-width: 200px; }',
+        '  .proration-result { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #f0efe8; font-size: 13px; color: #63625a; }',
+        '  .proration-result strong { display: block; font-size: 19px; font-weight: 700; color: #101114; margin-top: 2px; }',
         '  .frsh-actions { display: flex; gap: 10px; margin-top: 16px; }',
         '  .frsh-action-btn { border: 1px solid #101114; background: #fff; color: #101114; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .frsh-action-btn:hover { background: #101114; color: #fff; }',
@@ -516,11 +525,29 @@
         '          <option value="AUD">AUD</option>',
         '        </select>',
         '      </div>',
-        '      <label class="frsh-current-toggle" title="Pick two quotes to compare and mark one as the current subscription"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
+        '      <div class="frsh-toggle-group">',
+        '        <label class="frsh-current-toggle" title="Pick two quotes to compare and mark one as the current subscription"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
+        '        <label class="frsh-current-toggle" title="Calculate a prorated charge for one line item between two dates"><input type="checkbox" id="prorationCheckbox">Calculate Prorated Charges</label>',
+        '      </div>',
         '    </div>',
         '    <div class="frsh-compare-panel" id="comparePanel" hidden>',
         '      <div class="frsh-compare-title">Pick two quotes to compare, then mark one as the current subscription</div>',
         '      <div id="comparePickList" class="frsh-compare-list"></div>',
+        '    </div>',
+        '    <div class="frsh-compare-panel" id="prorationPanel" hidden>',
+        '      <div class="frsh-compare-title">Prorate a line item\'s Invoice Value between two dates</div>',
+        '      <div class="proration-row">',
+        '        <label class="proration-field">Line item',
+        '          <select id="prorationItemSelect" title="Choose which line item to prorate"></select>',
+        '        </label>',
+        '        <label class="proration-field">Subscription Change Date',
+        '          <input type="date" id="prorationChangeDate" title="The date the subscription change takes effect">',
+        '        </label>',
+        '        <label class="proration-field">Subscription End Date',
+        '          <input type="date" id="prorationEndDate" title="The date the current billing cycle ends">',
+        '        </label>',
+        '      </div>',
+        '      <div class="proration-result" id="prorationResult"></div>',
         '    </div>',
         '    <div class="frsh-card">',
         '    <table>',
@@ -604,6 +631,24 @@
                 var currentId = Number(e.target.value);
                 appState.quotes.forEach(function(q) { q.isCurrent = q.id === currentId; });
                 render();
+            }
+        });
+
+        els.prorationCheckbox.addEventListener("change", function() {
+            appState.proration.enabled = els.prorationCheckbox.checked;
+            render();
+        });
+
+        // Item picker, change date, and end date all live-recompute the result without a full
+        // render() - a render() would rebuild the date inputs and drop whatever the user just typed.
+        els.prorationPanel.addEventListener("change", function(e) {
+            if (e.target === els.prorationItemSelect) {
+                appState.proration.itemId = Number(els.prorationItemSelect.value);
+                renderProrationResult();
+            } else if (e.target === els.prorationChangeDate || e.target === els.prorationEndDate) {
+                appState.proration.changeDate = els.prorationChangeDate.value;
+                appState.proration.endDate = els.prorationEndDate.value;
+                renderProrationResult();
             }
         });
 
@@ -899,10 +944,13 @@
         var totalDiscountAmount = totals.totalListArr - totals.totalArr;
         var totalDiscountPct = totals.totalListArr > 0 ? (totalDiscountAmount / totals.totalListArr * 100) : 0;
         var isReseller = quote.customerType === "reseller";
-        var arrTooltip = arrUsdTooltip(totals.totalArr);
-        var arrTitleAttr = arrTooltip ? ' title="' + escapeHtml(arrTooltip) + '"' : "";
-        var html = '<div class="frsh-summary-item"' + arrTitleAttr + '><div class="stat-label">Total ARR' + (arrTooltip ? ' <span class="stat-hint">ⓘ</span>' : "") + '</div><div class="stat-value">' + money(totals.totalArr) + "</div></div>" +
-            '<div class="frsh-summary-item"><div class="stat-label">Total discount applied</div><div class="stat-value">' + money(totalDiscountAmount) + ' <span class="stat-sub">(' + fmt(totalDiscountPct) + '%)</span></div></div>';
+        var html = '<div class="frsh-summary-item"><div class="stat-label">Total ARR</div><div class="stat-value">' + money(totals.totalArr) + "</div></div>";
+        var usdArr = arrInUsd(totals.totalArr);
+        if (usdArr !== null) {
+            var rateNote = "Converted at 1 " + appState.currency + " = " + USD_CONVERSION_RATES[appState.currency] + " USD (fixed reference rate, not live)";
+            html += '<div class="frsh-summary-item" title="' + escapeHtml(rateNote) + '"><div class="stat-label">ARR in USD</div><div class="stat-value">$' + fmt(usdArr) + "</div></div>";
+        }
+        html += '<div class="frsh-summary-item"><div class="stat-label">Total discount applied</div><div class="stat-value">' + money(totalDiscountAmount) + ' <span class="stat-sub">(' + fmt(totalDiscountPct) + '%)</span></div></div>';
         if (isReseller) {
             html += '<div class="frsh-summary-item"><div class="stat-label">Total partner cost</div><div class="stat-value">' + money(totals.totalPartner) + "</div></div>";
         }
@@ -955,6 +1003,67 @@
         }).join("");
     }
 
+    // Lets the user prorate one line item's Invoice Value between two dates - e.g. a mid-cycle
+    // upgrade, downgrade, or cancellation - using the fraction of that item's billing cycle that
+    // falls between the change date and the end date.
+    function renderProrationPanel() {
+        if (!els.prorationPanel) return;
+        els.prorationPanel.hidden = !appState.proration.enabled;
+        if (!appState.proration.enabled) return;
+        var plans = getPlans();
+        var items = activeQuote().items;
+        if (!items.length) {
+            els.prorationItemSelect.innerHTML = "";
+            els.prorationResult.textContent = "Add a line item to this quote first.";
+            return;
+        }
+        // Keep the previously-picked item selected if it still exists on this quote, otherwise
+        // fall back to the first line item.
+        var validIds = items.map(function(it) { return it.id; });
+        if (validIds.indexOf(appState.proration.itemId) === -1) appState.proration.itemId = items[0].id;
+        els.prorationItemSelect.innerHTML = items.map(function(it) {
+            var selected = it.id === appState.proration.itemId ? " selected" : "";
+            return '<option value="' + it.id + '"' + selected + ">" + escapeHtml(itemLabel(it, plans)) + "</option>";
+        }).join("");
+        els.prorationChangeDate.value = appState.proration.changeDate;
+        els.prorationEndDate.value = appState.proration.endDate;
+        renderProrationResult();
+    }
+
+    function renderProrationResult() {
+        if (!els.prorationResult) return;
+        var plans = getPlans();
+        var item = activeQuote().items.filter(function(it) { return it.id === appState.proration.itemId; })[0];
+        if (!item || !plans) {
+            els.prorationResult.textContent = "Add a line item to this quote first.";
+            return;
+        }
+        if (!appState.proration.changeDate || !appState.proration.endDate) {
+            els.prorationResult.textContent = "Enter both dates to calculate the prorated charge.";
+            return;
+        }
+        var changeMs = new Date(appState.proration.changeDate + "T00:00:00").getTime();
+        var endMs = new Date(appState.proration.endDate + "T00:00:00").getTime();
+        if (isNaN(changeMs) || isNaN(endMs)) {
+            els.prorationResult.textContent = "Enter valid dates to calculate the prorated charge.";
+            return;
+        }
+        var row = computeRow(item, plans);
+        var cycle = item.billingCycle || "monthly";
+        // A flat 30-day month, matching the same month-count model the rest of the app already uses
+        // for billing cycles (annual = 12x monthly, quarterly = 3x, etc.) rather than mixing in
+        // calendar-accurate month lengths.
+        var msPerDay = 24 * 60 * 60 * 1000;
+        var cycleMs = (BILLING_CYCLE_MONTHS[cycle] || 1) * 30 * msPerDay;
+        var spanMs = endMs - changeMs;
+        var fraction = cycleMs > 0 ? Math.max(0, Math.min(1, spanMs / cycleMs)) : 0;
+        var proratedAmount = row.invoiceValue * fraction;
+        var cycleDays = Math.round(cycleMs / msPerDay);
+        var spanDays = Math.max(0, Math.min(cycleDays, Math.round(spanMs / msPerDay)));
+        els.prorationResult.innerHTML = "Prorated charge<strong>" + money(proratedAmount) + "</strong>" +
+            "<div>" + spanDays + " of " + cycleDays + " days in the " + BILLING_CYCLE_LABELS[cycle].toLowerCase() + " cycle (" + fmt(fraction * 100) + "%) &middot; full Invoice Value " + money(row.invoiceValue) + "</div>";
+    }
+
     function render() {
         if (!shadowRoot) return;
         var plans = getPlans();
@@ -963,6 +1072,8 @@
         renderTabs();
         els.compareCheckbox.checked = appState.compare.enabled;
         renderComparePanel();
+        els.prorationCheckbox.checked = appState.proration.enabled;
+        renderProrationPanel();
 
         [].forEach.call(els.customerType.querySelectorAll("button"), function(b) {
             b.classList.toggle("active", b.getAttribute("data-value") === quote.customerType);

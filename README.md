@@ -37,9 +37,10 @@ Right-click any price on a supported pricing page (or right-click the extension 
 - The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
 - Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
-- A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, hover over Total ARR to see the equivalent value in USD, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
+- A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, an "ARR in USD" field appears next to Total ARR with the equivalent value, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
 - Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it).
 - Check "Compare Prices" to pick exactly two quotes and mark one of them as the customer's current subscription - the other then shows a green (costs more) or red (costs less) ARR delta against it.
+- Check "Calculate Prorated Charges" to prorate one line item's Invoice Value between a Subscription Change Date and a Subscription End Date - the charge scales by the fraction of that item's billing cycle (in milliseconds) falling between the two dates, using a flat 30-day month per billing-cycle unit.
 - Hover over any field, button, or column header in the builder for a short tooltip explaining what it does.
 - Download the quote(s) you choose as an Excel file, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
@@ -49,6 +50,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.4.1 - September 2, 2026
+- ARR in USD is now its own field next to Total ARR for non-USD quotes, instead of only showing on hover
+- Added "Calculate Prorated Charges": pick a line item and a Subscription Change Date / Subscription End Date to prorate that item's Invoice Value by the fraction of its billing cycle (in milliseconds) that falls between the two dates
+
 v2.4.0 - September 2, 2026
 - Added "Help" and "About FRSH PriceView" to the extension icon's right-click menu - Help jumps to the install page's How it works section, About opens the install page
 - Replaced "Mark as current subscription" with "Compare Prices": pick exactly two quotes and mark one as the current subscription to see an ARR delta on the other
