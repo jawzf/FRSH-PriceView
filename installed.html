@@ -994,7 +994,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.1</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.2</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1162,6 +1162,16 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.2 &mdash; Email quote fixed for real</span>
+                        <span class="changelog-date">September 7, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Fixed "Email quote" still not opening the mail app: a content script isn't allowed to drive top-level navigation to a mailto: link as reliably as a normal page script can, so the link now gets handed to the extension's background service worker (via chrome.tabs.update), which opens it without that restriction</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.1 &mdash; Layout cleanup and a real email fix</span>
                         <span class="changelog-date">September 7, 2026</span>

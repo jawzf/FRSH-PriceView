@@ -1035,11 +1035,21 @@
             body = body.slice(0, fit) + note;
         }
         var mailto = prefix + encodeURIComponent(body);
-        // Setting location.href directly is the reliable way to hand off to the OS/browser's
-        // registered mail handler - for a non-http(s) scheme like mailto: the browser triggers the
-        // external handler and leaves the current page in place, it doesn't actually navigate away.
-        // window.open() and a synthetic <a> click can both silently no-op for mailto: in some browsers.
-        window.location.href = mailto;
+        // A content script runs in an isolated JS world, and Chrome is stricter about letting that
+        // world drive top-level navigation to a non-http(s) scheme than it is for the page's own
+        // script - window.location.href, window.open(), and a synthetic <a> click can all silently
+        // no-op here even though the exact same call works fine from an ordinary page script. Asking
+        // the background service worker to open it via chrome.tabs.create/update is the privileged,
+        // reliable path extensions use for this.
+        try {
+            chrome.runtime.sendMessage({ type: "FRSH_OPEN_MAILTO", url: mailto }, function() {
+                void chrome.runtime.lastError; // nothing more we can do if the background isn't reachable
+            });
+        } catch (e) {
+            // Extension context gone (page navigated/reloaded mid-action) - fall back to the direct
+            // approach, which at least works in some browsers even from a content script.
+            window.location.href = mailto;
+        }
     }
 
     function openModal(planIndex) {

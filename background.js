@@ -73,6 +73,22 @@ function sendOpenQuoteMessage(tabId, source) {
     });
 }
 
+// Content scripts run in an isolated JS world, and Chrome is stricter about letting that world
+// drive top-level navigation to a non-http(s) scheme than it is for a page's own script - a content
+// script setting location.href (or window.open, or a synthetic <a> click) to a mailto: URL can
+// silently no-op. The background service worker has no such restriction, so content.js asks it to
+// open the link on its behalf; updating the sender's own tab (rather than opening a new one) mirrors
+// what a normal in-page mailto: link click would do - the tab's page doesn't actually change, Chrome
+// just hands the URL off to the OS's registered mail handler.
+chrome.runtime.onMessage.addListener(function(message, sender) {
+    if (!message || message.type !== "FRSH_OPEN_MAILTO" || !message.url) return;
+    if (sender.tab && sender.tab.id != null) {
+        chrome.tabs.update(sender.tab.id, { url: message.url });
+    } else {
+        chrome.tabs.create({ url: message.url });
+    }
+});
+
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     if (!tab || !tab.id) return;
     if (info.menuItemId === "frsh-generate-quote-page") {

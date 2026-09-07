@@ -52,6 +52,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.2 - September 7, 2026
+- Fixed "Email quote" still not opening the mail app: a content script isn't allowed to drive top-level navigation to a mailto: link as reliably as a normal page script can, so the link now gets handed to the extension's background service worker (via chrome.tabs.update), which opens it without that restriction
+
 v2.5.1 - September 7, 2026
 - Moved "Compare Prices" next to the quote tabs, since it's about comparing between them
 - Moved "Calculate Prorated Charges" into each quote's own card, and its toggle/dates are now remembered per quote instead of shared across the whole modal
