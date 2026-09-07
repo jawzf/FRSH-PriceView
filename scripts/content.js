@@ -215,14 +215,15 @@
     // to show an ARR delta between; if one of the two happens to be marked
     // current, the delta label calls that out, but marking one isn't required
     // to compare. Currency is shared across all quotes so that delta is
-    // meaningful.
+    // meaningful. Prorated Charges, by contrast, is scoped to one quote at a
+    // time (its own toggle/dates live on the quote object) since it estimates
+    // a value for that quote specifically.
     // ---------------------------------------------------------------------
     var appState = {
         currency: "USD",
         quotes: [],
         activeIndex: 0,
-        compare: { enabled: false, quoteIds: [] }, // quoteIds: up to 2 quote ids being compared
-        proration: { enabled: false, changeDate: "", endDate: "" }
+        compare: { enabled: false, quoteIds: [] } // quoteIds: up to 2 quote ids being compared
     };
     var nextItemId = 1;
     var nextQuoteId = 1;
@@ -234,6 +235,7 @@
             isCurrent: false,
             customerType: "direct", // "direct" | "reseller"
             billingCycle: "annual", // shared by every line item in this quote
+            proration: { enabled: false, changeDate: "", endDate: "" },
             items: []
         };
     }
@@ -496,7 +498,9 @@
         '  .frsh-summary-item .stat-sub { font-size: 13px; font-weight: 500; color: #a9a89e; }',
         '  .frsh-summary-item .stat-value.up { color: #4ee08a; }',
         '  .frsh-summary-item .stat-value.down { color: #ff8a7a; }',
-        '  .frsh-quote-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }',
+        '  .frsh-tabs-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }',
+        '  .frsh-quote-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 0; }',
+        '  .frsh-compare-toggle { white-space: nowrap; }',
         '  .quote-tab-track { display: inline-flex; flex-wrap: wrap; gap: 3px; border-radius: 999px; padding: 3px; background: #f7f7f4; border: 1px solid #e3e2da; }',
         '  .quote-tab { display: inline-flex; align-items: center; gap: 5px; border: none; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab.active { background: #0387ff; color: #fff; }',
@@ -509,7 +513,6 @@
         '  .tab-remove:hover { opacity: 1; background: rgba(255,90,78,0.2); }',
         '  .quote-tab-add { border: 1px dashed #a9a89e; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab-add:hover { border-color: #101114; color: #101114; }',
-        '  .frsh-toggle-group { display: flex; align-items: center; gap: 16px; margin-left: auto; flex-wrap: wrap; }',
         '  .frsh-current-toggle { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #63625a; font-weight: 600; cursor: pointer; }',
         '  .frsh-compare-panel { border: 1px solid #e3e2da; border-radius: 14px; padding: 14px 16px; background: #fff; margin-bottom: 18px; }',
         '  .frsh-compare-title { font-size: 12px; font-weight: 700; color: #63625a; margin-bottom: 10px; }',
@@ -546,7 +549,14 @@
         '      </div>',
         '      <button class="frsh-close" id="closeBtn" aria-label="Close">✕</button>',
         '    </div>',
-        '    <div class="frsh-quote-tabs" id="quoteTabs"></div>',
+        '    <div class="frsh-tabs-row">',
+        '      <div class="frsh-quote-tabs" id="quoteTabs"></div>',
+        '      <label class="frsh-current-toggle frsh-compare-toggle" title="Pick two quotes to compare their ARR"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
+        '    </div>',
+        '    <div class="frsh-compare-panel" id="comparePanel" hidden>',
+        '      <div class="frsh-compare-title">Pick two quotes to compare. Use the ★ on a tab to mark it as the customer\'s current subscription.</div>',
+        '      <div id="comparePickList" class="frsh-compare-list"></div>',
+        '    </div>',
         '    <div class="frsh-controls">',
         '      <div class="frsh-segmented" id="customerType" title="Switch whether this quote is for a direct customer or a reseller partner">',
         '        <button type="button" data-value="direct" class="active">Direct Customer</button>',
@@ -571,27 +581,6 @@
         '          <option value="halfyearly">Half-yearly</option>',
         '        </select>',
         '      </div>',
-        '      <div class="frsh-toggle-group">',
-        '        <label class="frsh-current-toggle" title="Pick two quotes to compare their ARR"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
-        '        <label class="frsh-current-toggle" title="Estimate a prorated value for this quote between two dates"><input type="checkbox" id="prorationCheckbox">Calculate Prorated Charges</label>',
-        '      </div>',
-        '    </div>',
-        '    <div class="frsh-compare-panel" id="comparePanel" hidden>',
-        '      <div class="frsh-compare-title">Pick two quotes to compare. Use the ★ on a tab to mark it as the customer\'s current subscription.</div>',
-        '      <div id="comparePickList" class="frsh-compare-list"></div>',
-        '    </div>',
-        '    <div class="frsh-compare-panel" id="prorationPanel" hidden>',
-        '      <div class="frsh-compare-title" id="prorationTitle">Estimate a prorated value for this quote between two dates</div>',
-        '      <div class="proration-row">',
-        '        <label class="proration-field">Subscription Change Date',
-        '          <input type="date" id="prorationChangeDate" title="The date the subscription change takes effect">',
-        '        </label>',
-        '        <label class="proration-field">Subscription End Date',
-        '          <input type="date" id="prorationEndDate" title="The date the current billing cycle ends">',
-        '        </label>',
-        '      </div>',
-        '      <div class="proration-result" id="prorationResult"></div>',
-        '      <div class="proration-note">Estimate only - actual prorated charges depend on the exact date and time of invoicing.</div>',
         '    </div>',
         '    <div class="frsh-card">',
         '    <table>',
@@ -621,7 +610,21 @@
         '    <div class="frsh-add-plan">',
         '      <select id="addPlanSelect" title="Choose a plan to add as a new line item"></select>',
         '      <button type="button" id="addPlanBtn" title="Add the selected plan as a new line item">+ Add plan</button>',
+        '      <label class="frsh-current-toggle" title="Estimate a prorated value for this quote between two dates"><input type="checkbox" id="prorationCheckbox">Calculate Prorated Charges</label>',
         '      <button type="button" id="clearBtn" class="frsh-clear-btn" title="Remove every line item from this quote">Clear quote</button>',
+        '    </div>',
+        '    <div class="frsh-compare-panel" id="prorationPanel" hidden>',
+        '      <div class="frsh-compare-title" id="prorationTitle">Estimate a prorated value for this quote between two dates</div>',
+        '      <div class="proration-row">',
+        '        <label class="proration-field">Subscription Change Date',
+        '          <input type="date" id="prorationChangeDate" title="The date the subscription change takes effect">',
+        '        </label>',
+        '        <label class="proration-field">Subscription End Date',
+        '          <input type="date" id="prorationEndDate" title="The date the current billing cycle ends">',
+        '        </label>',
+        '      </div>',
+        '      <div class="proration-result" id="prorationResult"></div>',
+        '      <div class="proration-note">Estimate only - actual prorated charges depend on the exact date and time of invoicing.</div>',
         '    </div>',
         '    </div>',
         '    <div class="frsh-summary" id="summarySection" hidden></div>',
@@ -687,7 +690,7 @@
         });
 
         els.prorationCheckbox.addEventListener("change", function() {
-            appState.proration.enabled = els.prorationCheckbox.checked;
+            activeQuote().proration.enabled = els.prorationCheckbox.checked;
             render();
         });
 
@@ -695,8 +698,9 @@
         // would rebuild the date inputs and drop whatever was just typed.
         els.prorationPanel.addEventListener("change", function(e) {
             if (e.target !== els.prorationChangeDate && e.target !== els.prorationEndDate) return;
-            appState.proration.changeDate = els.prorationChangeDate.value;
-            appState.proration.endDate = els.prorationEndDate.value;
+            var proration = activeQuote().proration;
+            proration.changeDate = els.prorationChangeDate.value;
+            proration.endDate = els.prorationEndDate.value;
             renderProrationResult();
         });
 
@@ -1008,15 +1012,29 @@
         return lines.join("\n");
     }
 
+    // Several OSes/browsers silently drop a mailto: handoff once the URL - after percent-encoding -
+    // gets too long (commonly cited around ~2000 chars); the fixed-width table's padding spaces each
+    // balloon to "%20" (3 chars) when encoded, so budgeting off the raw body length (as opposed to
+    // the encoded length) let past rounds' truncation undercount badly and silently fail. This stays
+    // under a conservative cap by budgeting off the actual encoded length instead.
+    var MAX_MAILTO_LENGTH = 1800;
+
     function openEmailCompose(selectedQuotes, plans) {
         var subject = getProductName() + " - Quote";
         var body = buildEmailBody(selectedQuotes, plans);
-        // Most mail clients truncate very long mailto: bodies; keep it well under the common ~2000
-        // char limit and point to the Excel download for the full line-item breakdown.
-        if (body.length > 1500) {
-            body = body.slice(0, 1500) + "\n\n[Quote truncated for email - use \"Download Excel\" for the full breakdown.]";
+        var prefix = "mailto:?subject=" + encodeURIComponent(subject) + "&body=";
+        var note = "\n\n[Quote truncated for email - use \"Download Excel\" for the full breakdown.]";
+        if (prefix.length + encodeURIComponent(body).length > MAX_MAILTO_LENGTH) {
+            var budget = MAX_MAILTO_LENGTH - prefix.length - encodeURIComponent(note).length;
+            var lo = 0, hi = body.length, fit = 0;
+            while (lo <= hi) {
+                var mid = (lo + hi) >> 1;
+                if (encodeURIComponent(body.slice(0, mid)).length <= budget) { fit = mid; lo = mid + 1; }
+                else hi = mid - 1;
+            }
+            body = body.slice(0, fit) + note;
         }
-        var mailto = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+        var mailto = prefix + encodeURIComponent(body);
         // Setting location.href directly is the reliable way to hand off to the OS/browser's
         // registered mail handler - for a non-http(s) scheme like mailto: the browser triggers the
         // external handler and leaves the current page in place, it doesn't actually navigate away.
@@ -1055,7 +1073,7 @@
     function updateTotalInvoiceValue(plans) {
         if (!els.totalInvoiceValueCell || els.totalInvoiceRow.hidden) return;
         els.totalInvoiceValueCell.textContent = money(totalsForQuote(activeQuote(), plans).totalInvoiceValue);
-        if (appState.proration.enabled) renderProrationResult();
+        if (activeQuote().proration.enabled) renderProrationResult();
     }
 
     function renderSummary() {
@@ -1137,19 +1155,20 @@
         }).join("");
     }
 
-    // Lets the user estimate a prorated value for the whole quote (its Total Invoice Value) between
-    // two dates - e.g. a mid-cycle upgrade, downgrade, or cancellation - using the fraction of the
-    // quote's own billing cycle that falls between the change date and the end date. This is scoped
-    // to the overall quote rather than one line item, so there's no per-item picker, and the cycle
-    // always matches the quote's Billing Cycle setting rather than being chosen separately here.
+    // Lets the user estimate a prorated value for the current quote (its Total Invoice Value)
+    // between two dates - e.g. a mid-cycle upgrade, downgrade, or cancellation - using the fraction
+    // of the quote's own billing cycle that falls between the change date and the end date. The
+    // toggle and dates live on the quote itself, so each quote remembers its own independently as
+    // you switch tabs, and the cycle always matches that quote's Billing Cycle setting.
     function renderProrationPanel() {
         if (!els.prorationPanel) return;
-        els.prorationPanel.hidden = !appState.proration.enabled;
-        if (!appState.proration.enabled) return;
+        var proration = activeQuote().proration;
+        els.prorationPanel.hidden = !proration.enabled;
+        if (!proration.enabled) return;
         var cycleLabel = BILLING_CYCLE_LABELS[activeQuote().billingCycle] || "Annual";
         els.prorationTitle.textContent = "Estimate a prorated value for this quote (billed " + cycleLabel + ") between two dates";
-        els.prorationChangeDate.value = appState.proration.changeDate;
-        els.prorationEndDate.value = appState.proration.endDate;
+        els.prorationChangeDate.value = proration.changeDate;
+        els.prorationEndDate.value = proration.endDate;
         renderProrationResult();
     }
 
@@ -1160,12 +1179,13 @@
             els.prorationResult.textContent = "Add a line item to this quote first.";
             return;
         }
-        if (!appState.proration.changeDate || !appState.proration.endDate) {
+        var proration = activeQuote().proration;
+        if (!proration.changeDate || !proration.endDate) {
             els.prorationResult.textContent = "Enter both dates to estimate the prorated value.";
             return;
         }
-        var changeMs = new Date(appState.proration.changeDate + "T00:00:00").getTime();
-        var endMs = new Date(appState.proration.endDate + "T00:00:00").getTime();
+        var changeMs = new Date(proration.changeDate + "T00:00:00").getTime();
+        var endMs = new Date(proration.endDate + "T00:00:00").getTime();
         if (isNaN(changeMs) || isNaN(endMs)) {
             els.prorationResult.textContent = "Enter valid dates to estimate the prorated value.";
             return;
@@ -1195,7 +1215,7 @@
         els.billingCycleSelect.value = quote.billingCycle;
         els.compareCheckbox.checked = appState.compare.enabled;
         renderComparePanel();
-        els.prorationCheckbox.checked = appState.proration.enabled;
+        els.prorationCheckbox.checked = quote.proration.enabled;
         renderProrationPanel();
 
         [].forEach.call(els.customerType.querySelectorAll("button"), function(b) {

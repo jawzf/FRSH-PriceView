@@ -52,6 +52,11 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.1 - September 7, 2026
+- Moved "Compare Prices" next to the quote tabs, since it's about comparing between them
+- Moved "Calculate Prorated Charges" into each quote's own card, and its toggle/dates are now remembered per quote instead of shared across the whole modal
+- Fixed "Email quote" actually not opening the mail app: the new table format's padding made the mailto: link's encoded length balloon past what browsers/OSes will hand off, so it silently failed. Truncation now budgets off the real encoded length instead of the raw text length, so it never builds a link too long to open
+
 v2.5.0 - September 7, 2026
 - Billing Cycle is now set once per quote instead of per line item - every line in a quote is invoiced on the same cadence, and changing it updates every row (and the prorated estimate) together
 - Marking a quote as the customer's current subscription is now a ☆/★ toggle right on its tab, independent of Compare Prices - you can compare two quotes' ARR without marking either one current

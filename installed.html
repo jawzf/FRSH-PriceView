@@ -994,7 +994,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.0</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.1</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1162,6 +1162,18 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.1 &mdash; Layout cleanup and a real email fix</span>
+                        <span class="changelog-date">September 7, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Moved <strong>Compare Prices</strong> next to the quote tabs, since it's about comparing between them</li>
+                        <li>Moved <strong>Calculate Prorated Charges</strong> into each quote's own card, and its toggle/dates are now remembered per quote instead of shared across the whole modal</li>
+                        <li>Fixed "Email quote" actually not opening the mail app: the new table format's padding made the mailto: link's encoded length balloon past what browsers/OSes will hand off, so it silently failed. Truncation now budgets off the real encoded length instead of the raw text length, so it never builds a link too long to open</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.0 &mdash; One billing cycle per quote, duplicate quotes, richer exports</span>
                         <span class="changelog-date">September 7, 2026</span>
