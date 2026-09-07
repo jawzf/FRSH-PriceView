@@ -65,36 +65,57 @@
     renderDots();
     if (!hasSeenThisVersion()) overlay.hidden = false;
 
-    // Floating "Share on Slack" button: copy a ready-made message to the clipboard,
-    // then open Slack so the user can paste it into whichever channel/DM they pick.
+    // Floating "Share on Slack" button opens a modal with the message in a text area,
+    // so the user can copy it and pick their own channel/DM in Slack to paste it into.
     var shareBtn = document.getElementById("shareSlackBtn");
-    var toast = document.getElementById("floatToast");
-    var toastTimer = null;
+    var shareOverlay = document.getElementById("shareOverlay");
+    var shareTextarea = document.getElementById("shareTextarea");
+    var shareCopyBtn = document.getElementById("shareCopyBtn");
+    var shareOpenBtn = document.getElementById("shareOpenBtn");
+    var shareCloseBtn = document.getElementById("shareCloseBtn");
     var SHARE_MESSAGE = "Check out FRSH PriceView, a Chrome extension for building and comparing Freshworks pricing quotes — install it from the Chrome Web Store: https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc";
+    var copyResetTimer = null;
 
-    function showToast(text) {
-        if (!toast) return;
-        toast.textContent = text;
-        toast.classList.add("visible");
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { toast.classList.remove("visible"); }, 3000);
+    function openShareModal() {
+        shareTextarea.value = SHARE_MESSAGE;
+        shareOverlay.hidden = false;
+        shareTextarea.focus();
+        shareTextarea.select();
     }
 
-    if (shareBtn) {
-        shareBtn.addEventListener("click", function () {
-            function openSlack() { window.open("https://app.slack.com/client", "_blank", "noopener"); }
+    function closeShareModal() {
+        shareOverlay.hidden = true;
+    }
+
+    if (shareBtn) shareBtn.addEventListener("click", openShareModal);
+
+    if (shareCopyBtn) {
+        shareCopyBtn.addEventListener("click", function () {
+            function onCopied(ok) {
+                shareCopyBtn.textContent = ok ? "Copied!" : "Couldn't copy — select & copy manually";
+                if (copyResetTimer) clearTimeout(copyResetTimer);
+                copyResetTimer = setTimeout(function () { shareCopyBtn.textContent = "Copy to clipboard"; }, 2000);
+            }
+            shareTextarea.select();
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(SHARE_MESSAGE).then(function () {
-                    showToast("Message copied — paste it into Slack");
-                    openSlack();
-                }, function () {
-                    showToast("Couldn't copy — opening Slack anyway");
-                    openSlack();
-                });
+                navigator.clipboard.writeText(SHARE_MESSAGE).then(function () { onCopied(true); }, function () { onCopied(false); });
             } else {
-                showToast("Couldn't copy — opening Slack anyway");
-                openSlack();
+                onCopied(document.execCommand("copy"));
             }
         });
     }
+
+    if (shareOpenBtn) {
+        shareOpenBtn.addEventListener("click", function () {
+            window.open("https://app.slack.com/client", "_blank", "noopener");
+        });
+    }
+
+    if (shareCloseBtn) shareCloseBtn.addEventListener("click", closeShareModal);
+    if (shareOverlay) {
+        shareOverlay.addEventListener("mousedown", function (e) { if (e.target === shareOverlay) closeShareModal(); });
+    }
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && shareOverlay && !shareOverlay.hidden) closeShareModal();
+    });
 })();

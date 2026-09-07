@@ -629,28 +629,79 @@
             }
         }
 
-        .float-toast {
-            position: fixed;
-            right: 20px;
-            bottom: 24px;
-            z-index: 950;
-            max-width: 260px;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            background: var(--text);
-            color: var(--bg);
-            font-size: 12.5px;
-            font-weight: 600;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transform: translateY(6px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            pointer-events: none;
+        .share-modal {
+            position: relative;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 440px;
+            padding: 28px 28px 24px;
         }
 
-        .float-toast.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .share-modal h3 {
+            margin: 0 0 6px;
+            font-size: 17px;
+            letter-spacing: -0.01em;
+        }
+
+        .share-modal p {
+            margin: 0 0 16px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+
+        .share-textarea {
+            width: 100%;
+            min-height: 110px;
+            resize: vertical;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--callout-bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .share-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .share-actions button {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text);
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .share-actions button:hover {
+            border-color: var(--accent);
+        }
+
+        .share-actions .share-open-btn {
+            border-color: var(--slack-purple);
+            background: var(--slack-purple);
+            color: #fff;
+        }
+
+        .share-actions .share-open-btn:hover {
+            opacity: 0.9;
         }
 
         @media (max-width: 640px) {
@@ -1138,7 +1189,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.4</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.5</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1302,6 +1353,16 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.5 &mdash; Share on Slack opens a copy-and-share modal</span>
+                        <span class="changelog-date">September 7, 2026</span>
+                    </div>
+                    <ul>
+                        <li>"Share on Slack" now opens a modal with the install message in a text box, a "Copy to clipboard" button, and an "Open Slack" button, instead of copying silently in the background</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.4 &mdash; Floating contact and share buttons</span>
                         <span class="changelog-date">September 7, 2026</span>
@@ -1723,7 +1784,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
             <span>Share on Slack</span>
         </button>
-        <a class="float-btn slack" id="slackDmBtn" href="https://app.slack.com/client/E08BANBFACA/U012YQP86H0" target="_blank" rel="noopener" title="DM on Slack">
+        <a class="float-btn slack" id="slackDmBtn" href="https://app.slack.com/client/E08BANBFACA/D012XDHJXE1" target="_blank" rel="noopener" title="DM on Slack">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
             <span>DM on Slack</span>
         </a>
@@ -1732,7 +1793,18 @@
             <span>Get help</span>
         </a>
     </div>
-    <div class="float-toast" id="floatToast"></div>
+    <div class="wn-overlay" id="shareOverlay" hidden>
+        <div class="share-modal" role="dialog" aria-modal="true" aria-label="Share FRSH PriceView on Slack">
+            <button type="button" class="wn-close" id="shareCloseBtn" aria-label="Close">✕</button>
+            <h3>Share on Slack</h3>
+            <p>Copy this message and share it in any channel or DM.</p>
+            <textarea class="share-textarea" id="shareTextarea" readonly></textarea>
+            <div class="share-actions">
+                <button type="button" id="shareCopyBtn">Copy to clipboard</button>
+                <button type="button" class="share-open-btn" id="shareOpenBtn">Open Slack</button>
+            </div>
+        </div>
+    </div>
 
     <script src="scripts/installed.js"></script>
 </body>

@@ -52,6 +52,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.5 - September 7, 2026
+- "Share on Slack" now opens a modal with the install message in a text box, a "Copy to clipboard" button, and an "Open Slack" button, instead of copying silently in the background
+
 v2.5.4 - September 7, 2026
 - Replaced the single "Contact support" button on the installed page with two floating buttons that follow you down the page: "Get help" (email) and "DM on Slack"
 - Added a glowing "Share on Slack" floating button that copies a ready-made install message and opens Slack so you can paste it into any channel or DM
