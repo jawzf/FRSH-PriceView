@@ -994,7 +994,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.4.3</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.0</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1121,16 +1121,17 @@
             <div class="card">
                 <p style="margin-top:0">Right-click any price on a supported pricing page &mdash; or right-click the extension icon itself &mdash; and choose <strong>Generate Quote</strong> to open a quote builder right on the page.</p>
                 <ol class="steps">
-                    <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Every line has its own <strong>Billing Cycle</strong> dropdown (Annual / Monthly / Quarterly / Half-yearly) you can change any time. <strong>Unit Price</strong> always shows the flat per-month rate; <strong>Invoice Value</strong> shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly). Set the number of licenses and a discount % too.</li>
+                    <li>The plan you clicked and its license cost are added as the first line item &mdash; right-clicking anywhere in a plan's card (a feature bullet, the CTA button, not just the price) resolves to that same plan. Each quote has one <strong>Billing Cycle</strong> (Annual / Monthly / Quarterly / Half-yearly) shared by every line in it &mdash; a subscription can't be billed on two cadences at once. <strong>Unit Price</strong> always shows the flat per-month rate; <strong>Invoice Value</strong> shows what that line actually bills for the quote's cycle (e.g. 3x the monthly rate for Quarterly). Set the number of licenses and a discount % too.</li>
                     <li>Use <strong>+ Add addon</strong> to add any addon that's actually valid for that plan (pulled straight from the pricing page's own data), and <strong>+ Add plan</strong> to quote more than one plan or product from the same page &mdash; including Custom/"Contact us" plans, which still carry a real list price behind the scenes.</li>
                     <li>Toggle <strong>Direct Customer</strong> / <strong>Reseller Customer</strong> per quote. In Reseller mode, every line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).</li>
-                    <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller").</li>
-                    <li>Check <strong>Compare Prices</strong> to pick exactly two quotes and mark one of them as the customer's current subscription &mdash; the other then shows a green (costs more) or red (costs less) ARR delta against it, alongside the Total ARR and total discount applied.</li>
+                    <li>Build multiple quotes with the quote tabs, styled like the site's own category pill selector (double-click to rename, e.g. "Direct" vs "Reseller"). Click the ⧉ icon on a tab to duplicate that quote &mdash; billing cycle, customer type, and every line item included &mdash; into a new tab.</li>
+                    <li>Click the ☆ on any tab to mark that quote as the customer's <strong>current subscription</strong> (it fills in as ★). This is independent of comparing &mdash; you don't need to mark one to compare two quotes.</li>
+                    <li>Check <strong>Compare Prices</strong> to pick exactly two quotes &mdash; the one you're viewing shows a green (costs more) or red (costs less) ARR delta against the other, alongside the Total ARR and total discount applied. If either picked quote is marked as the current subscription, the delta label calls that out.</li>
                     <li>For any non-USD currency, an <strong>ARR in USD</strong> field appears next to Total ARR with the equivalent value, converted using a fixed reference rate.</li>
-                    <li>Check <strong>Calculate Prorated Charges</strong> to estimate a prorated value for the whole quote: pick a Billing Cycle, a Subscription Change Date, and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of that billing cycle (in milliseconds) falling between the two dates. This is an estimate only &mdash; actual charges depend on the exact date and time of invoicing.</li>
+                    <li>Check <strong>Calculate Prorated Charges</strong> to estimate a prorated value for the whole quote: pick a Subscription Change Date and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of the quote's own billing cycle (in milliseconds) falling between the two dates. This is an estimate only &mdash; actual charges depend on the exact date and time of invoicing.</li>
                     <li>A <strong>Total Invoice Value</strong> row below the line items sums every line's Invoice Value in the quote's currency.</li>
                     <li>Hover over any field, button, or column header in the builder for a short explanation of what it does.</li>
-                    <li>Use <strong>Download Excel</strong> or <strong>Email quote</strong> to export the quote(s) you choose.</li>
+                    <li>Use <strong>Download Excel</strong> or <strong>Email quote</strong> to export the quote(s) you choose, as a Product/Plan &middot; Units &middot; Price/License/Month &middot; Discount &middot; Discounted Price/License/Month &middot; Monthly Cost &middot; Annual (and Annual in USD, for non-USD quotes) table. The email version is the closest a plain-text <code>mailto:</code> body can get to that table: a fixed-width, space-aligned layout, since mail apps don't render real formatting in a mailto link.</li>
                 </ol>
                 <div class="callout">
                     <strong>From the toolbar icon</strong>
@@ -1161,6 +1162,19 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.0 &mdash; One billing cycle per quote, duplicate quotes, richer exports</span>
+                        <span class="changelog-date">September 7, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Billing Cycle is now set once per quote instead of per line item &mdash; every line in a quote is invoiced on the same cadence, and changing it updates every row (and the prorated estimate) together</li>
+                        <li>Marking a quote as the customer's current subscription is now a ☆/★ toggle right on its tab, independent of Compare Prices &mdash; you can compare two quotes' ARR without marking either one current</li>
+                        <li>Added a duplicate (⧉) icon on each quote tab to clone a quote's billing cycle, customer type, and every line item into a new tab</li>
+                        <li>Reworked Download Excel and Email quote into a proper Product/Plan &middot; Units &middot; Price/License/Month &middot; Discount &middot; Discounted Price/License/Month &middot; Monthly Cost &middot; Annual (+ Annual in USD) table; the email version is a fixed-width plain-text table, the closest a mailto: body can get to real formatting</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.4.3 &mdash; What's new refresh</span>
                         <span class="changelog-date">September 2, 2026</span>

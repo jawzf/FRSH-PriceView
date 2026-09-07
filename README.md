@@ -34,16 +34,17 @@ When viewing the price of addons which are dependent on an option you choose, pl
 
 Generate Quote
 Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder:
-- The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Every line item has its own Billing Cycle dropdown (Annual / Monthly / Quarterly / Half-yearly) that you can change any time, not just what was active on the page when you right-clicked. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the chosen cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
+- The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Each quote has one Billing Cycle (Annual / Monthly / Quarterly / Half-yearly) shared by every line in it - a subscription can't be billed on two cadences at once. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the quote's cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
 - Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
 - A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, an "ARR in USD" field appears next to Total ARR with the equivalent value, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
-- Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it).
-- Check "Compare Prices" to pick exactly two quotes and mark one of them as the customer's current subscription - the other then shows a green (costs more) or red (costs less) ARR delta against it.
-- Check "Calculate Prorated Charges" to estimate a prorated value for the whole quote: pick a Billing Cycle, a Subscription Change Date, and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of that billing cycle (in milliseconds, using a flat 30-day month per billing-cycle unit) falling between the two dates. This is an estimate only - actual charges depend on the exact date and time of invoicing.
+- Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it). Click the ⧉ icon on a tab to duplicate that quote - billing cycle, customer type, and every line item included.
+- Click the ☆ on any tab to mark that quote as the customer's current subscription (it fills in as ★) - this is independent of Compare Prices, so you don't need to mark one to compare two quotes.
+- Check "Compare Prices" to pick exactly two quotes - the one you're viewing shows a green (costs more) or red (costs less) ARR delta against the other. If either picked quote is marked as the current subscription, the delta label calls that out.
+- Check "Calculate Prorated Charges" to estimate a prorated value for the whole quote: pick a Subscription Change Date and a Subscription End Date, and the quote's Total Invoice Value is scaled by the fraction of the quote's own billing cycle (in milliseconds, using a flat 30-day month per billing-cycle unit) falling between the two dates. This is an estimate only - actual charges depend on the exact date and time of invoicing.
 - A "Total Invoice Value" row below the line items sums every line's Invoice Value in the quote's currency.
 - Hover over any field, button, or column header in the builder for a short tooltip explaining what it does.
-- Download the quote(s) you choose as an Excel file, or open a pre-filled email with a plain-text summary of the quote(s) you choose.
+- Download the quote(s) you choose as an Excel file, or email them, as a Product/Plan / Units / Price per License per Month / Discount / Discounted Price per License per Month / Monthly Cost / Annual (+ Annual in USD for non-USD quotes) table. The emailed version is a fixed-width, space-aligned plain-text table - the closest a mailto: link's body can get to real formatting, since mail apps don't render HTML in it.
 - Right-clicking the extension icon (rather than a specific price) opens the same builder empty, so you can pick the plan yourself - the product is whichever pricing page you're currently on.
 This is an estimate only, generated from the pricing shown on the page - not a binding quote.
 
@@ -51,6 +52,12 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.0 - September 7, 2026
+- Billing Cycle is now set once per quote instead of per line item - every line in a quote is invoiced on the same cadence, and changing it updates every row (and the prorated estimate) together
+- Marking a quote as the customer's current subscription is now a ☆/★ toggle right on its tab, independent of Compare Prices - you can compare two quotes' ARR without marking either one current
+- Added a duplicate (⧉) icon on each quote tab to clone a quote's billing cycle, customer type, and every line item into a new tab
+- Reworked Download Excel and Email quote into a proper Product/Plan / Units / Price per License per Month / Discount / Discounted Price per License per Month / Monthly Cost / Annual (+ Annual in USD) table; the email version is a fixed-width plain-text table, the closest a mailto: body can get to real formatting
+
 v2.4.3 - September 2, 2026
 - The "What's new" welcome carousel now leads with the prorated charges calculator as its marquee slide
 - Added a "What's new" thumbnail strip above How it works on the install page - click any thumbnail to reopen the full tour on that feature

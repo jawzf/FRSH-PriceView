@@ -36,9 +36,10 @@
     var EXTENSION_ICON_URL = "";
     try { EXTENSION_ICON_URL = chrome.runtime.getURL("images/icon-48.png"); } catch (e) { /* not running as an extension */ }
 
-    // Billing cycle is always user-editable after a line item is added (not fixed by however the
-    // page was toggled at right-click time), so "annual" lives in this same set rather than being a
-    // separate billedAnnually boolean.
+    // Billing cycle is a per-quote setting (every line item in a quote is invoiced on the same
+    // cadence - a customer isn't billed monthly for one line and annually for another within the
+    // same subscription), always user-editable after the quote is started rather than fixed to
+    // however the page was toggled at right-click time.
     var BILLING_CYCLE_LABELS = { annual: "Annual", monthly: "Monthly", quarterly: "Quarterly", halfyearly: "Half-yearly" };
     var BILLING_CYCLE_MONTHS = { annual: 12, monthly: 1, quarterly: 3, halfyearly: 6 };
 
@@ -207,18 +208,21 @@
 
     // ---------------------------------------------------------------------
     // App state: several independent quotes (e.g. "Direct" vs "Reseller", or
-    // just alternative scenarios) so they can be compared side by side.
-    // "Compare Prices" picks exactly two of them (compare.quoteIds) and one of
-    // those two can be flagged as the customer's current subscription
-    // (isCurrent), used as the baseline for an ARR delta on the other one.
-    // Currency is shared across all quotes so that delta is meaningful.
+    // just alternative scenarios) so they can be compared side by side. Any
+    // quote can be flagged as the customer's current subscription (isCurrent,
+    // set via the star toggle on its tab - independent of Compare Prices).
+    // "Compare Prices" separately picks exactly two quotes (compare.quoteIds)
+    // to show an ARR delta between; if one of the two happens to be marked
+    // current, the delta label calls that out, but marking one isn't required
+    // to compare. Currency is shared across all quotes so that delta is
+    // meaningful.
     // ---------------------------------------------------------------------
     var appState = {
         currency: "USD",
         quotes: [],
         activeIndex: 0,
         compare: { enabled: false, quoteIds: [] }, // quoteIds: up to 2 quote ids being compared
-        proration: { enabled: false, billingCycle: "annual", changeDate: "", endDate: "" }
+        proration: { enabled: false, changeDate: "", endDate: "" }
     };
     var nextItemId = 1;
     var nextQuoteId = 1;
@@ -229,8 +233,32 @@
             customName: null, // set only once the user renames the tab; otherwise the display name is derived live from position
             isCurrent: false,
             customerType: "direct", // "direct" | "reseller"
+            billingCycle: "annual", // shared by every line item in this quote
             items: []
         };
+    }
+
+    // Clones a quote (billing cycle, customer type, and every line item) into a new tab, so the
+    // user can start from an existing scenario instead of rebuilding it - e.g. to try a discount
+    // variant or a different billing cycle side by side with the original.
+    function duplicateQuote(source) {
+        var copy = newQuote();
+        copy.billingCycle = source.billingCycle;
+        copy.customerType = source.customerType;
+        copy.customName = source.customName ? (source.customName + " copy") : null;
+        var idMap = {};
+        copy.items = source.items.map(function(it) {
+            var clone = JSON.parse(JSON.stringify(it));
+            idMap[clone.id] = nextItemId++;
+            clone.id = idMap[clone.id];
+            return clone;
+        });
+        copy.items.forEach(function(clone) {
+            if (clone.kind === "addon") clone.parentItemId = idMap[clone.parentItemId];
+        });
+        appState.quotes.push(copy);
+        appState.activeIndex = appState.quotes.length - 1;
+        return copy;
     }
 
     function activeQuote() {
@@ -251,28 +279,31 @@
     function addPlanItem(planIndex, plans) {
         var plan = plans[planIndex];
         if (!plan) return null;
+        var quote = activeQuote();
+        // Only the first item in an otherwise-empty quote picks up the page's own Monthly/Annually
+        // toggle - once the quote has a billing cycle, every later add sticks to it, since a
+        // subscription can't be billed on two different cadences at once.
+        if (!quote.items.length) quote.billingCycle = getAnnualTermFromPage() ? "annual" : "monthly";
         var item = {
             id: nextItemId++,
             kind: "plan",
             planIndex: planIndex,
             planName: plan.planName,
-            billingCycle: getAnnualTermFromPage() ? "annual" : "monthly",
             qty: 1,
             discountPct: 0,
             marginPct: 20
         };
-        activeQuote().items.push(item);
+        quote.items.push(item);
         return item;
     }
 
-    function addAddonItem(parentItemId, addon, billingCycle) {
+    function addAddonItem(parentItemId, addon) {
         var item = {
             id: nextItemId++,
             kind: "addon",
             parentItemId: parentItemId,
             name: addon.name,
             localePrices: addon.localePrices,
-            billingCycle: billingCycle || "monthly",
             qty: 1,
             discountPct: 0,
             marginPct: 20
@@ -305,15 +336,14 @@
 
     // ARR (annual recurring revenue) for a line item is always the same regardless of how it's
     // actually invoiced: the plan's annual-commit rate if billed annually, otherwise its
-    // month-to-month rate x 12. This stays comparable across items even when their billing cycles
-    // differ, so it's what the summary panel and CSV/Excel totals sum. Invoice Value is the
-    // discounted amount actually charged per billing cycle (what shows in the table row) - it is
-    // cycle-specific and not meaningful to sum across items on different cycles.
-    function computeRow(item, plans) {
+    // month-to-month rate x 12. Invoice Value is the discounted amount actually charged per billing
+    // cycle (what shows in the table row) - since every item in a quote now shares the same cycle,
+    // Invoice Values are meaningfully comparable/summable within one quote.
+    function computeRow(item, quote, plans) {
         var unit = unitPricesFor(item, plans);
         var qty = Math.max(0, toNumber(item.qty));
         var discount = Math.min(100, Math.max(0, toNumber(item.discountPct)));
-        var cycle = item.billingCycle || "monthly";
+        var cycle = quote.billingCycle || "annual";
         var isAnnual = cycle === "annual";
         var arrRate = isAnnual ? unit.annual : unit.monthly;
         var listAnnualTotal = arrRate * qty * 12;
@@ -373,12 +403,13 @@
         els.quoteTabs = shadowRoot.getElementById("quoteTabs");
         els.customerType = shadowRoot.getElementById("customerType");
         els.currencySelect = shadowRoot.getElementById("currencySelect");
+        els.billingCycleSelect = shadowRoot.getElementById("billingCycleSelect");
         els.compareCheckbox = shadowRoot.getElementById("compareCheckbox");
         els.comparePanel = shadowRoot.getElementById("comparePanel");
         els.comparePickList = shadowRoot.getElementById("comparePickList");
         els.prorationCheckbox = shadowRoot.getElementById("prorationCheckbox");
         els.prorationPanel = shadowRoot.getElementById("prorationPanel");
-        els.prorationCycleSelect = shadowRoot.getElementById("prorationCycleSelect");
+        els.prorationTitle = shadowRoot.getElementById("prorationTitle");
         els.prorationChangeDate = shadowRoot.getElementById("prorationChangeDate");
         els.prorationEndDate = shadowRoot.getElementById("prorationEndDate");
         els.prorationResult = shadowRoot.getElementById("prorationResult");
@@ -428,7 +459,6 @@
         '  .frsh-head h1 { font-family: "Lora", Georgia, serif; font-style: italic; font-size: 21px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }',
         '  .frsh-subheading { font-size: 13.5px; font-weight: 600; color: #63625a; margin-top: 1px; }',
         '  .frsh-head .sub { color: #a9a89e; font-size: 12px; margin-top: 2px; }',
-        '  .billing-cycle-select { margin-top: 4px; font-size: 11px; padding: 2px 6px; }',
         '  .frsh-close { margin-left: auto; border: none; background: #f0efe8; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; color: #101114; }',
         '  .frsh-close:hover { background: #e3e2da; }',
         '  .frsh-controls { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }',
@@ -468,10 +498,14 @@
         '  .frsh-summary-item .stat-value.down { color: #ff8a7a; }',
         '  .frsh-quote-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }',
         '  .quote-tab-track { display: inline-flex; flex-wrap: wrap; gap: 3px; border-radius: 999px; padding: 3px; background: #f7f7f4; border: 1px solid #e3e2da; }',
-        '  .quote-tab { display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 8px 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
+        '  .quote-tab { display: inline-flex; align-items: center; gap: 5px; border: none; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab.active { background: #0387ff; color: #fff; }',
-        '  .tab-current-badge { background: #00ac4b; color: #fff; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; }',
-        '  .tab-remove { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; opacity: 0.6; }',
+        '  .tab-current-toggle { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; opacity: 0.5; font-size: 12px; }',
+        '  .tab-current-toggle:hover { opacity: 0.9; }',
+        '  .tab-current-toggle.current { opacity: 1; color: #00ac4b; }',
+        '  .quote-tab.active .tab-current-toggle.current { color: #baffd8; }',
+        '  .tab-duplicate, .tab-remove { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; opacity: 0.6; font-size: 12px; }',
+        '  .tab-duplicate:hover { opacity: 1; background: rgba(3,135,255,0.2); }',
         '  .tab-remove:hover { opacity: 1; background: rgba(255,90,78,0.2); }',
         '  .quote-tab-add { border: 1px dashed #a9a89e; background: transparent; color: #63625a; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }',
         '  .quote-tab-add:hover { border-color: #101114; color: #101114; }',
@@ -482,10 +516,8 @@
         '  .frsh-compare-list { display: flex; flex-wrap: wrap; gap: 8px 20px; }',
         '  .compare-row { display: flex; align-items: center; gap: 12px; }',
         '  .compare-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }',
-        '  .compare-current-radio { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #63625a; font-weight: 600; cursor: pointer; }',
         '  .proration-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }',
         '  .proration-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: #63625a; }',
-        '  .proration-field select { min-width: 140px; }',
         '  .proration-result { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #f0efe8; font-size: 13px; color: #63625a; }',
         '  .proration-result strong { display: block; font-size: 19px; font-weight: 700; color: #101114; margin-top: 2px; }',
         '  .proration-note { margin-top: 10px; font-size: 11.5px; color: #a9a89e; }',
@@ -530,26 +562,27 @@
         '          <option value="AUD">AUD</option>',
         '        </select>',
         '      </div>',
+        '      <div title="Every line item in this quote is invoiced on the same cycle">',
+        '        <span class="frsh-field-label">Billing Cycle</span>',
+        '        <select id="billingCycleSelect">',
+        '          <option value="annual">Annual</option>',
+        '          <option value="monthly">Monthly</option>',
+        '          <option value="quarterly">Quarterly</option>',
+        '          <option value="halfyearly">Half-yearly</option>',
+        '        </select>',
+        '      </div>',
         '      <div class="frsh-toggle-group">',
-        '        <label class="frsh-current-toggle" title="Pick two quotes to compare and mark one as the current subscription"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
-        '        <label class="frsh-current-toggle" title="Calculate a prorated charge for one line item between two dates"><input type="checkbox" id="prorationCheckbox">Calculate Prorated Charges</label>',
+        '        <label class="frsh-current-toggle" title="Pick two quotes to compare their ARR"><input type="checkbox" id="compareCheckbox">Compare Prices</label>',
+        '        <label class="frsh-current-toggle" title="Estimate a prorated value for this quote between two dates"><input type="checkbox" id="prorationCheckbox">Calculate Prorated Charges</label>',
         '      </div>',
         '    </div>',
         '    <div class="frsh-compare-panel" id="comparePanel" hidden>',
-        '      <div class="frsh-compare-title">Pick two quotes to compare, then mark one as the current subscription</div>',
+        '      <div class="frsh-compare-title">Pick two quotes to compare. Use the ★ on a tab to mark it as the customer\'s current subscription.</div>',
         '      <div id="comparePickList" class="frsh-compare-list"></div>',
         '    </div>',
         '    <div class="frsh-compare-panel" id="prorationPanel" hidden>',
-        '      <div class="frsh-compare-title">Estimate a prorated value for this quote between two dates</div>',
+        '      <div class="frsh-compare-title" id="prorationTitle">Estimate a prorated value for this quote between two dates</div>',
         '      <div class="proration-row">',
-        '        <label class="proration-field">Billing Cycle',
-        '          <select id="prorationCycleSelect" title="The cadence this quote is invoiced on">',
-        '            <option value="annual">Annual</option>',
-        '            <option value="monthly">Monthly</option>',
-        '            <option value="quarterly">Quarterly</option>',
-        '            <option value="halfyearly">Half-yearly</option>',
-        '          </select>',
-        '        </label>',
         '        <label class="proration-field">Subscription Change Date',
         '          <input type="date" id="prorationChangeDate" title="The date the subscription change takes effect">',
         '        </label>',
@@ -577,7 +610,7 @@
         '      <tbody id="tbody"></tbody>',
         '      <tfoot id="totalInvoiceRow" hidden>',
         '        <tr>',
-        '          <td colspan="4" class="total-invoice-label" title="Sum of every line item\'s Invoice Value, each at its own billing cycle">Total Invoice Value</td>',
+        '          <td colspan="4" class="total-invoice-label" title="Sum of every line item\'s Invoice Value for this quote\'s billing cycle">Total Invoice Value</td>',
         '          <td class="num total-invoice-label" id="totalInvoiceValueCell"></td>',
         '          <td class="reseller-col" hidden></td>',
         '          <td class="reseller-col" hidden></td>',
@@ -627,31 +660,30 @@
             render();
         });
 
+        els.billingCycleSelect.addEventListener("change", function() {
+            activeQuote().billingCycle = els.billingCycleSelect.value;
+            render();
+        });
+
         els.compareCheckbox.addEventListener("change", function() {
             appState.compare.enabled = els.compareCheckbox.checked;
             render();
         });
 
-        // The compare panel lists every quote with a checkbox (pick up to two) and, once a quote is
-        // picked, a radio button to mark it as the current subscription (the ARR delta baseline).
+        // The compare panel just lists every quote with a checkbox (pick up to two) - marking a
+        // quote as the current subscription is a separate action (the ★ on its tab), not required
+        // to compare two quotes' prices.
         els.comparePanel.addEventListener("change", function(e) {
-            if (e.target.matches(".compare-pick")) {
-                var id = Number(e.target.value);
-                var ids = appState.compare.quoteIds;
-                var pos = ids.indexOf(id);
-                if (e.target.checked) {
-                    if (pos === -1 && ids.length < 2) ids.push(id);
-                } else if (pos !== -1) {
-                    ids.splice(pos, 1);
-                    var dropped = appState.quotes.filter(function(q) { return q.id === id; })[0];
-                    if (dropped) dropped.isCurrent = false; // no longer part of a comparison, so it can't be the baseline
-                }
-                render();
-            } else if (e.target.matches('input[name="compareCurrent"]')) {
-                var currentId = Number(e.target.value);
-                appState.quotes.forEach(function(q) { q.isCurrent = q.id === currentId; });
-                render();
+            if (!e.target.matches(".compare-pick")) return;
+            var id = Number(e.target.value);
+            var ids = appState.compare.quoteIds;
+            var pos = ids.indexOf(id);
+            if (e.target.checked) {
+                if (pos === -1 && ids.length < 2) ids.push(id);
+            } else if (pos !== -1) {
+                ids.splice(pos, 1);
             }
+            render();
         });
 
         els.prorationCheckbox.addEventListener("change", function() {
@@ -659,17 +691,13 @@
             render();
         });
 
-        // Billing cycle picker, change date, and end date all live-recompute the result without a
-        // full render() - a render() would rebuild the date inputs and drop whatever was just typed.
+        // Change date and end date live-recompute the result without a full render() - a render()
+        // would rebuild the date inputs and drop whatever was just typed.
         els.prorationPanel.addEventListener("change", function(e) {
-            if (e.target === els.prorationCycleSelect) {
-                appState.proration.billingCycle = els.prorationCycleSelect.value;
-                renderProrationResult();
-            } else if (e.target === els.prorationChangeDate || e.target === els.prorationEndDate) {
-                appState.proration.changeDate = els.prorationChangeDate.value;
-                appState.proration.endDate = els.prorationEndDate.value;
-                renderProrationResult();
-            }
+            if (e.target !== els.prorationChangeDate && e.target !== els.prorationEndDate) return;
+            appState.proration.changeDate = els.prorationChangeDate.value;
+            appState.proration.endDate = els.prorationEndDate.value;
+            renderProrationResult();
         });
 
         els.addPlanBtn.addEventListener("click", function() {
@@ -702,6 +730,25 @@
 
         // Quote tabs: switch active quote, remove one, or start a new one.
         els.quoteTabs.addEventListener("click", function(e) {
+            var currentToggle = e.target.closest(".tab-current-toggle");
+            if (currentToggle) {
+                var toggleIdx = Number(currentToggle.getAttribute("data-index"));
+                var toggleQuote = appState.quotes[toggleIdx];
+                if (toggleQuote) {
+                    var wasCurrent = toggleQuote.isCurrent;
+                    appState.quotes.forEach(function(q) { q.isCurrent = false; });
+                    toggleQuote.isCurrent = !wasCurrent; // clicking the current quote's star unmarks it
+                    render();
+                }
+                return;
+            }
+            var duplicateBtn = e.target.closest(".tab-duplicate");
+            if (duplicateBtn) {
+                var dupIdx = Number(duplicateBtn.getAttribute("data-index"));
+                if (appState.quotes[dupIdx]) duplicateQuote(appState.quotes[dupIdx]);
+                render();
+                return;
+            }
             var removeBtn = e.target.closest(".tab-remove");
             if (removeBtn) {
                 var idx = Number(removeBtn.getAttribute("data-index"));
@@ -757,34 +804,13 @@
             else return;
             var plans = getPlans();
             if (!plans) return;
-            var computed = computeRow(item, plans);
+            var computed = computeRow(item, activeQuote(), plans);
             var invoiceCell = row.querySelector(".cell-invoice");
             var partnerCell = row.querySelector(".cell-partner");
             if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
             if (partnerCell) partnerCell.textContent = money(computed.partnerCost);
             updateTotalInvoiceValue(plans);
             renderSummary();
-        });
-
-        // Billing cycle is freely editable after the item is added (not locked to whatever was
-        // active on the page at right-click time) - changing it updates both the per-cycle unit
-        // price and the Invoice Value cell, but never the ARR used in the summary/totals.
-        els.tbody.addEventListener("change", function(e) {
-            if (!e.target.matches(".billing-cycle-select")) return;
-            var row = e.target.closest("tr[data-item-id]");
-            if (!row) return;
-            var id = Number(row.getAttribute("data-item-id"));
-            var item = activeQuote().items.filter(function(it) { return it.id === id; })[0];
-            if (!item) return;
-            item.billingCycle = e.target.value;
-            var plans = getPlans();
-            if (!plans) return;
-            var computed = computeRow(item, plans);
-            var unitCell = row.querySelector(".cell-unit");
-            var invoiceCell = row.querySelector(".cell-invoice");
-            if (unitCell) unitCell.textContent = money(computed.cadenceUnitPrice);
-            if (invoiceCell) invoiceCell.textContent = money(computed.invoiceValue);
-            updateTotalInvoiceValue(plans);
         });
 
         els.tbody.addEventListener("click", function(e) {
@@ -805,7 +831,7 @@
                 if (!plans || !planItem) return;
                 var addons = planAddons(plans[planItem.planIndex]);
                 var addon = addons.filter(function(a) { return a.name === select.value; })[0];
-                if (addon) addAddonItem(planItemId, addon, planItem.billingCycle);
+                if (addon) addAddonItem(planItemId, addon);
                 render();
             }
         });
@@ -850,35 +876,53 @@
 
     // A real .xls file (Excel's own "HTML table" import format) rather than CSV: no delimiter/locale
     // or encoding surprises when opened, columns always line up, and headers/totals can be bold.
-    // "Invoice Value" is the per-row, per-billing-cycle amount (so mixed-cadence rows aren't
-    // comparable) - the separate "Annualized Value (ARR)" column is what the TOTAL row sums, matching
-    // the Total ARR shown in the app's own summary panel.
+    // Columns mirror the standard quote-table layout: per-license monthly rate, the discounted
+    // per-license monthly rate, the equivalent Monthly Cost (qty x discounted rate), and the
+    // annualized total - in the quote's currency, plus a fixed-rate USD column when that currency
+    // isn't already USD.
     function excelCell(v, bold) {
         var s = escapeHtml(String(v == null ? "" : v));
         return bold ? "<td style=\"font-weight:bold;\">" + s + "</td>" : "<td>" + s + "</td>";
     }
 
+    function discountedUnitPriceFor(row, item) {
+        var discount = Math.min(100, Math.max(0, toNumber(item.discountPct)));
+        return row.cadenceUnitPrice * (1 - discount / 100);
+    }
+
     function buildExcelHtml(selectedQuotes, plans) {
-        var header = ["Quote", "Current Subscription", "Item", "Billing Cycle", "Qty", "Unit Price", "Discount %", "Invoice Value", "Annualized Value (ARR)", "Margin %", "Partner Cost"];
+        var cur = appState.currency;
+        var showUsd = cur !== "USD";
+        var showReseller = selectedQuotes.some(function(q) { return q.customerType === "reseller"; });
+        var header = ["Quote", "Current Subscription", "Product/Plan", "No. of Units",
+            "Price/License/Month (" + cur + ")", "Discount",
+            "Discounted Price/License/Month (" + cur + ")", "Monthly Cost (" + cur + ")", "Annual (" + cur + ")"];
+        if (showUsd) header.push("Annual (USD)");
+        if (showReseller) header.push("Margin %", "Partner Cost");
         var rows = ["<tr>" + header.map(function(h) { return "<th style=\"background:#101114;color:#fff;padding:6px 10px;text-align:left;\">" + escapeHtml(h) + "</th>"; }).join("") + "</tr>"];
         selectedQuotes.forEach(function(quote) {
             var name = quoteDisplayName(quote);
+            var isReseller = quote.customerType === "reseller";
             quote.items.forEach(function(item) {
-                var row = computeRow(item, plans);
-                var isReseller = quote.customerType === "reseller";
-                rows.push("<tr>" + [
-                    excelCell(name), excelCell(quote.isCurrent ? "Yes" : ""), excelCell(itemLabel(item, plans)),
-                    excelCell(BILLING_CYCLE_LABELS[item.billingCycle] || "Monthly"), excelCell(item.qty),
-                    excelCell(fmt(row.cadenceUnitPrice)), excelCell(item.discountPct), excelCell(fmt(row.invoiceValue)),
-                    excelCell(fmt(row.annualTotal)), excelCell(isReseller ? item.marginPct : ""), excelCell(isReseller ? fmt(row.partnerCost) : "")
-                ].join("") + "</tr>");
+                var row = computeRow(item, quote, plans);
+                var monthlyCost = row.annualTotal / 12;
+                var cells = [
+                    excelCell(name), excelCell(quote.isCurrent ? "Yes" : ""), excelCell(itemLabel(item, plans)), excelCell(item.qty),
+                    excelCell(fmt(row.cadenceUnitPrice)), excelCell(item.discountPct + "%"),
+                    excelCell(fmt(discountedUnitPriceFor(row, item))), excelCell(fmt(monthlyCost)), excelCell(fmt(row.annualTotal))
+                ];
+                if (showUsd) cells.push(excelCell(fmt(row.annualTotal * USD_CONVERSION_RATES[cur])));
+                if (showReseller) cells.push(excelCell(isReseller ? item.marginPct : ""), excelCell(isReseller ? fmt(row.partnerCost) : ""));
+                rows.push("<tr>" + cells.join("") + "</tr>");
             });
             var totals = totalsForQuote(quote, plans);
-            rows.push("<tr>" + [
-                excelCell(name, true), excelCell("", true), excelCell("TOTAL", true), excelCell("", true), excelCell("", true),
-                excelCell("", true), excelCell("", true), excelCell("", true), excelCell(fmt(totals.totalArr), true),
-                excelCell("", true), excelCell(quote.customerType === "reseller" ? fmt(totals.totalPartner) : "", true)
-            ].join("") + "</tr>");
+            var totalCells = [
+                excelCell(name, true), excelCell("", true), excelCell("TOTAL", true), excelCell("", true),
+                excelCell("", true), excelCell("", true), excelCell("", true), excelCell("", true), excelCell(fmt(totals.totalArr), true)
+            ];
+            if (showUsd) totalCells.push(excelCell(fmt(totals.totalArr * USD_CONVERSION_RATES[cur]), true));
+            if (showReseller) totalCells.push(excelCell("", true), excelCell(isReseller ? fmt(totals.totalPartner) : "", true));
+            rows.push("<tr>" + totalCells.join("") + "</tr>");
         });
         return "<html><head><meta charset=\"UTF-8\"></head><body><table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">" + rows.join("") + "</table></body></html>";
     }
@@ -895,16 +939,68 @@
         setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
     }
 
+    function padRight(v, w) {
+        var s = String(v == null ? "" : v);
+        return s.length >= w ? s.slice(0, w) : s + new Array(w - s.length + 1).join(" ");
+    }
+
+    function padLeft(v, w) {
+        var s = String(v == null ? "" : v);
+        return s.length >= w ? s.slice(0, w) : new Array(w - s.length + 1).join(" ") + s;
+    }
+
+    // mailto: bodies are plain text only - no mail client renders HTML/CSS in them - so this is the
+    // closest a table can get: a fixed-width, space-aligned layout using the same columns as the
+    // Excel download. Alignment holds as long as the recipient's client shows plain text in a
+    // monospace font (most desktop clients do); it can drift in one that doesn't.
     function buildEmailBody(selectedQuotes, plans) {
+        var cur = appState.currency;
+        var showUsd = cur !== "USD";
+        var cols = [
+            { key: "item", label: "Product/Plan", width: 22, align: "left" },
+            { key: "qty", label: "Units", width: 5, align: "right" },
+            { key: "price", label: "Price/Lic/Mo", width: 12, align: "right" },
+            { key: "disc", label: "Disc", width: 5, align: "right" },
+            { key: "discPrice", label: "Disc.Price/Mo", width: 13, align: "right" },
+            { key: "monthly", label: "Monthly Cost", width: 12, align: "right" },
+            { key: "annual", label: "Annual", width: 12, align: "right" }
+        ];
+        if (showUsd) cols.push({ key: "annualUsd", label: "Annual (USD)", width: 12, align: "right" });
+
+        function formatRow(values) {
+            return cols.map(function(c) {
+                var v = values[c.key];
+                return c.align === "left" ? padRight(v, c.width) : padLeft(v, c.width);
+            }).join(" | ");
+        }
+
         var lines = [getProductName() + " - Quote Summary", ""];
         selectedQuotes.forEach(function(quote) {
-            lines.push(quoteDisplayName(quote) + (quote.isCurrent ? " (current subscription)" : "") + (quote.customerType === "reseller" ? " [Reseller]" : ""));
+            var cycleLabel = BILLING_CYCLE_LABELS[quote.billingCycle] || "Annual";
+            lines.push(quoteDisplayName(quote) + " (" + cycleLabel + ", billed in " + cur + ")" + (quote.isCurrent ? " - current subscription" : "") + (quote.customerType === "reseller" ? " [Reseller]" : ""));
+            var headerLabels = {};
+            cols.forEach(function(c) { headerLabels[c.key] = c.label; });
+            lines.push(formatRow(headerLabels));
+            lines.push(cols.map(function(c) { return new Array(c.width + 1).join("-"); }).join("-+-"));
             quote.items.forEach(function(item) {
-                var row = computeRow(item, plans);
-                lines.push("  - " + itemLabel(item, plans) + " x" + item.qty + " (" + (BILLING_CYCLE_LABELS[item.billingCycle] || "Monthly") + "): " + money(row.annualTotal) + "/yr");
+                var row = computeRow(item, quote, plans);
+                lines.push(formatRow({
+                    item: itemLabel(item, plans),
+                    qty: item.qty,
+                    price: fmt(row.cadenceUnitPrice),
+                    disc: item.discountPct + "%",
+                    discPrice: fmt(discountedUnitPriceFor(row, item)),
+                    monthly: fmt(row.annualTotal / 12),
+                    annual: fmt(row.annualTotal),
+                    annualUsd: showUsd ? fmt(row.annualTotal * USD_CONVERSION_RATES[cur]) : ""
+                }));
             });
             var totals = totalsForQuote(quote, plans);
-            lines.push("  Total ARR: " + money(totals.totalArr));
+            lines.push(formatRow({
+                item: "TOTAL", qty: "", price: "", disc: "", discPrice: "", monthly: "",
+                annual: fmt(totals.totalArr),
+                annualUsd: showUsd ? fmt(totals.totalArr * USD_CONVERSION_RATES[cur]) : ""
+            }));
             if (quote.customerType === "reseller") lines.push("  Total partner cost: " + money(totals.totalPartner));
             lines.push("");
         });
@@ -945,7 +1041,7 @@
     function totalsForQuote(quote, plans) {
         var totalListArr = 0, totalArr = 0, totalPartner = 0, totalInvoiceValue = 0;
         quote.items.forEach(function(it) {
-            var row = computeRow(it, plans);
+            var row = computeRow(it, quote, plans);
             totalListArr += row.listAnnualTotal;
             totalArr += row.annualTotal;
             totalPartner += row.partnerCost;
@@ -985,18 +1081,25 @@
         if (isReseller) {
             html += '<div class="frsh-summary-item"><div class="stat-label">Total partner cost</div><div class="stat-value">' + money(totals.totalPartner) + "</div></div>";
         }
-        // The delta only appears when Compare Prices is on, exactly two quotes are picked, this quote
-        // is one of them, and the other one is marked as the current subscription.
+        // The delta appears whenever Compare Prices is on, exactly two quotes are picked, and this
+        // quote is one of them - it's measured against whichever quote is the other half of the
+        // pair, regardless of whether either is marked as the current subscription. If the other
+        // one happens to be marked current, the label calls that out.
         var cmp = appState.compare;
         var inComparison = cmp.enabled && cmp.quoteIds.length === 2 && cmp.quoteIds.indexOf(quote.id) !== -1;
-        var currentQuote = inComparison ? appState.quotes.filter(function(q) { return q.isCurrent && cmp.quoteIds.indexOf(q.id) !== -1; })[0] : null;
-        if (currentQuote && currentQuote.id !== quote.id) {
-            var baseline = totalsForQuote(currentQuote, plans);
+        var otherQuote = null;
+        if (inComparison) {
+            var otherId = cmp.quoteIds[0] === quote.id ? cmp.quoteIds[1] : cmp.quoteIds[0];
+            otherQuote = appState.quotes.filter(function(q) { return q.id === otherId; })[0] || null;
+        }
+        if (otherQuote) {
+            var baseline = totalsForQuote(otherQuote, plans);
             var delta = totals.totalArr - baseline.totalArr;
             var deltaPct = baseline.totalArr > 0 ? (delta / baseline.totalArr * 100) : (delta === 0 ? 0 : 100);
             var sign = delta >= 0 ? "+" : "−";
             var cls = delta >= 0 ? "up" : "down";
-            html += '<div class="frsh-summary-item"><div class="stat-label">ARR vs "' + escapeHtml(quoteDisplayName(currentQuote)) + '"</div><div class="stat-value ' + cls + '">' + sign + money(Math.abs(delta)) + ' <span class="stat-sub">(' + sign + fmt(Math.abs(deltaPct)) + "%)</span></div></div>";
+            var otherLabel = quoteDisplayName(otherQuote) + (otherQuote.isCurrent ? " - current subscription" : "");
+            html += '<div class="frsh-summary-item"><div class="stat-label">ARR vs "' + escapeHtml(otherLabel) + '"</div><div class="stat-value ' + cls + '">' + sign + money(Math.abs(delta)) + ' <span class="stat-sub">(' + sign + fmt(Math.abs(deltaPct)) + "%)</span></div></div>";
         }
         els.summarySection.hidden = false;
         els.summarySection.innerHTML = html;
@@ -1006,16 +1109,18 @@
         if (!els.quoteTabs) return;
         var html = appState.quotes.map(function(q, i) {
             var active = i === appState.activeIndex ? " active" : "";
-            var badge = q.isCurrent ? '<span class="tab-current-badge">Current</span>' : "";
+            var currentCls = q.isCurrent ? " current" : "";
+            var currentTitle = q.isCurrent ? "Current subscription (click to unmark)" : "Mark as the customer's current subscription";
+            var star = '<span class="tab-current-toggle' + currentCls + '" data-index="' + i + '" title="' + currentTitle + '">' + (q.isCurrent ? "★" : "☆") + "</span>";
+            var duplicate = '<span class="tab-duplicate" data-index="' + i + '" title="Duplicate this quote">⧉</span>';
             var remove = appState.quotes.length > 1 ? '<span class="tab-remove" data-index="' + i + '" aria-label="Remove quote" title="Remove this quote">✕</span>' : "";
-            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '" title="Double-click to rename this quote">' + escapeHtml(quoteDisplayName(q)) + badge + remove + "</button>";
+            return '<button type="button" class="quote-tab' + active + '" data-index="' + i + '" title="Double-click to rename this quote">' + star + escapeHtml(quoteDisplayName(q)) + duplicate + remove + "</button>";
         }).join("");
         els.quoteTabs.innerHTML = '<div class="quote-tab-track">' + html + '</div><button type="button" id="newQuoteBtn" class="quote-tab-add" title="Start a new quote to compare against this one">+ New quote</button>';
     }
 
-    // Lets the user pick exactly two quotes to compare (checkboxes disable once two are picked) and,
-    // for each picked quote, mark it as the current subscription - the ARR delta baseline the other
-    // picked quote is measured against.
+    // Lets the user pick exactly two quotes to compare (checkboxes disable once two are picked).
+    // Marking a quote as the current subscription is a separate action (the ★ on its tab).
     function renderComparePanel() {
         if (!els.comparePanel) return;
         els.comparePanel.hidden = !appState.compare.enabled;
@@ -1025,24 +1130,24 @@
             var picked = ids.indexOf(q.id) !== -1;
             var checkedAttr = picked ? " checked" : "";
             var disabledAttr = (!picked && ids.length >= 2) ? " disabled" : "";
-            var currentControl = picked ?
-                '<label class="compare-current-radio" title="Use this quote as the baseline the other one is compared against"><input type="radio" name="compareCurrent" value="' + q.id + '"' + (q.isCurrent ? " checked" : "") + '>Current subscription</label>' : "";
+            var label = escapeHtml(quoteDisplayName(q)) + (q.isCurrent ? " (current subscription)" : "");
             return '<div class="compare-row">' +
-                '<label class="compare-check" title="Pick this quote to compare (max 2)"><input type="checkbox" class="compare-pick" value="' + q.id + '"' + checkedAttr + disabledAttr + '>' + escapeHtml(quoteDisplayName(q)) + "</label>" +
-                currentControl +
+                '<label class="compare-check" title="Pick this quote to compare (max 2)"><input type="checkbox" class="compare-pick" value="' + q.id + '"' + checkedAttr + disabledAttr + ">" + label + "</label>" +
                 "</div>";
         }).join("");
     }
 
     // Lets the user estimate a prorated value for the whole quote (its Total Invoice Value) between
     // two dates - e.g. a mid-cycle upgrade, downgrade, or cancellation - using the fraction of the
-    // chosen billing cycle that falls between the change date and the end date. This is scoped to
-    // the overall quote rather than one line item, so there's no per-item picker.
+    // quote's own billing cycle that falls between the change date and the end date. This is scoped
+    // to the overall quote rather than one line item, so there's no per-item picker, and the cycle
+    // always matches the quote's Billing Cycle setting rather than being chosen separately here.
     function renderProrationPanel() {
         if (!els.prorationPanel) return;
         els.prorationPanel.hidden = !appState.proration.enabled;
         if (!appState.proration.enabled) return;
-        els.prorationCycleSelect.value = appState.proration.billingCycle;
+        var cycleLabel = BILLING_CYCLE_LABELS[activeQuote().billingCycle] || "Annual";
+        els.prorationTitle.textContent = "Estimate a prorated value for this quote (billed " + cycleLabel + ") between two dates";
         els.prorationChangeDate.value = appState.proration.changeDate;
         els.prorationEndDate.value = appState.proration.endDate;
         renderProrationResult();
@@ -1066,7 +1171,7 @@
             return;
         }
         var totalInvoiceValue = totalsForQuote(activeQuote(), plans).totalInvoiceValue;
-        var cycle = appState.proration.billingCycle || "annual";
+        var cycle = activeQuote().billingCycle || "annual";
         // A flat 30-day month, matching the same month-count model the rest of the app already uses
         // for billing cycles (annual = 12x monthly, quarterly = 3x, etc.) rather than mixing in
         // calendar-accurate month lengths.
@@ -1087,6 +1192,7 @@
         var quote = activeQuote();
         els.productName.textContent = getProductName();
         renderTabs();
+        els.billingCycleSelect.value = quote.billingCycle;
         els.compareCheckbox.checked = appState.compare.enabled;
         renderComparePanel();
         els.prorationCheckbox.checked = appState.proration.enabled;
@@ -1118,9 +1224,9 @@
         } else {
             var rowsHtml = [];
             quote.items.filter(function(it) { return it.kind === "plan"; }).forEach(function(planItem) {
-                rowsHtml.push(renderPlanRow(planItem, plans, isReseller));
+                rowsHtml.push(renderPlanRow(planItem, quote, plans, isReseller));
                 quote.items.filter(function(it) { return it.kind === "addon" && it.parentItemId === planItem.id; }).forEach(function(addonItem) {
-                    rowsHtml.push(renderAddonRow(addonItem, plans, isReseller));
+                    rowsHtml.push(renderAddonRow(addonItem, quote, plans, isReseller));
                 });
                 rowsHtml.push(renderAddAddonRow(planItem, plans, isReseller));
             });
@@ -1144,22 +1250,11 @@
             '<td class="num cell-partner">' + money(row.partnerCost) + "</td>";
     }
 
-    // Always a live dropdown - billing cycle isn't locked to whatever was active on the page when
-    // the item was added, the user can change it (and the unit price / invoice value update).
-    function cadenceControlHtml(item) {
-        var options = ["annual", "monthly", "quarterly", "halfyearly"].map(function(c) {
-            var selected = (item.billingCycle || "monthly") === c ? " selected" : "";
-            return '<option value="' + c + '"' + selected + ">" + BILLING_CYCLE_LABELS[c] + "</option>";
-        }).join("");
-        return '<select class="billing-cycle-select" aria-label="Billing cycle" title="Change how this line item is invoiced">' + options + "</select>";
-    }
-
-    function renderPlanRow(item, plans, isReseller) {
+    function renderPlanRow(item, quote, plans, isReseller) {
         var plan = plans[item.planIndex];
-        var row = computeRow(item, plans);
+        var row = computeRow(item, quote, plans);
         return '<tr data-item-id="' + item.id + '">' +
-            '<td><div class="item-name">' + escapeHtml(getProductName()) + " — " + escapeHtml(plan.planName) + "</div>" +
-            cadenceControlHtml(item) + "</td>" +
+            '<td><div class="item-name">' + escapeHtml(getProductName()) + " — " + escapeHtml(plan.planName) + "</div></td>" +
             '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '" title="Number of licenses"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
             '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '" title="Discount percentage for this line"></td>' +
@@ -1169,11 +1264,10 @@
             "</tr>";
     }
 
-    function renderAddonRow(item, plans, isReseller) {
-        var row = computeRow(item, plans);
+    function renderAddonRow(item, quote, plans, isReseller) {
+        var row = computeRow(item, quote, plans);
         return '<tr data-item-id="' + item.id + '" class="addon-row">' +
-            '<td><div class="item-name">' + escapeHtml(item.name) + "</div>" +
-            cadenceControlHtml(item) + "</td>" +
+            '<td><div class="item-name">' + escapeHtml(item.name) + "</div></td>" +
             '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '" title="Number of licenses"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
             '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '" title="Discount percentage for this line"></td>' +
