@@ -52,6 +52,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.3 - September 7, 2026
+- Fixed "Email quote" once more: v2.5.2's fix routed the mailto: link through the background worker, but still navigated the current Freshworks tab to it, which funneled the request through that page's own document/router first - showing up as a failed network request for the mailto: URL instead of ever reaching the OS's mail handler. It now always opens the mailto: link in a brand-new tab instead, with no existing page in the way
+
 v2.5.2 - September 7, 2026
 - Fixed "Email quote" still not opening the mail app: a content script isn't allowed to drive top-level navigation to a mailto: link as reliably as a normal page script can, so the link now gets handed to the extension's background service worker (via chrome.tabs.update), which opens it without that restriction
 

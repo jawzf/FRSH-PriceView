@@ -77,16 +77,17 @@ function sendOpenQuoteMessage(tabId, source) {
 // drive top-level navigation to a non-http(s) scheme than it is for a page's own script - a content
 // script setting location.href (or window.open, or a synthetic <a> click) to a mailto: URL can
 // silently no-op. The background service worker has no such restriction, so content.js asks it to
-// open the link on its behalf; updating the sender's own tab (rather than opening a new one) mirrors
-// what a normal in-page mailto: link click would do - the tab's page doesn't actually change, Chrome
-// just hands the URL off to the OS's registered mail handler.
-chrome.runtime.onMessage.addListener(function(message, sender) {
+// open the link on its behalf. This always opens a *new* tab rather than reusing/updating the
+// sender's own tab: navigating the existing Freshworks tab away funnels the request through that
+// page's own document/service-worker/router first, and a mailto: URL can't be fetched or resolved
+// by any of that - which is exactly the kind of failed request a page inspector would show up as a
+// failed XHR/fetch for that URL. A brand-new tab has none of that page context in the way, so Chrome
+// can recognize the scheme and hand it straight to the OS's registered mail handler. Chrome closes
+// (or never actually opens) the placeholder tab once the handoff happens; if a blank tab is ever
+// left behind, it's harmless and just needs a manual close.
+chrome.runtime.onMessage.addListener(function(message) {
     if (!message || message.type !== "FRSH_OPEN_MAILTO" || !message.url) return;
-    if (sender.tab && sender.tab.id != null) {
-        chrome.tabs.update(sender.tab.id, { url: message.url });
-    } else {
-        chrome.tabs.create({ url: message.url });
-    }
+    chrome.tabs.create({ url: message.url });
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {

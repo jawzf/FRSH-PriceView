@@ -994,7 +994,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.2</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.3</span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1162,6 +1162,16 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.3 &mdash; Email quote: stop navigating the current tab</span>
+                        <span class="changelog-date">September 7, 2026</span>
+                    </div>
+                    <ul>
+                        <li>Fixed "Email quote" once more: v2.5.2's fix routed the mailto: link through the background worker, but still navigated the current Freshworks tab to it, which funneled the request through that page's own document/router first - showing up as a failed network request for the mailto: URL instead of ever reaching the OS's mail handler. It now always opens the mailto: link in a brand-new tab instead, with no existing page in the way</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.2 &mdash; Email quote fixed for real</span>
                         <span class="changelog-date">September 7, 2026</span>
