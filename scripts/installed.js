@@ -64,4 +64,37 @@
 
     renderDots();
     if (!hasSeenThisVersion()) overlay.hidden = false;
+
+    // Floating "Share on Slack" button: copy a ready-made message to the clipboard,
+    // then open Slack so the user can paste it into whichever channel/DM they pick.
+    var shareBtn = document.getElementById("shareSlackBtn");
+    var toast = document.getElementById("floatToast");
+    var toastTimer = null;
+    var SHARE_MESSAGE = "Check out FRSH PriceView, a Chrome extension for building and comparing Freshworks pricing quotes — install it from the Chrome Web Store: https://chromewebstore.google.com/detail/frsh-priceview/bbmimfdmijoaefhmobocdllhhdpjnkoc";
+
+    function showToast(text) {
+        if (!toast) return;
+        toast.textContent = text;
+        toast.classList.add("visible");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove("visible"); }, 3000);
+    }
+
+    if (shareBtn) {
+        shareBtn.addEventListener("click", function () {
+            function openSlack() { window.open("https://app.slack.com/client", "_blank", "noopener"); }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(SHARE_MESSAGE).then(function () {
+                    showToast("Message copied — paste it into Slack");
+                    openSlack();
+                }, function () {
+                    showToast("Couldn't copy — opening Slack anyway");
+                    openSlack();
+                });
+            } else {
+                showToast("Couldn't copy — opening Slack anyway");
+                openSlack();
+            }
+        });
+    }
 })();

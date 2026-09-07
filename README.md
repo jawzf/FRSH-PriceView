@@ -52,6 +52,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.4 - September 7, 2026
+- Replaced the single "Contact support" button on the installed page with two floating buttons that follow you down the page: "Get help" (email) and "DM on Slack"
+- Added a glowing "Share on Slack" floating button that copies a ready-made install message and opens Slack so you can paste it into any channel or DM
+
 v2.5.3 - September 7, 2026
 - Fixed "Email quote" once more: v2.5.2's fix routed the mailto: link through the background worker, but still navigated the current Freshworks tab to it, which funneled the request through that page's own document/router first - showing up as a failed network request for the mailto: URL instead of ever reaching the OS's mail handler. It now always opens the mailto: link in a brand-new tab instead, with no existing page in the way
 
