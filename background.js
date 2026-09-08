@@ -6,13 +6,13 @@ chrome.runtime.onInstalled.addListener((details) => {
         text: "FRSH",
     });
     setupContextMenus();
-    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    // The "?whatsnew=1" flag tells installed.html this open came from a genuine install/update,
+    // so it's the only time the What's New modal auto-opens - opening the page any other way
+    // (the "About" context menu item, a bookmark, the GitHub link) never triggers it.
+    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL ||
+        details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         chrome.tabs.create({
-            url: "./installed.html"
-        });
-    } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
-        chrome.tabs.create({
-            url: "./installed.html"
+            url: "./installed.html?whatsnew=1"
         });
     }
 });

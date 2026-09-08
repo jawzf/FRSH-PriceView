@@ -1189,7 +1189,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; v2.5.5</span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; <span id="installedVersion">v2.5.6</span></span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1353,6 +1353,17 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.6 &mdash; What's New now tied to real updates</span>
+                        <span class="changelog-date">September 8, 2026</span>
+                    </div>
+                    <ul>
+                        <li>The "What's new" modal is now tied to the extension's actual installed version instead of a separately-maintained constant, so it reliably reopens on every real update</li>
+                        <li>It only auto-opens when the page is opened by a genuine install/update - opening installed.html any other way (the "About" context menu item, a bookmark, the GitHub link) never triggers it</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.5 &mdash; Share on Slack opens a copy-and-share modal</span>
                         <span class="changelog-date">September 7, 2026</span>

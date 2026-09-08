@@ -1,10 +1,16 @@
 (function () {
     "use strict";
 
-    // Bumped alongside the extension version so a genuine update shows this again,
-    // but reopening this page (e.g. from the GitHub link) after dismissing it doesn't.
-    var WHATS_NEW_VERSION = "2.4.2";
+    // Tied to the extension's actual installed version (not a separately-maintained constant)
+    // so a genuine update always shows this again, but reopening this page (e.g. from the
+    // GitHub link) after dismissing it doesn't.
+    var WHATS_NEW_VERSION = (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getManifest)
+        ? chrome.runtime.getManifest().version
+        : document.getElementById("installedVersion").textContent.replace(/^v/, "");
     var STORAGE_KEY = "frshWhatsNewSeen";
+
+    var versionEl = document.getElementById("installedVersion");
+    if (versionEl) versionEl.textContent = "v" + WHATS_NEW_VERSION;
 
     var overlay = document.getElementById("wnOverlay");
     var track = document.getElementById("wnTrack");
@@ -62,8 +68,17 @@
         });
     });
 
+    // Only auto-open the modal when this page was opened by the background worker's own
+    // install/update handler (marked with ?whatsnew=1) - opening installed.html any other way
+    // (the "About" context menu item, a bookmark, the GitHub link) never triggers it, even if
+    // this version has never been marked as seen.
+    var isUpdateTriggered = /(?:^|[?&])whatsnew=1(?:&|$)/.test(location.search);
+    if (isUpdateTriggered) {
+        history.replaceState(null, "", location.pathname + location.hash);
+    }
+
     renderDots();
-    if (!hasSeenThisVersion()) overlay.hidden = false;
+    if (isUpdateTriggered && !hasSeenThisVersion()) overlay.hidden = false;
 
     // Floating "Share on Slack" button opens a modal with the message in a text area,
     // so the user can copy it and pick their own channel/DM in Slack to paste it into.

@@ -52,6 +52,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.6 - September 8, 2026
+- The "What's new" modal is now tied to the extension's actual installed version instead of a separately-maintained constant, so it reliably reopens on every real update
+- It only auto-opens when the page is opened by a genuine install/update - opening installed.html any other way (the "About" context menu item, a bookmark, the GitHub link) never triggers it
+
 v2.5.5 - September 7, 2026
 - "Share on Slack" now opens a modal with the install message in a text box, a "Copy to clipboard" button, and an "Open Slack" button, instead of copying silently in the background
 
