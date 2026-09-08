@@ -1,0 +1,15 @@
+{
+    "name": "frsh-priceview",
+    "private": true,
+    "version": "2.5.6",
+    "description": "Build tooling for packaging FRSH PriceView per browser store.",
+    "scripts": {
+        "build": "node build/build.js",
+        "build:chrome": "node build/build.js chrome",
+        "build:edge": "node build/build.js edge",
+        "build:firefox": "node build/build.js firefox"
+    },
+    "devDependencies": {
+        "web-ext": "^8.3.0"
+    }
+}

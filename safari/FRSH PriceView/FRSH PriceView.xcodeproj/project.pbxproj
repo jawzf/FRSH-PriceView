@@ -1,0 +1,613 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7AA36675304FA2860085D9F9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA36674304FA2860085D9F9 /* AppDelegate.swift */; };
+		7AA36679304FA2860085D9F9 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 7AA36677304FA2860085D9F9 /* Main.html */; };
+		7AA3667B304FA2860085D9F9 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AA3667A304FA2860085D9F9 /* Icon.png */; };
+		7AA3667D304FA2860085D9F9 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 7AA3667C304FA2860085D9F9 /* Style.css */; };
+		7AA3667F304FA2860085D9F9 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 7AA3667E304FA2860085D9F9 /* Script.js */; };
+		7AA36681304FA2860085D9F9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA36680304FA2860085D9F9 /* ViewController.swift */; };
+		7AA36684304FA2860085D9F9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7AA36682304FA2860085D9F9 /* Main.storyboard */; };
+		7AA36686304FA2870085D9F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AA36685304FA2870085D9F9 /* Assets.xcassets */; };
+		7AA3668D304FA2870085D9F9 /* FRSH PriceView Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7AA3668C304FA2870085D9F9 /* FRSH PriceView Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7AA36692304FA2870085D9F9 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA36691304FA2870085D9F9 /* SafariWebExtensionHandler.swift */; };
+		7AA366A3304FA2870085D9F9 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 7AA3669E304FA2870085D9F9 /* background.js */; };
+		7AA366A4304FA2870085D9F9 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 7AA3669F304FA2870085D9F9 /* images */; };
+		7AA366A5304FA2870085D9F9 /* installed.html in Resources */ = {isa = PBXBuildFile; fileRef = 7AA366A0304FA2870085D9F9 /* installed.html */; };
+		7AA366A6304FA2870085D9F9 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 7AA366A1304FA2870085D9F9 /* scripts */; };
+		7AA366A7304FA2870085D9F9 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 7AA366A2304FA2870085D9F9 /* manifest.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7AA3668E304FA2870085D9F9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7AA36669304FA2860085D9F9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7AA3668B304FA2870085D9F9;
+			remoteInfo = "FRSH PriceView Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7AA36699304FA2870085D9F9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7AA3668D304FA2870085D9F9 /* FRSH PriceView Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		7AA36671304FA2860085D9F9 /* FRSH PriceView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FRSH PriceView.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7AA36674304FA2860085D9F9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		7AA36678304FA2860085D9F9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		7AA3667A304FA2860085D9F9 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		7AA3667C304FA2860085D9F9 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		7AA3667E304FA2860085D9F9 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		7AA36680304FA2860085D9F9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		7AA36683304FA2860085D9F9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		7AA36685304FA2870085D9F9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7AA36687304FA2870085D9F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7AA3668C304FA2870085D9F9 /* FRSH PriceView Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "FRSH PriceView Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7AA36691304FA2870085D9F9 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		7AA36693304FA2870085D9F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7AA3669E304FA2870085D9F9 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		7AA3669F304FA2870085D9F9 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
+		7AA366A0304FA2870085D9F9 /* installed.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = installed.html; path = Resources/installed.html; sourceTree = "<group>"; };
+		7AA366A1304FA2870085D9F9 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = Resources/scripts; sourceTree = "<group>"; };
+		7AA366A2304FA2870085D9F9 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7AA3666E304FA2860085D9F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7AA36689304FA2870085D9F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7AA36668304FA2860085D9F9 = {
+			isa = PBXGroup;
+			children = (
+				7AA36673304FA2860085D9F9 /* FRSH PriceView */,
+				7AA36690304FA2870085D9F9 /* FRSH PriceView Extension */,
+				7AA36672304FA2860085D9F9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7AA36672304FA2860085D9F9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7AA36671304FA2860085D9F9 /* FRSH PriceView.app */,
+				7AA3668C304FA2870085D9F9 /* FRSH PriceView Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7AA36673304FA2860085D9F9 /* FRSH PriceView */ = {
+			isa = PBXGroup;
+			children = (
+				7AA36674304FA2860085D9F9 /* AppDelegate.swift */,
+				7AA36680304FA2860085D9F9 /* ViewController.swift */,
+				7AA36682304FA2860085D9F9 /* Main.storyboard */,
+				7AA36685304FA2870085D9F9 /* Assets.xcassets */,
+				7AA36687304FA2870085D9F9 /* Info.plist */,
+				7AA36676304FA2860085D9F9 /* Resources */,
+			);
+			path = "FRSH PriceView";
+			sourceTree = "<group>";
+		};
+		7AA36676304FA2860085D9F9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7AA36677304FA2860085D9F9 /* Main.html */,
+				7AA3667A304FA2860085D9F9 /* Icon.png */,
+				7AA3667C304FA2860085D9F9 /* Style.css */,
+				7AA3667E304FA2860085D9F9 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		7AA36690304FA2870085D9F9 /* FRSH PriceView Extension */ = {
+			isa = PBXGroup;
+			children = (
+				7AA3669D304FA2870085D9F9 /* Resources */,
+				7AA36691304FA2870085D9F9 /* SafariWebExtensionHandler.swift */,
+				7AA36693304FA2870085D9F9 /* Info.plist */,
+			);
+			path = "FRSH PriceView Extension";
+			sourceTree = "<group>";
+		};
+		7AA3669D304FA2870085D9F9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7AA3669E304FA2870085D9F9 /* background.js */,
+				7AA3669F304FA2870085D9F9 /* images */,
+				7AA366A0304FA2870085D9F9 /* installed.html */,
+				7AA366A1304FA2870085D9F9 /* scripts */,
+				7AA366A2304FA2870085D9F9 /* manifest.json */,
+			);
+			name = Resources;
+			path = "FRSH PriceView Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7AA36670304FA2860085D9F9 /* FRSH PriceView */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7AA3669A304FA2870085D9F9 /* Build configuration list for PBXNativeTarget "FRSH PriceView" */;
+			buildPhases = (
+				7AA3666D304FA2860085D9F9 /* Sources */,
+				7AA3666E304FA2860085D9F9 /* Frameworks */,
+				7AA3666F304FA2860085D9F9 /* Resources */,
+				7AA36699304FA2870085D9F9 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7AA3668F304FA2870085D9F9 /* PBXTargetDependency */,
+			);
+			name = "FRSH PriceView";
+			packageProductDependencies = (
+			);
+			productName = "FRSH PriceView";
+			productReference = 7AA36671304FA2860085D9F9 /* FRSH PriceView.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7AA3668B304FA2870085D9F9 /* FRSH PriceView Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7AA36696304FA2870085D9F9 /* Build configuration list for PBXNativeTarget "FRSH PriceView Extension" */;
+			buildPhases = (
+				7AA36688304FA2870085D9F9 /* Sources */,
+				7AA36689304FA2870085D9F9 /* Frameworks */,
+				7AA3668A304FA2870085D9F9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "FRSH PriceView Extension";
+			packageProductDependencies = (
+			);
+			productName = "FRSH PriceView Extension";
+			productReference = 7AA3668C304FA2870085D9F9 /* FRSH PriceView Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7AA36669304FA2860085D9F9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					7AA36670304FA2860085D9F9 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					7AA3668B304FA2870085D9F9 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+				};
+			};
+			buildConfigurationList = 7AA3666C304FA2860085D9F9 /* Build configuration list for PBXProject "FRSH PriceView" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7AA36668304FA2860085D9F9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7AA36672304FA2860085D9F9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7AA36670304FA2860085D9F9 /* FRSH PriceView */,
+				7AA3668B304FA2870085D9F9 /* FRSH PriceView Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7AA3666F304FA2860085D9F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AA3667B304FA2860085D9F9 /* Icon.png in Resources */,
+				7AA36684304FA2860085D9F9 /* Main.storyboard in Resources */,
+				7AA3667F304FA2860085D9F9 /* Script.js in Resources */,
+				7AA36679304FA2860085D9F9 /* Main.html in Resources */,
+				7AA36686304FA2870085D9F9 /* Assets.xcassets in Resources */,
+				7AA3667D304FA2860085D9F9 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7AA3668A304FA2870085D9F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AA366A4304FA2870085D9F9 /* images in Resources */,
+				7AA366A3304FA2870085D9F9 /* background.js in Resources */,
+				7AA366A7304FA2870085D9F9 /* manifest.json in Resources */,
+				7AA366A5304FA2870085D9F9 /* installed.html in Resources */,
+				7AA366A6304FA2870085D9F9 /* scripts in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7AA3666D304FA2860085D9F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AA36681304FA2860085D9F9 /* ViewController.swift in Sources */,
+				7AA36675304FA2860085D9F9 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7AA36688304FA2870085D9F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AA36692304FA2870085D9F9 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7AA3668F304FA2870085D9F9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7AA3668B304FA2870085D9F9 /* FRSH PriceView Extension */;
+			targetProxy = 7AA3668E304FA2870085D9F9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		7AA36677304FA2860085D9F9 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7AA36678304FA2860085D9F9 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		7AA36682304FA2860085D9F9 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7AA36683304FA2860085D9F9 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7AA36694304FA2870085D9F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7AA36695304FA2870085D9F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		7AA36697304FA2870085D9F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FRSH PriceView Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "FRSH PriceView Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 2.5.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshworks.frshpriceview.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7AA36698304FA2870085D9F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FRSH PriceView Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "FRSH PriceView Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 2.5.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshworks.frshpriceview.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		7AA3669B304FA2870085D9F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FRSH PriceView/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "FRSH PriceView";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 2.5.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshworks.frshpriceview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7AA3669C304FA2870085D9F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FRSH PriceView/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "FRSH PriceView";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 2.5.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshworks.frshpriceview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7AA3666C304FA2860085D9F9 /* Build configuration list for PBXProject "FRSH PriceView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7AA36694304FA2870085D9F9 /* Debug */,
+				7AA36695304FA2870085D9F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7AA36696304FA2870085D9F9 /* Build configuration list for PBXNativeTarget "FRSH PriceView Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7AA36697304FA2870085D9F9 /* Debug */,
+				7AA36698304FA2870085D9F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7AA3669A304FA2870085D9F9 /* Build configuration list for PBXNativeTarget "FRSH PriceView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7AA3669B304FA2870085D9F9 /* Debug */,
+				7AA3669C304FA2870085D9F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7AA36669304FA2860085D9F9 /* Project object */;
+}
