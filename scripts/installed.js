@@ -54,6 +54,11 @@
     document.getElementById("wnNext").addEventListener("click", function () { goTo(index + 1); });
     document.getElementById("wnCloseBtn").addEventListener("click", closeModal);
     document.getElementById("wnGotItBtn").addEventListener("click", closeModal);
+    document.getElementById("wnReadMoreBtn").addEventListener("click", function () {
+        closeModal();
+        var changelog = document.getElementById("changelog");
+        if (changelog) changelog.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     overlay.addEventListener("mousedown", function (e) { if (e.target === overlay) closeModal(); });
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && !overlay.hidden) closeModal();

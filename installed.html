@@ -356,6 +356,11 @@
         .thumb-cxex span:last-child { background: var(--brand-blue); }
         .thumb-cxex .thumb-cxex-label { font-size: 10px; font-weight: 700; color: var(--text-muted); }
 
+        .thumb-plan-switch { display: flex; align-items: center; gap: 4px; }
+        .thumb-plan-switch span.pill { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
+        .thumb-plan-switch span.pill.active { background: var(--brand-blue); color: #fff; border-color: var(--brand-blue); }
+        .thumb-plan-switch .thumb-arrow { color: var(--text-muted); font-size: 11px; }
+
         .card {
             background: var(--bg-elevated);
             border: 1px solid var(--border);
@@ -991,6 +996,61 @@
             color: var(--brand-blue);
         }
 
+        /* Slide 0 (latest release) mockup: plan switch */
+        .wn-plan-switch-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .wn-plan-pill {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .wn-plan-pill.highlighted {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 1px var(--brand-blue) inset;
+            color: var(--brand-blue);
+        }
+
+        .wn-plan-pill-caret {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .wn-plan-switch-arrow {
+            color: var(--text-muted);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .wn-readmore-btn {
+            display: inline-block;
+            margin-top: 12px;
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--brand-blue);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .wn-readmore-btn:hover {
+            text-decoration: underline;
+        }
+
         /* Slide 3 mockup: CX / EX coverage */
         .wn-cxex-mockup {
             display: flex;
@@ -1103,6 +1163,21 @@
                     <div class="wn-slide">
                         <div class="wn-shot">
                             <div class="wn-browser-dots"><span></span><span></span><span></span></div>
+                            <div class="wn-plan-switch-row">
+                                <span class="wn-plan-pill">Growth <span class="wn-plan-pill-caret">&#9662;</span></span>
+                                <span class="wn-plan-switch-arrow">&rarr;</span>
+                                <span class="wn-plan-pill highlighted">Pro <span class="wn-plan-pill-caret">&#9662;</span></span>
+                            </div>
+                            <div class="wn-quote-row"><span>Licenses</span><span>20</span></div>
+                            <div class="wn-quote-row"><span>Discount</span><span>50%</span></div>
+                        </div>
+                        <h3>Move a line item to a different plan, in place</h3>
+                        <p>Switch any plan line to a different tier without deleting and re-adding it &mdash; licenses, discount, and margin all carry over automatically.</p>
+                        <button type="button" class="wn-readmore-btn" id="wnReadMoreBtn">Read the full changelog &rarr;</button>
+                    </div>
+                    <div class="wn-slide">
+                        <div class="wn-shot">
+                            <div class="wn-browser-dots"><span></span><span></span><span></span></div>
                             <div class="wn-quote-row"><span>Billing Cycle</span><span>Quarterly</span></div>
                             <div class="wn-quote-row"><span>Change &rarr; End Date</span><span>Jan 1 &rarr; Feb 15</span></div>
                             <div class="wn-proration-result">
@@ -1189,7 +1264,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; <span id="installedVersion">v2.5.7</span></span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; <span id="installedVersion">v2.5.8</span></span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1252,6 +1327,16 @@
             <div class="feature-strip">
                 <div class="feature-card" data-slide="0" title="Open the What's new tour on this feature">
                     <div class="feature-thumb">
+                        <div class="thumb-plan-switch">
+                            <span class="pill">Growth</span>
+                            <span class="thumb-arrow">&rarr;</span>
+                            <span class="pill active">Pro</span>
+                        </div>
+                    </div>
+                    <div class="feature-label">Change a line item's plan in place</div>
+                </div>
+                <div class="feature-card" data-slide="1" title="Open the What's new tour on this feature">
+                    <div class="feature-thumb">
                         <div class="thumb-proration">
                             <div class="thumb-bar"></div>
                             <div class="thumb-result">$534.00</div>
@@ -1259,7 +1344,7 @@
                     </div>
                     <div class="feature-label">Estimate prorated charges</div>
                 </div>
-                <div class="feature-card" data-slide="1" title="Open the What's new tour on this feature">
+                <div class="feature-card" data-slide="2" title="Open the What's new tour on this feature">
                     <div class="feature-thumb">
                         <div class="thumb-cards">
                             <span style="height:18px;"></span>
@@ -1269,7 +1354,7 @@
                     </div>
                     <div class="feature-label">Built from the ground up</div>
                 </div>
-                <div class="feature-card" data-slide="2" title="Open the What's new tour on this feature">
+                <div class="feature-card" data-slide="3" title="Open the What's new tour on this feature">
                     <div class="feature-thumb">
                         <div class="thumb-tabs">
                             <span class="active">Q1</span>
@@ -1278,7 +1363,7 @@
                     </div>
                     <div class="feature-label">Compare multiple quotes</div>
                 </div>
-                <div class="feature-card" data-slide="3" title="Open the What's new tour on this feature">
+                <div class="feature-card" data-slide="4" title="Open the What's new tour on this feature">
                     <div class="feature-thumb">
                         <div class="thumb-cxex">
                             <span></span>
@@ -1348,11 +1433,21 @@
             </div>
         </section>
 
-        <section>
+        <section id="changelog">
             <h2>Changelog</h2>
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.8 &mdash; What's New now leads with the latest change</span>
+                        <span class="changelog-date">September 10, 2026</span>
+                    </div>
+                    <ul>
+                        <li>The "What's new" tour now opens on a dedicated slide for the most recent release, with a "Read the full changelog" link that jumps straight to this changelog</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.7 &mdash; Move a line item to a different plan in place</span>
                         <span class="changelog-date">September 10, 2026</span>

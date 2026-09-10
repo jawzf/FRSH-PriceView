@@ -1,7 +1,7 @@
 {
     "name": "frsh-priceview",
     "private": true,
-    "version": "2.5.7",
+    "version": "2.5.8",
     "description": "Build tooling for packaging FRSH PriceView per browser store.",
     "scripts": {
         "build": "node build/build.js",

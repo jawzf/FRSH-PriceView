@@ -52,6 +52,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.8 - September 10, 2026
+- The "What's new" tour now opens on a dedicated slide for the most recent release, with a "Read the full changelog" link that jumps straight to this changelog
+
 v2.5.7 - September 10, 2026
 - Each plan line item's name is now a dropdown - switch it to any other plan on the page without deleting and re-adding the line. Licenses, discount, and partner margin all carry over unchanged
 - Any already-added addon that isn't valid for the new plan is dropped automatically, since the addon list is plan-specific
