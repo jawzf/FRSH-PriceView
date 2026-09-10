@@ -475,6 +475,7 @@
         '  td { padding: 10px 8px; border-bottom: 1px solid #f0efe8; vertical-align: top; }',
         '  td.num, th.num { text-align: right; }',
         '  .item-name { font-weight: 600; }',
+        '  .item-name .plan-select { font-weight: 600; min-width: 150px; max-width: 240px; }',
         '  .item-badge { display: inline-block; margin-top: 3px; font-size: 11px; font-weight: 600; color: #63625a; background: #f0efe8; border-radius: 999px; padding: 2px 8px; }',
         '  .addon-row .item-name { font-weight: 500; padding-left: 18px; position: relative; }',
         '  .addon-row .item-name::before { content: "\\2514"; position: absolute; left: 0; color: #a9a89e; }',
@@ -815,6 +816,29 @@
             if (partnerCell) partnerCell.textContent = money(computed.partnerCost);
             updateTotalInvoiceValue(plans);
             renderSummary();
+        });
+
+        // Switching a line item's plan keeps its licenses, discount, and margin as-is - only the
+        // plan reference changes. Any already-added addon that isn't valid for the new plan is
+        // dropped, since the addon list itself is plan-specific.
+        els.tbody.addEventListener("change", function(e) {
+            if (!e.target.matches(".plan-select")) return;
+            var row = e.target.closest("tr[data-item-id]");
+            if (!row) return;
+            var id = Number(row.getAttribute("data-item-id"));
+            var item = activeQuote().items.filter(function(it) { return it.id === id; })[0];
+            if (!item) return;
+            var plans = getPlans();
+            var newPlan = plans && plans[Number(e.target.value)];
+            if (!newPlan) return;
+            item.planIndex = Number(e.target.value);
+            item.planName = newPlan.planName;
+            var validAddonNames = {};
+            planAddons(newPlan).forEach(function(a) { validAddonNames[a.name] = true; });
+            activeQuote().items = activeQuote().items.filter(function(it) {
+                return it.parentItemId !== item.id || validAddonNames[it.name];
+            });
+            render();
         });
 
         els.tbody.addEventListener("click", function(e) {
@@ -1281,10 +1305,14 @@
     }
 
     function renderPlanRow(item, quote, plans, isReseller) {
-        var plan = plans[item.planIndex];
         var row = computeRow(item, quote, plans);
+        var planOptions = plans.map(function(p, idx) {
+            return '<option value="' + idx + '"' + (idx === item.planIndex ? " selected" : "") + ">" + escapeHtml(p.planName) + "</option>";
+        }).join("");
         return '<tr data-item-id="' + item.id + '">' +
-            '<td><div class="item-name">' + escapeHtml(getProductName()) + " — " + escapeHtml(plan.planName) + "</div></td>" +
+            '<td><div class="item-name">' + escapeHtml(getProductName()) + " — " +
+            '<select class="plan-select" title="Move this line item to a different plan, keeping its licenses and discount">' + planOptions + "</select>" +
+            "</div></td>" +
             '<td class="num"><input type="number" class="qty-input" min="0" step="1" value="' + item.qty + '" title="Number of licenses"></td>' +
             '<td class="num cell-unit">' + money(row.cadenceUnitPrice) + "</td>" +
             '<td class="num"><input type="number" class="discount-input" min="0" max="100" step="1" value="' + item.discountPct + '" title="Discount percentage for this line"></td>' +

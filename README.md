@@ -35,7 +35,7 @@ When viewing the price of addons which are dependent on an option you choose, pl
 Generate Quote
 Right-click any price on a supported pricing page (or right-click the extension icon itself) and choose "Generate Quote" to open a quote builder:
 - The clicked plan and license cost are added as the first line item (right-clicking anywhere in a plan's card - the price, a feature bullet, the CTA button - resolves to that same plan). Each quote has one Billing Cycle (Annual / Monthly / Quarterly / Half-yearly) shared by every line in it - a subscription can't be billed on two cadences at once. Unit Price always shows the flat per-month rate; Invoice Value shows what that line actually bills for the quote's cycle (e.g. 3x the monthly rate for Quarterly) - the line's ARR is unaffected either way. Set the number of licenses and a discount % too.
-- Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally.
+- Use "+ Add addon" to add any addon that's actually valid for that plan (pulled from the pricing page's own JSON, including addons like Freddy AI Copilot that live in the plan summary rather than the feature list), and "+ Add plan" to quote multiple plans/products from the same page - including Custom/"Contact us" plans, which still carry a real list price internally. Each line's plan name is a dropdown - switch a line to a different plan without deleting and re-adding it; licenses and discount carry over, and any addon no longer valid for the new plan is dropped automatically.
 - Toggle "Direct Customer" / "Reseller Customer" per quote. In Reseller mode, each line gets a Partner Margin % and a computed Partner Cost (annual cost minus that margin).
 - A summary panel shows the quote's Total ARR and total discount applied (amount and blended %). For a non-USD currency, an "ARR in USD" field appears next to Total ARR with the equivalent value, converted at a fixed reference rate (EUR 1.1739, GBP 1.3438, AUD 0.6679, INR 0.0111 - not live rates).
 - Build multiple quotes side by side with the quote tabs, styled like the site's own category pill selector (double-click a tab to rename it, e.g. "Direct" vs "Reseller"; deleting a quote renumbers the default "Quote N" names of the ones after it). Click the ⧉ icon on a tab to duplicate that quote - billing cycle, customer type, and every line item included.
@@ -52,6 +52,10 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.7 - September 10, 2026
+- Each plan line item's name is now a dropdown - switch it to any other plan on the page without deleting and re-adding the line. Licenses, discount, and partner margin all carry over unchanged
+- Any already-added addon that isn't valid for the new plan is dropped automatically, since the addon list is plan-specific
+
 v2.5.6 - September 8, 2026
 - The "What's new" modal is now tied to the extension's actual installed version instead of a separately-maintained constant, so it reliably reopens on every real update
 - It only auto-opens when the page is opened by a genuine install/update - opening installed.html any other way (the "About" context menu item, a bookmark, the GitHub link) never triggers it
