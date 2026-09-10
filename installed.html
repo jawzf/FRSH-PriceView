@@ -1051,6 +1051,26 @@
             text-decoration: underline;
         }
 
+        .wn-latest-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+            padding: 3px 10px 3px 8px;
+            border-radius: 999px;
+            background: var(--brand-blue);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .wn-latest-badge::before {
+            content: "\25B2";
+            font-size: 8px;
+        }
+
         /* Slide 3 mockup: CX / EX coverage */
         .wn-cxex-mockup {
             display: flex;
@@ -1171,6 +1191,7 @@
                             <div class="wn-quote-row"><span>Licenses</span><span>20</span></div>
                             <div class="wn-quote-row"><span>Discount</span><span>50%</span></div>
                         </div>
+                        <span class="wn-latest-badge" id="wnLatestBadge">Latest release</span>
                         <h3>Move a line item to a different plan, in place</h3>
                         <p>Switch any plan line to a different tier without deleting and re-adding it &mdash; licenses, discount, and margin all carry over automatically.</p>
                         <button type="button" class="wn-readmore-btn" id="wnReadMoreBtn">Read the full changelog &rarr;</button>
@@ -1264,7 +1285,7 @@
                 <h1>FRSH PriceView</h1>
                 <p class="tagline">See prices the way <em>your customers</em> do.</p>
                 <div class="hero-meta">
-                    <span class="pill"><span class="pill-dot"></span>Installed &middot; <span id="installedVersion">v2.5.8</span></span>
+                    <span class="pill"><span class="pill-dot"></span>Installed &middot; <span id="installedVersion">v2.5.9</span></span>
                     <span class="pill">by Joe Kuriackal</span>
                 </div>
             </div>
@@ -1438,6 +1459,16 @@
             <div class="card">
 
                 <div class="changelog-entry latest">
+                    <div class="changelog-head">
+                        <span class="changelog-version">v2.5.9 &mdash; A version badge on the latest-change slide</span>
+                        <span class="changelog-date">September 10, 2026</span>
+                    </div>
+                    <ul>
+                        <li>The tour's first slide now carries a "Latest &middot; vX.X.X" badge, so it's clearly a changelog callout rather than one of the evergreen feature slides after it</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-entry">
                     <div class="changelog-head">
                         <span class="changelog-version">v2.5.8 &mdash; What's New now leads with the latest change</span>
                         <span class="changelog-date">September 10, 2026</span>

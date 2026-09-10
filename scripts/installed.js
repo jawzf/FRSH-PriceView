@@ -12,6 +12,12 @@
     var versionEl = document.getElementById("installedVersion");
     if (versionEl) versionEl.textContent = "v" + WHATS_NEW_VERSION;
 
+    // Flags the tour's first slide as the changelog entry for this exact release (as opposed to
+    // the evergreen feature slides after it), so it's read from the live version rather than
+    // hand-typed - a hardcoded badge would silently go stale the same way WHATS_NEW_VERSION once did.
+    var latestBadgeEl = document.getElementById("wnLatestBadge");
+    if (latestBadgeEl) latestBadgeEl.textContent = "Latest · v" + WHATS_NEW_VERSION;
+
     var overlay = document.getElementById("wnOverlay");
     var track = document.getElementById("wnTrack");
     var dotsEl = document.getElementById("wnDots");

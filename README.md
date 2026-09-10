@@ -52,6 +52,9 @@ Support:
 joseph.kuriackal@freshworks.com
 
 Changelog:
+v2.5.9 - September 10, 2026
+- The tour's first slide now carries a "Latest · vX.X.X" badge, so it's clearly a changelog callout rather than one of the evergreen feature slides after it
+
 v2.5.8 - September 10, 2026
 - The "What's new" tour now opens on a dedicated slide for the most recent release, with a "Read the full changelog" link that jumps straight to this changelog
 
